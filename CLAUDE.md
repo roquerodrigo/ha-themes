@@ -35,8 +35,9 @@ uv run pytest
 ```
 
 Changes to themes or the support module also need `scripts/ha-themes build --strict` and a
-look in the browser (`scripts/ha-themes preview`). Browser sessions hand the dev instance
-back with the last tested theme selected and dark mode on automatic.
+look in the browser (`scripts/ha-themes preview`). Browser sessions keep the themes they apply
+inside their own page, so sessions can run side by side, and hand the dev instance back with
+the last tested theme selected and dark mode on automatic.
 
 ## Bumping the Home Assistant version
 

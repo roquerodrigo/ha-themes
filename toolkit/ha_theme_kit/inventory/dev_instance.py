@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from playwright.sync_api import Page, sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+from ha_theme_kit.inventory.local_theme_selection import LocalThemeSelection
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CREDENTIALS_FILE = PROJECT_ROOT / "dev" / "credentials.env"
@@ -68,11 +71,18 @@ class DevInstance:
 
 @contextmanager
 def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
-    """Yield a logged-in page of the installed Google Chrome, using an isolated profile."""
+    """Yield a logged-in page of the installed Google Chrome, using an isolated profile.
+
+    Themes applied with `open_with_theme` stay inside the page; on exit the last tested theme
+    is saved to the user's profile with dark mode on automatic, for manual testing.
+    """
     tokens = json.dumps(instance.login())
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="chrome")
         page = browser.new_page(viewport={"width": width, "height": height})
+        local_selection = LocalThemeSelection()
+        local_selection.attach(page)
+        LOCAL_SELECTIONS[id(page)] = local_selection
         page.goto(f"{instance.url}/onboarding.html")
         page.evaluate(
             """tokens => {
@@ -84,14 +94,20 @@ def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
         try:
             yield page
         finally:
-            _leave_in_automatic_mode(page, instance)
+            _leave_in_automatic_mode(page, instance, LOCAL_SELECTIONS.pop(id(page)))
             browser.close()
 
 
-TESTED_THEMES: dict[int, str] = {}
+LOCAL_SELECTIONS: dict[int, LocalThemeSelection] = {}
 SELECTION_SCRIPT = """({ theme, dark }) => document.querySelector("home-assistant").dispatchEvent(
     new CustomEvent("settheme", { detail: { theme, dark: dark ?? undefined } })
 )"""
+APPLIED_SELECTION_SCRIPT = """({ theme, dark }) => {
+    const hass = document.querySelector("home-assistant")?.hass;
+    return (hass?.selectedTheme?.theme || "default") === theme
+        && hass.themes?.theme === theme
+        && hass.themes?.darkMode === dark;
+}"""
 
 
 def _wait_for_app(page: Page) -> None:
@@ -103,16 +119,19 @@ def _wait_for_app(page: Page) -> None:
     )
 
 
-def _leave_in_automatic_mode(page: Page, instance: DevInstance) -> None:
-    """Hand the instance back for manual testing: the last tested theme, dark mode on auto.
-
-    The selection is saved to the user's profile on the server, so whatever a capture
-    applied last would otherwise stick for the next person who opens the instance.
-    """
+def _leave_in_automatic_mode(
+    page: Page, instance: DevInstance, local_selection: LocalThemeSelection
+) -> None:
+    tested_theme = (local_selection.selection or {}).get("theme")
+    local_selection.persist = True
     page.goto(f"{instance.url}/lovelace/0", wait_until="domcontentloaded")
     _wait_for_app(page)
-    theme = TESTED_THEMES.pop(id(page), None) or page.evaluate(
-        "() => document.querySelector('home-assistant').hass.selectedTheme?.theme || 'default'"
+    theme = (
+        tested_theme
+        if tested_theme not in (None, "default")
+        else page.evaluate(
+            "() => document.querySelector('home-assistant').hass.selectedTheme?.theme || 'default'"
+        )
     )
     page.evaluate(SELECTION_SCRIPT, {"theme": theme, "dark": None})
     page.evaluate(
@@ -122,15 +141,24 @@ def _leave_in_automatic_mode(page: Page, instance: DevInstance) -> None:
 
 
 def open_with_theme(page: Page, url: str, theme: str, dark: bool, settle_ms: int = 4000) -> None:
-    """The frontend restores the selection from server-side user data after boot, overriding
-    localStorage, so the theme is also applied through the app's own `settheme` event."""
+    """Load `url` with the theme and mode applied from boot, and fail if the app shows another."""
+    selection = {"theme": theme, "dark": dark}
+    LOCAL_SELECTIONS[id(page)].selection = selection
     page.evaluate(
         "selection => localStorage.setItem('selectedTheme', JSON.stringify(selection))",
-        {"theme": theme, "dark": dark},
+        selection,
     )
     page.goto(url, wait_until="domcontentloaded")
     _wait_for_app(page)
-    page.evaluate(SELECTION_SCRIPT, {"theme": theme, "dark": dark})
-    if theme != "default":
-        TESTED_THEMES[id(page)] = theme
+    try:
+        page.wait_for_function(APPLIED_SELECTION_SCRIPT, arg=selection, timeout=10000)
+    except PlaywrightTimeoutError as error:
+        applied = page.evaluate(
+            """() => {
+                const hass = document.querySelector("home-assistant").hass;
+                return { selected: hass.selectedTheme, themes: hass.themes?.theme,
+                         dark: hass.themes?.darkMode };
+            }"""
+        )
+        raise RuntimeError(f"{url} did not apply {selection}: {applied}") from error
     page.wait_for_timeout(settle_ms)
