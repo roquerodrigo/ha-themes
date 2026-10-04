@@ -11,6 +11,10 @@ support module raises the elements that read `card-background-color` from a vari
 their own host, out of a theme's reach: dropdown menus take `ha-themes-menu-background`, the
 integration page's entry lists take `ha-card-background`, and the energy totals table, the one
 data table nested inside a card, is cleared so the card shows through.
+
+`primary` and `text_on_primary` drive both the legacy pair (`primary-color` under
+`text-primary-color`, also drawn on `accent-color`) and the loud fills of buttons and FABs,
+so every filled primary element in a mode shows the same text color.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
@@ -25,8 +29,13 @@ ROLE_TOKENS: dict[str, tuple[str, ...]] = {
     "text": ("primary-text-color", "ha-color-text-primary"),
     "text_secondary": ("secondary-text-color", "ha-color-text-secondary"),
     "text_disabled": ("disabled-text-color", "ha-color-text-disabled"),
-    "text_on_primary": ("text-primary-color",),
-    "primary": ("primary-color",),
+    "text_on_primary": ("text-primary-color", "ha-color-on-primary-loud"),
+    "primary": (
+        "primary-color",
+        "ha-color-fill-primary-loud-resting",
+        "ha-color-fill-primary-loud-active",
+    ),
+    "primary_hover": ("ha-color-fill-primary-loud-hover",),
     "primary_light": ("light-primary-color",),
     "primary_dark": ("dark-primary-color",),
     "primary_darker": ("darker-primary-color",),
@@ -63,6 +72,7 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "text_disabled": "{neutral.70}",
         "text_on_primary": "#ffffff",
         "primary": "{primary.40}",
+        "primary_hover": "{primary.30}",
         "primary_light": "{primary.80}",
         "primary_dark": "{primary.30}",
         "primary_darker": "{primary.20}",
@@ -89,6 +99,7 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "text_disabled": "{neutral.40}",
         "text_on_primary": "#ffffff",
         "primary": "{primary.50}",
+        "primary_hover": "{primary.60}",
         "primary_light": "{primary.30}",
         "primary_dark": "{primary.60}",
         "primary_darker": "{primary.70}",
@@ -199,7 +210,9 @@ CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text", "surface", 4.5),
     ("text", "menu_background", 4.5),
     ("text_secondary", "surface", 4.5),
-    ("text_on_primary", "primary", 3.0),
+    ("text_on_primary", "primary", 4.5),
+    ("text_on_primary", "primary_hover", 4.5),
+    ("text_on_primary", "accent", 4.5),
     ("link", "surface", 4.5),
     ("primary", "surface", 3.0),
     ("error", "surface", 3.0),

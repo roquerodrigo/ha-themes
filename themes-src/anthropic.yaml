@@ -56,6 +56,8 @@ roles:
     surface: "#ffffff"
     text: "{neutral.05}"
     text_secondary: "{neutral.40}"
+    text_on_primary: "{neutral.05}"
+    primary_hover: "{primary.50}"
     link: "{primary.30}"
     accent: "{primary.50}"
     error: "{red.50}"
