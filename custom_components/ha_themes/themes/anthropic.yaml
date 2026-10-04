@@ -83,6 +83,7 @@
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
   modes:
     light:
+      ha-themes-toast-action-color: "#d97757"
       wa-form-control-padding-inline: "var(--ha-space-3)"
       ha-color-on-warning-loud: "#141413"
       ha-color-fill-warning-loud-resting: "#eebd84"
@@ -209,7 +210,7 @@
       divider-color: "rgba(20, 20, 19, 0.12)"
       outline-color: "rgba(20, 20, 19, 0.12)"
       error-color: "#bf4d43"
-      warning-color: "#d08b2c"
+      warning-color: "#a26200"
       success-color: "#55683b"
       info-color: "#4472a0"
       state-icon-color: "#4472a0"
@@ -243,6 +244,7 @@
       ha-color-on-success-normal: "#46562e"
       ha-color-on-success-quiet: "#55683b"
     dark:
+      ha-themes-toast-text-color: "#ffffff"
       ha-color-fill-neutral-quiet-active: "#2a2928"
       ha-color-surface-lower-inverted: "#e8e6dc"
       ha-color-border-primary-normal: "#d97757"
@@ -376,7 +378,7 @@
       accent-color: "#d97757"
       divider-color: "rgba(232, 230, 220, 0.12)"
       outline-color: "rgba(232, 230, 220, 0.12)"
-      error-color: "#d67368"
+      error-color: "#eb988d"
       warning-color: "#dfa45c"
       success-color: "#94a57d"
       info-color: "#88b1dc"
@@ -490,6 +492,7 @@
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
   modes:
     light:
+      ha-themes-toast-action-color: "#d97757"
       wa-form-control-padding-inline: "var(--ha-space-3)"
       ha-color-on-warning-loud: "#141413"
       ha-color-fill-warning-loud-resting: "#eebd84"
@@ -616,7 +619,7 @@
       divider-color: "rgba(20, 20, 19, 0.12)"
       outline-color: "rgba(20, 20, 19, 0.12)"
       error-color: "#bf4d43"
-      warning-color: "#d08b2c"
+      warning-color: "#a26200"
       success-color: "#55683b"
       info-color: "#4472a0"
       state-icon-color: "#4472a0"
@@ -650,6 +653,7 @@
       ha-color-on-success-normal: "#46562e"
       ha-color-on-success-quiet: "#55683b"
     dark:
+      ha-themes-toast-text-color: "#ffffff"
       ha-color-fill-neutral-quiet-active: "#2a2928"
       ha-color-surface-lower-inverted: "#e8e6dc"
       ha-color-border-primary-normal: "#d97757"
@@ -783,7 +787,7 @@
       accent-color: "#d97757"
       divider-color: "rgba(232, 230, 220, 0.12)"
       outline-color: "rgba(232, 230, 220, 0.12)"
-      error-color: "#d67368"
+      error-color: "#eb988d"
       warning-color: "#dfa45c"
       success-color: "#94a57d"
       info-color: "#88b1dc"
