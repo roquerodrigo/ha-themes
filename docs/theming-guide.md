@@ -197,13 +197,22 @@ their only edge, focus and error indicator. The labels field (`ha-labels-picker`
 input (`ha-base-time-input`, one input per unit joined into a strip) draw the same line as a
 border. No theme variable reaches any of it.
 
-The support module adopts a stylesheet into those components that outlines the field and hides
-the line while a theme sets the switch `ha-themes-field-outline` to `1`. The outline takes
-`ha-themes-field-border-color` and `ha-themes-field-border-radius` (the builder sets
-`ha-color-border-neutral-quiet` and `ha-border-radius-md`), turns `primary-color` on focus and
+The support module adopts a stylesheet into those components that outlines the field, hides
+the line and clears the fill while a theme sets the switch `ha-themes-field-outline` to `1`.
+The outline takes `ha-themes-field-border-color` and `ha-themes-field-border-radius` (the
+builder sets `ha-color-border-neutral-quiet` and `ha-border-radius-md`), steps to
+`ha-color-border-neutral-normal` on hover, turns `primary-color` on focus and
 `ha-color-border-danger-normal` on an invalid value, and fades to half on a disabled input or
 text area; disabled selects already dim as a whole. The time input outlines the whole strip
-instead of each unit. Fields in the `outlined` appearance (the search fields) keep their own
+instead of each unit.
+
+The fields paint their resting, hover and disabled fills from `ha-color-form-background`,
+`-hover` and `-disabled` (the labels field from `mdc-text-field-fill-color`), and selects tint
+on hover with their ripple. Checkboxes share the hover fill, so the themes keep the tokens and
+the stylesheet clears them only inside the fields: the host keeps the inherited value and the
+field element redefines the token from it, mixed with `transparent` by the switch. Every state
+then shows the page, card or dialog behind the field, and field text sits on the same
+`background` and `surface` the contrast checks measure it against. Fields in the `outlined` appearance (the search fields) keep their own
 outline. Without the switch every rule resolves to the stock look, so other themes are
 unaffected; a theme opts out with `field_outline: false`.
 

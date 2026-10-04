@@ -202,8 +202,8 @@ FIELD_OUTLINE: dict[str, str] = {
     "ha-themes-field-border-radius": "var(--ha-border-radius-md)",
 }
 """Filled text fields, selects and pickers mark their edge with a bottom line. The support
-module outlines them instead, takes the focus and error colors over to the outline and hides
-the line."""
+module outlines them instead, takes the focus and error colors over to the outline, hides the
+line and clears the fill."""
 
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
