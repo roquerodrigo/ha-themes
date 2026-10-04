@@ -44,7 +44,7 @@ def test_strict_build_writes_nothing_when_validation_fails(
 ) -> None:
     written: list[str] = []
     monkeypatch.setattr(
-        validation, "validate_theme", lambda *_: ValidationReport(["--bogus"], [], [])
+        validation, "validate_theme", lambda *_: ValidationReport(["--bogus"], [], [], [], [])
     )
     monkeypatch.setattr(writer, "write_theme_family", lambda *_: written.append("theme"))
     monkeypatch.setattr(writer, "write_support_module", lambda *_: written.append("module"))
