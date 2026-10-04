@@ -5,6 +5,7 @@ from ha_theme_kit.color.vision import check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.chart_palette import (
     CHART_COLOR_COUNT,
+    FRONTEND_SERIES,
     ChartSettings,
     build_chart_colors,
     suggest_series_orders,
@@ -45,6 +46,12 @@ def test_named_hue_defaults_match_the_captured_frontend() -> None:
     catalog = TokenCatalog.load()
     for name, default in FRONTEND_NAMED_HUES.items():
         assert expand_short_hex(catalog.find(f"{name}-color").light) == default
+
+
+def test_series_defaults_match_the_captured_frontend() -> None:
+    catalog = TokenCatalog.load()
+    captured = [catalog.find(f"color-{slot}").light for slot in range(1, len(FRONTEND_SERIES) + 1)]
+    assert captured == list(FRONTEND_SERIES)
 
 
 def test_vision_checks_reproduce_reference_measurements() -> None:

@@ -291,7 +291,7 @@ Both gates must stay green:
   so the choice is recorded here: `ha_themes` ships `service` because its single
   config entry represents a frontend service rather than a device or a hub.
 - `hacs.json` at the repo root pins the minimum HA core via the
-  `homeassistant` key. This is the third HA pin (see `CLAUDE.md`).
+  `homeassistant` key. This is one of the four HA pins (see `CLAUDE.md`).
 - `hacs.json` takes an optional `country` key — one ISO 3166-1 alpha-2 code or
   a list of them (`"country": ["BR"]`). A HACS user who sets a country in the
   HACS options stops seeing repositories tagged for other countries, while
