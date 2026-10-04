@@ -458,6 +458,27 @@ def test_brand_icons_follow_the_primary_role() -> None:
         assert tokens["ha-themes-brand-icon-color"] == tokens["primary-color"]
 
 
+def test_entity_icons_follow_the_primary_role_unless_a_theme_sets_them() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"state_icon": "#6a9bcc"}}))
+
+    assert theme.modes["light"]["state-icon-color"] == theme.modes["light"]["primary-color"]
+    assert theme.modes["dark"]["state-icon-color"] == "#6a9bcc"
+
+
+def test_validation_checks_entity_icons_on_the_page_and_the_card() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"state_icon": "#d1cfc5"}}))
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.background_role)
+        for result in report.contrast
+        if result.foreground_role == "state_icon" and not result.passes
+    }
+    assert failing == {("light", "background"), ("light", "surface")}
+    assert not report.ok
+
+
 def test_loud_primary_fills_follow_the_primary_roles() -> None:
     theme = build_theme(
         minimal_definition(

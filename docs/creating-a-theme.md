@@ -36,6 +36,11 @@ Every theme built here follows these defaults, so a new theme gets them for free
 - **Generic integration icons in the primary color.** The flat blue icons of core
   integrations without a logo follow the theme's `primary` role (see
   [the guide](theming-guide.md#integration-icons)); set the `brand_icon` role to change it.
+- **Entity icons in the primary color.** Icons of entities without a state color (sensors,
+  diagnostic and configuration rows, device pages, more-info, tiles and their features) take
+  `state-icon-color`, which follows the `primary` role instead of the frontend's steel blue
+  and is checked at 3:1 on the page and the card surface; set the `state_icon` role to
+  change it. Entities with a state color (lights on, locks, alarms) keep it.
 - **A system-ui variant.** Each definition produces two themes in the same file:
   `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
   UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download:
@@ -170,7 +175,7 @@ Anywhere a color is expected you can write `{family.step}` or `{family.step@alph
 
 ```yaml
 divider: "{neutral.05@0.12}"   # → rgba(20, 20, 19, 0.12)
-state_icon: "{primary.30}"     # → #9c4a2e
+syntax_keyword: "{primary.30}" # → #9c4a2e
 ```
 
 Family names are lowercase letters joined by hyphens (`light-blue`), steps are the two-digit
@@ -196,7 +201,7 @@ section and value named.
 | `accent` | `accent-color` | `{orange.60}` | `{orange.60}` |
 | `divider` | `divider-color`, `outline-color` | `{neutral.05@0.12}` | `{neutral.90@0.12}` |
 | `error` / `warning` / `success` / `info` | `*-color` (also drawn as text: log levels, error messages) | `red.40` / `orange.40` / `green.40` / `primary.40` | `red.70` / `orange.60` / `green.60` / `primary.60` |
-| `state_icon` | `state-icon-color` | `{primary.30}` | `{primary.60}` |
+| `state_icon` | `state-icon-color` (entity icons without a state color: entity rows, device pages, more-info, tiles and card features) | `primary` | `primary` |
 | `scrollbar` | `scrollbar-thumb-color`, and through it `slider-track-color` | `{neutral.70}` | `{neutral.60}` |
 | `shadow` | `shadow-color` | `rgba(0, 0, 0, 0.16)` | `rgba(0, 0, 0, 0.48)` |
 | `input_fill` | `input-fill-color` | `{neutral.95}` | `{neutral.90@0.05}` |
