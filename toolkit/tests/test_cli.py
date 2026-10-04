@@ -107,3 +107,20 @@ def test_form_separation_failures_are_printed(capsys: pytest.CaptureFixture[str]
     assert "form background on surface 1.03:1 (min 1.2)" in output
     assert "ha-color-form-background and surface are ΔE 0.4 apart (min 2.0)" in output
     assert "ha-color-surface-low #141413 is darker than the background #262624" in output
+
+
+def test_build_reports_pairs_it_cannot_evaluate(
+    theme_sources: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = yaml.safe_load((theme_sources / "chartless.yaml").read_text())
+    document["roles"]["light"]["text"] = "white"
+    (theme_sources / "chartless.yaml").write_text(yaml.safe_dump(document))
+    monkeypatch.setattr(writer, "write_theme_family", lambda *_: pytest.fail("wrote a theme"))
+
+    arguments = argparse.Namespace(themes=[], strict=True, verbose=False)
+
+    assert cli.command_build(arguments) == 1
+    assert (
+        "✗ light text on background: not evaluable, a side does not resolve to a color the"
+        " checks can measure" in capsys.readouterr().out
+    )

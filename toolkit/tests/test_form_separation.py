@@ -79,11 +79,22 @@ def test_frontend_steps_under_a_raised_surface_fail() -> None:
     assert not validate_theme(theme, TokenCatalog.load()).ok
 
 
-def test_roles_that_are_not_plain_colors_are_skipped() -> None:
+def test_roles_given_as_variable_references_are_resolved() -> None:
     roles = {"dark": {**RAISED_DARK_ROLES["dark"], "surface": "var(--ha-color-neutral-20)"}}
     report = check_form_separation(
         build_theme(theme_with(roles=roles, backdrop_blur=False)), TokenCatalog.load()
     )
 
-    assert "surface" not in report.colors
+    assert report.colors["surface"] == "#363636"
+    assert report.form_contrast is not None
+
+
+def test_roles_that_do_not_resolve_fail() -> None:
+    roles = {"dark": {**RAISED_DARK_ROLES["dark"], "surface": "var(--missing)"}}
+    report = check_form_separation(
+        build_theme(theme_with(roles=roles, backdrop_blur=False)), TokenCatalog.load()
+    )
+
+    assert "surface" in report.unresolved
     assert report.form_contrast is None
+    assert not report.passes

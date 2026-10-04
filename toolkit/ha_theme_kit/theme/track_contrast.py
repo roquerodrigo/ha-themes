@@ -9,9 +9,11 @@ frontend's ratio.
 
 from dataclasses import dataclass
 
+from ha_theme_kit.color.css_color import contrast_on
 from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.inventory.catalog import TokenCatalog
-from ha_theme_kit.theme.token_colors import HEX_COLOR, resolve_token_color
+from ha_theme_kit.theme.mode_colors import ModeColors
+from ha_theme_kit.theme.token_colors import resolve_token_color
 
 TRACK_ROLE = "scrollbar"
 TRACK_TOKEN = "scrollbar-thumb-color"
@@ -25,27 +27,23 @@ back from the unset `ha-card-background` to `card-background-color`."""
 class TrackPair:
     mode: str
     backdrop_role: str
-    ratio: float
+    ratio: float | None
     minimum: float
 
     @property
     def passes(self) -> bool:
-        return self.ratio >= self.minimum
+        return self.ratio is not None and self.ratio >= self.minimum
 
 
-def measure_track_pairs(mode: str, roles: dict[str, str], catalog: TokenCatalog) -> list[TrackPair]:
-    track = roles.get(TRACK_ROLE)
-    if not _is_hex(track):
-        return []
+def measure_track_pairs(colors: ModeColors) -> list[TrackPair]:
     return [
         TrackPair(
-            mode,
+            colors.mode,
             backdrop_role,
-            round(contrast_ratio(track, backdrop), 2),
-            contrast_floor(backdrop_token, catalog, mode),
+            contrast_on(colors.role(TRACK_ROLE), colors.opaque_role(backdrop_role)),
+            contrast_floor(backdrop_token, colors.catalog, colors.mode),
         )
         for backdrop_role, backdrop_token in BACKDROP_TOKENS.items()
-        if _is_hex(backdrop := roles.get(backdrop_role))
     ]
 
 
@@ -56,7 +54,3 @@ def contrast_floor(backdrop_token: str, catalog: TokenCatalog, mode: str) -> flo
     if frontend_track is None or frontend_backdrop is None:
         return NON_TEXT_CONTRAST_FLOOR
     return min(NON_TEXT_CONTRAST_FLOOR, round(contrast_ratio(frontend_track, frontend_backdrop), 2))
-
-
-def _is_hex(value: str | None) -> bool:
-    return bool(value and HEX_COLOR.match(value))
