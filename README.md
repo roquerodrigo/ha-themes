@@ -61,9 +61,12 @@ The integration:
   shipped themes either — Home Assistant keeps only one theme per name, and which file wins
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
-  (Home Assistant hard-codes Roboto on the page body), loads web fonts and recolors the
-  generic integration icons. It is served under a content-hash URL, so browser and service
-  worker caches never keep an outdated copy;
+  (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
+  theme and recolors the generic integration icons. It is served under a content-hash URL,
+  so browser and service worker caches never keep an outdated copy;
+- requests fonts from Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) only while
+  a theme that declares them is active — globally, or on a view or card. The System UI
+  variants, the default theme and other themes make no font request;
 - raises a repair issue if the themes directory is not included in `configuration.yaml`, or
   with the error if Home Assistant refuses to reload the themes, and re-checks it on every
   theme reload, so fixing the configuration and reloading the themes clears it.

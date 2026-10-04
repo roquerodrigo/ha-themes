@@ -18,6 +18,7 @@ from ha_theme_kit.theme.roles import (
 )
 
 FONT_STYLESHEET_KEY = "stylesheet"
+FONT_STYLESHEET_TOKEN = "ha-themes-font-stylesheet"
 TYPOGRAPHY_TOKENS = {
     "body": "ha-font-family-body",
     "heading": "ha-font-family-heading",
@@ -61,6 +62,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
     base = resolver.core_tokens() | TYPOGRAPHY_BRIDGE
     for role, value in definition.typography.items():
         if role == FONT_STYLESHEET_KEY:
+            base[FONT_STYLESHEET_TOKEN] = _css_string(str(value))
             continue
         if role not in TYPOGRAPHY_TOKENS:
             raise ValueError(f"unknown typography role {role!r}")
@@ -97,6 +99,12 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         modes[mode] = tokens
 
     return BuiltTheme(definition, base, modes, resolved_roles, chart_series)
+
+
+def _css_string(value: str) -> str:
+    """A bare URL would end the custom property at its first `;`."""
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
 
 
 def _translucent_surfaces(roles: dict[str, str], mode: str) -> dict[str, str]:
