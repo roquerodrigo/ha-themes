@@ -34,6 +34,10 @@ uv run mypy
 uv run pytest
 ```
 
+The coverage gate measures only the integration, so a toolkit-only run needs
+`uv run pytest toolkit/tests --no-cov`. `toolkit/tests/test_generated_files.py` rebuilds
+the themes and the support module in memory and fails when the committed output is stale.
+
 Changes to themes or the support module also need `scripts/ha-themes build --strict` and a
 look in the browser (`scripts/ha-themes preview`). Browser sessions keep the themes they apply
 inside their own page, so sessions can run side by side, and hand the dev instance back with
