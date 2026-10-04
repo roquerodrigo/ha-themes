@@ -58,6 +58,12 @@ merging it tags `vX.Y.Z`, creates the GitHub release and attaches `ha_themes.zip
 contents of `custom_components/ha_themes/` that HACS installs (`zip_release` in `hacs.json`).
 `tests/test_release_packaging.py` keeps the asset name and the version files consistent.
 
+Versions follow the commit types in `CODE_STYLE.md` (Conventional commits): before 1.0.0
+`feat` bumps the minor version, `fix`, `perf`, `revert` and `deps` bump the patch version,
+and a breaking change bumps the minor version. `docs`, `refactor`, `deps-dev`, `build`,
+`ci`, `test`, `style` and `chore` are hidden from the changelog and do not cut a release
+by themselves. release-please creates `CHANGELOG.md` with the first release.
+
 The release workflow needs these one-time steps on GitHub before it can run:
 
 1. Create a fine-grained personal access token for this repository with **Contents** and

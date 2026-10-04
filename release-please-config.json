@@ -4,7 +4,6 @@
   "include-component-in-tag": false,
   "include-v-in-tag": true,
   "bump-minor-pre-major": true,
-  "bump-patch-for-minor-pre-major": true,
   "packages": {
     ".": {
       "package-name": "ha-themes",
@@ -44,7 +43,8 @@
         },
         {
           "type": "refactor",
-          "section": "Code Refactoring"
+          "section": "Code Refactoring",
+          "hidden": true
         },
         {
           "type": "deps",
@@ -52,31 +52,38 @@
         },
         {
           "type": "deps-dev",
-          "section": "Development Dependencies"
+          "section": "Development Dependencies",
+          "hidden": true
         },
         {
           "type": "docs",
-          "section": "Documentation"
+          "section": "Documentation",
+          "hidden": true
         },
         {
           "type": "build",
-          "section": "Build System"
+          "section": "Build System",
+          "hidden": true
         },
         {
           "type": "ci",
-          "section": "Continuous Integration"
+          "section": "Continuous Integration",
+          "hidden": true
         },
         {
           "type": "test",
-          "section": "Tests"
+          "section": "Tests",
+          "hidden": true
         },
         {
           "type": "style",
-          "section": "Styles"
+          "section": "Styles",
+          "hidden": true
         },
         {
           "type": "chore",
-          "section": "Miscellaneous Chores"
+          "section": "Miscellaneous Chores",
+          "hidden": true
         }
       ]
     }

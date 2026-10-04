@@ -308,8 +308,9 @@ Both gates must stay green:
 - A `README.md` at the repo root is required; HACS surfaces it as the
   integration description. Its header follows the layout below.
 
-Release-please tags releases on every merge to `main`; HACS surfaces the five
-most recent GitHub releases to users, so keep the changelog grep-able.
+Release-please keeps a release pull request open on `main` and tags a release
+only when that pull request is merged; HACS surfaces the five most recent GitHub
+releases to users, so keep the changelog grep-able.
 
 ## README header
 
@@ -378,21 +379,36 @@ the equivalent direct commands).
 All commits follow [Conventional Commits](https://www.conventionalcommits.org/),
 which `release-please` parses to bump the version and generate `CHANGELOG.md`:
 
-| Type | Meaning | Bump |
-|---|---|---|
-| `feat` | New feature | minor |
-| `fix` | Bug fix | patch |
-| `perf` | Performance improvement | patch |
-| `deps` | Dependency bump | patch |
-| `docs` | Documentation only | none |
-| `refactor` | Refactor without behavior change | none |
-| `test` | Test-only change | none |
-| `ci` | CI / tooling change | none |
-| `chore` | Anything else (rarely) | none |
+| Type | Meaning | Bump | Changelog |
+|---|---|---|---|
+| `feat` | New feature | minor | Features |
+| `fix` | Bug fix | patch | Bug Fixes |
+| `perf` | Performance improvement | patch | Performance Improvements |
+| `revert` | Revert of an earlier commit | patch | Reverts |
+| `deps` | Runtime dependency bump | patch | Dependencies |
+| `docs` | Documentation only | none | hidden |
+| `refactor` | Refactor without behavior change | none | hidden |
+| `deps-dev` | Development dependency bump | none | hidden |
+| `build` | Build system or packaging | none | hidden |
+| `ci` | CI / tooling change | none | hidden |
+| `test` | Test-only change | none | hidden |
+| `style` | Formatting only | none | hidden |
+| `chore` | Anything else (rarely) | none | hidden |
+
+Hidden types are marked `"hidden": true` in `changelog-sections`, so they stay out
+of the release notes and never open a release on their own; they ship with the next
+release a visible type triggers.
 
 - Subject line: imperative mood, lowercase, no trailing period.
 - Use scopes when useful: `fix(sensor): map non-enum interface values to None`.
 - A `BREAKING CHANGE:` footer (or `!` after type) bumps the major version.
+- Before 1.0.0 (`bump-minor-pre-major`), a breaking change bumps the minor
+  version instead of the major; `feat` still bumps the minor version and `fix`
+  the patch version. Reaching 1.0.0 is a deliberate release, not a side effect of
+  a commit.
+- `CHANGELOG.md` is created and maintained by release-please; do not seed or edit
+  it by hand. A hand-written file without a version heading makes release-please
+  demote its `# Changelog` title to a stray `## Changelog` at the end.
 
 ## Linting and verification
 
