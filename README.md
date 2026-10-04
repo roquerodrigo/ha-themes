@@ -55,7 +55,7 @@ icons in the primary color, and a system-ui variant.
 The integration:
 
 - installs the themes into `themes/ha_themes/` and reloads them — updates arrive with every
-  HACS update, and removing the integration removes the files. The integration owns that
+  HACS update, and deleting the integration entry removes the files ([Removal](#removal)). The integration owns that
   directory: any other file placed there is deleted (and logged) on the next install or
   reload, so keep your own themes elsewhere under `themes/`. Do not reuse the names of the
   shipped themes either — Home Assistant keeps only one theme per name, and which file wins
@@ -67,6 +67,20 @@ The integration:
 - raises a repair issue if the themes directory is not included in `configuration.yaml`, or
   with the error if Home Assistant refuses to reload the themes, and re-checks it on every
   theme reload, so fixing the configuration and reloading the themes clears it.
+
+## Removal
+
+Remove the integration in this order, so it can delete the files it installed:
+
+1. Go to **Settings → Devices & services → HA Themes** and delete the integration entry. This
+   deletes `themes/ha_themes/` and reloads the themes.
+2. Remove **HA Themes** in HACS and restart Home Assistant.
+
+If HA Themes was removed in HACS first, Home Assistant can no longer run its cleanup: the themes
+stay selectable but load without the support module (no web fonts, Roboto on the page body,
+integration icons in their default colors). To clean up manually, delete the leftover entry under
+**Settings → Devices & services**, delete the `themes/ha_themes/` directory and call the
+`frontend.reload_themes` action (or restart Home Assistant).
 
 ## Documentation
 
