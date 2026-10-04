@@ -188,6 +188,25 @@ literal the table does not know keeps its stock color; `toolkit/tests/test_icon_
 fails when the installed frontend uses one. The Home Assistant and Open Home Foundation logos
 on About are brand marks and are left alone.
 
+## Form fields
+
+Text inputs (`ha-input`), text areas (`ha-textarea`), selects and pickers (`ha-picker-field`,
+which `ha-select`, `ha-generic-picker` and the entity, area and other pickers render) draw a
+filled box with a bottom line from an `::after` rule inside their shadow roots, and that line is
+their only edge, focus and error indicator. The labels field (`ha-labels-picker`) and the time
+input (`ha-base-time-input`, one input per unit joined into a strip) draw the same line as a
+border. No theme variable reaches any of it.
+
+The support module adopts a stylesheet into those components that outlines the field and hides
+the line while a theme sets the switch `ha-themes-field-outline` to `1`. The outline takes
+`ha-themes-field-border-color` and `ha-themes-field-border-radius` (the builder sets
+`ha-color-border-neutral-quiet` and `ha-border-radius-md`), turns `primary-color` on focus and
+`ha-color-border-danger-normal` on an invalid value, and fades to half on a disabled input or
+text area; disabled selects already dim as a whole. The time input outlines the whole strip
+instead of each unit. Fields in the `outlined` appearance (the search fields) keep their own
+outline. Without the switch every rule resolves to the stock look, so other themes are
+unaffected; a theme opts out with `field_outline: false`.
+
 ## Backdrop blur
 
 Components expose `backdrop-filter` hooks, all unset (`none`) by default:

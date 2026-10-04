@@ -81,6 +81,9 @@
   ha-card-backdrop-filter: "blur(16px) saturate(140%)"
   ha-dialog-surface-backdrop-filter: "blur(24px) brightness(147%)"
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
+  ha-themes-field-outline: "1"
+  ha-themes-field-border-color: "var(--ha-color-border-neutral-quiet)"
+  ha-themes-field-border-radius: "var(--ha-border-radius-md)"
   modes:
     light:
       ha-themes-toast-action-color: "#d97757"
@@ -502,6 +505,9 @@
   ha-card-backdrop-filter: "blur(16px) saturate(140%)"
   ha-dialog-surface-backdrop-filter: "blur(24px) brightness(147%)"
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
+  ha-themes-field-outline: "1"
+  ha-themes-field-border-color: "var(--ha-color-border-neutral-quiet)"
+  ha-themes-field-border-radius: "var(--ha-border-radius-md)"
   modes:
     light:
       ha-themes-toast-action-color: "#d97757"

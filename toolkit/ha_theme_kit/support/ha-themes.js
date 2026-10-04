@@ -131,7 +131,118 @@ iconTileStyles.replaceSync(`
   }
 `);
 
+// Filled form fields mark their edge, focus and errors with a bottom line drawn by an ::after
+// rule. A theme that sets --ha-themes-field-outline to 1 outlines the whole field instead, and
+// the outline takes over the focus and error colors; at the default 0 every rule resolves to
+// the stock look.
+const FIELD_OUTLINE = "var(--ha-themes-field-outline, 0)";
+const FIELD_BORDER = `calc(${FIELD_OUTLINE} * 1px) solid var(--ha-themes-field-border-color, transparent)`;
+const FIELD_UNDERLINE_OPACITY = `calc(1 - ${FIELD_OUTLINE})`;
+const FIELD_FOCUS_BORDER_COLOR = "var(--primary-color)";
+const FIELD_INVALID_BORDER_COLOR = "var(--ha-color-border-danger-normal)";
+const FIELD_DISABLED_BORDER_COLOR =
+  "color-mix(in srgb, var(--ha-themes-field-border-color, transparent) 50%, transparent)";
+const fieldBorderRadius = (stockTop, stockBottom = "var(--ha-border-radius-square)") =>
+  `var(--ha-themes-field-border-radius, ${stockTop} ${stockTop} ${stockBottom} ${stockBottom})`;
+const STOCK_FIELD_RADIUS = fieldBorderRadius("var(--ha-border-radius-sm)");
+
+const inputFieldStyles = new CSSStyleSheet();
+inputFieldStyles.replaceSync(`
+  :host([appearance="material"]) wa-input::part(base) {
+    border: ${FIELD_BORDER};
+    border-radius: ${STOCK_FIELD_RADIUS};
+  }
+  :host([appearance="material"]) wa-input::part(base)::after {
+    opacity: ${FIELD_UNDERLINE_OPACITY};
+  }
+  :host([appearance="material"]:focus-within) wa-input::part(base) {
+    border-color: ${FIELD_FOCUS_BORDER_COLOR};
+  }
+  :host([appearance="material"]:focus-within) wa-input.invalid::part(base),
+  :host([appearance="material"]) wa-input.invalid:not([disabled])::part(base) {
+    border-color: ${FIELD_INVALID_BORDER_COLOR};
+  }
+  :host([appearance="material"]) wa-input:disabled::part(base) {
+    border-color: ${FIELD_DISABLED_BORDER_COLOR};
+  }
+`);
+
+const textareaFieldStyles = new CSSStyleSheet();
+textareaFieldStyles.replaceSync(`
+  :host wa-textarea::part(base) {
+    border: ${FIELD_BORDER};
+    border-radius: ${STOCK_FIELD_RADIUS};
+  }
+  wa-textarea::part(base)::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
+  :host(:focus-within) wa-textarea::part(base),
+  :host([focused]) wa-textarea::part(base) {
+    border-color: ${FIELD_FOCUS_BORDER_COLOR};
+  }
+  :host(:focus-within) wa-textarea.invalid::part(base),
+  wa-textarea.invalid:not([disabled])::part(base) {
+    border-color: ${FIELD_INVALID_BORDER_COLOR};
+  }
+  wa-textarea[disabled]::part(base) { border-color: ${FIELD_DISABLED_BORDER_COLOR}; }
+`);
+
+// Selects and pickers render their field as a list item, which dims itself when disabled.
+const pickerFieldStyles = new CSSStyleSheet();
+pickerFieldStyles.replaceSync(`
+  ha-combo-box-item {
+    border: ${FIELD_BORDER};
+    border-radius: ${fieldBorderRadius("var(--ha-border-radius-sm)", "0")};
+  }
+  ha-combo-box-item::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
+  ha-combo-box-item:focus,
+  :host(.opened) ha-combo-box-item {
+    border-color: ${FIELD_FOCUS_BORDER_COLOR};
+  }
+  :host([invalid]) ha-combo-box-item { border-color: ${FIELD_INVALID_BORDER_COLOR}; }
+`);
+
+const labelsFieldStyles = new CSSStyleSheet();
+labelsFieldStyles.replaceSync(`
+  ha-chip-set {
+    border: ${FIELD_BORDER};
+    border-bottom: 1px solid var(
+      --ha-themes-field-border-color, var(--ha-color-border-neutral-normal)
+    );
+    border-radius: ${fieldBorderRadius("var(--ha-border-radius-sm)", "0")};
+  }
+`);
+
+// A time input joins one input per unit, the separators and the clear button into one strip,
+// so the strip takes the outline and its inputs and separators drop their own edges.
+const STOCK_TIME_RADIUS = "var(--mdc-shape-small, var(--ha-border-radius-sm))";
+const FIELD_SEGMENT_RADIUS = `calc(var(--ha-border-radius-sm) * ${FIELD_UNDERLINE_OPACITY})`;
+const timeFieldStyles = new CSSStyleSheet();
+timeFieldStyles.replaceSync(`
+  .time-input-wrap {
+    border: ${FIELD_BORDER};
+    border-radius: ${fieldBorderRadius(STOCK_TIME_RADIUS)};
+  }
+  .time-input-wrap:focus-within { border-color: ${FIELD_FOCUS_BORDER_COLOR}; }
+  ha-input::part(wa-base) {
+    border-width: 0;
+    border-radius: ${FIELD_SEGMENT_RADIUS} ${FIELD_SEGMENT_RADIUS} var(--ha-border-radius-square)
+      var(--ha-border-radius-square);
+  }
+  .time-separator,
+  ha-icon-button {
+    border-bottom-color: color-mix(
+      in srgb,
+      var(--ha-color-border-neutral-loud) calc(${FIELD_UNDERLINE_OPACITY} * 100%),
+      transparent
+    );
+  }
+`);
+
 const hostStyles = new Map([
+  ["ha-input", inputFieldStyles],
+  ["ha-textarea", textareaFieldStyles],
+  ["ha-picker-field", pickerFieldStyles],
+  ["ha-labels-picker", labelsFieldStyles],
+  ["ha-base-time-input", timeFieldStyles],
   ["ha-config-navigation-list", iconTileStyles],
   ["ha-config-info", iconTileStyles],
   ["ha-picker-combo-box", iconTileStyles],

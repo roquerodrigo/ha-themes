@@ -196,6 +196,15 @@ ICON_TILE_HARMONY: dict[str, str] = {
 support module moves each tile to the entity color of the same hue by this share, and caps its
 OKLCH lightness so the white glyph keeps about 4:1 in both modes."""
 
+FIELD_OUTLINE: dict[str, str] = {
+    "ha-themes-field-outline": "1",
+    "ha-themes-field-border-color": "var(--ha-color-border-neutral-quiet)",
+    "ha-themes-field-border-radius": "var(--ha-border-radius-md)",
+}
+"""Filled text fields, selects and pickers mark their edge with a bottom line. The support
+module outlines them instead, takes the focus and error colors over to the outline and hides
+the line."""
+
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
 
