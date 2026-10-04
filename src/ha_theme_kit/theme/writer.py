@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -36,15 +37,34 @@ def write_theme_family(
     return path
 
 
-SUPPORT_MODULE = THEMES_DIRECTORY.parent / "www" / "ha-themes" / "ha-themes.js"
-SUPPORT_MODULE_SOURCE = Path(__file__).resolve().parents[1] / "support" / "ha-themes.js"
+SUPPORT_DIRECTORY = THEMES_DIRECTORY.parent / "www" / "ha-themes"
+SUPPORT_SOURCES = Path(__file__).resolve().parents[1] / "support"
+SUPPORT_LOADER = "ha-themes-loader.js"
+SUPPORT_MODULE = "ha-themes.js"
+SUPPORT_VERSION = "ha-themes.version.json"
 
 
-def write_support_module(themes: list[BuiltTheme], path: Path = SUPPORT_MODULE) -> Path:
+def write_support_module(
+    themes: list[BuiltTheme], directory: Path = SUPPORT_DIRECTORY
+) -> list[Path]:
     """Reaches what theme variables cannot: the hard-coded body font, web fonts, and the
-    flat generic integration icons, which are bitmaps in the frontend's default blue."""
+    flat generic integration icons, which are bitmaps in the frontend's default blue.
+
+    The module is registered through a loader that never changes and imports the build by
+    content hash, since Home Assistant serves /local with a long-lived cache.
+    """
     stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
-    source = SUPPORT_MODULE_SOURCE.read_text()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(source.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2)))
-    return path
+    module = (SUPPORT_SOURCES / SUPPORT_MODULE).read_text()
+    module = module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2))
+    directory.mkdir(parents=True, exist_ok=True)
+    outputs = {
+        directory / SUPPORT_LOADER: (SUPPORT_SOURCES / SUPPORT_LOADER).read_text(),
+        directory / SUPPORT_MODULE: module,
+        directory / SUPPORT_VERSION: json.dumps(
+            {"hash": hashlib.sha256(module.encode()).hexdigest()[:12]}
+        )
+        + "\n",
+    }
+    for path, content in outputs.items():
+        path.write_text(content)
+    return list(outputs)

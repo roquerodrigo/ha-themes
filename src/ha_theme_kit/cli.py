@@ -93,8 +93,8 @@ def command_build(arguments: argparse.Namespace) -> int:
         for source in _theme_sources([])
         for variant in theme_family(ThemeDefinition.load(source))
     ]
-    module = write_support_module(every_theme)
-    print(f"support module → {module.relative_to(PROJECT_ROOT)}")
+    for path in write_support_module(every_theme):
+        print(f"support module → {path.relative_to(PROJECT_ROOT)}")
     return 1 if failed and arguments.strict else 0
 
 

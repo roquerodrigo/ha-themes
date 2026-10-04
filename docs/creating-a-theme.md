@@ -199,14 +199,21 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
 
 1. Copy `themes/<slug>.yaml` into the Home Assistant `config/themes/` directory, with
    `frontend: themes: !include_dir_merge_named themes` in `configuration.yaml`.
-2. Copy `www/ha-themes/ha-themes.js` to `config/www/ha-themes/` and register it once for
-   all themes:
+2. Copy the contents of `www/ha-themes/` to `config/www/ha-themes/` and register the
+   loader once for all themes:
 
    ```yaml
    frontend:
      extra_module_url:
-       - /local/ha-themes/ha-themes.js
+       - /local/ha-themes/ha-themes-loader.js
    ```
+
+   Register the loader, not `ha-themes.js`. Two caches sit in front of `/local`: Home
+   Assistant serves it with a 31-day `Cache-Control`, and the frontend's service worker
+   answers it stale-while-revalidate. The loader never changes; it reads
+   `ha-themes.version.json` through a URL no cache has seen and imports the module by
+   content hash, so an update is picked up on the next page load. After updating, copy the
+   whole directory again.
 
    Without it, themes still work, but the sidebar, header and banners stay in Roboto, web
    fonts are not loaded and generic integration icons stay blue.
