@@ -169,6 +169,25 @@ pixel is that exact blue, so real logos — multicolored or monochrome in anothe
 never touched. The color comes from `--ha-themes-brand-icon-color`; a theme that does not
 set it (the default theme included) gets the original images back.
 
+## Settings icon tiles
+
+Settings, System, About and the search dialog draw each entry's icon on a round tile whose
+color is a literal in the frontend code (`#0D47A1`, `#F1C447`, `#B1345C`…), written inline,
+so no theme variable reaches it. On a warm theme these saturated, mostly cool tiles are the
+only shapes off the palette, and the white glyph on the yellow one is about 1.6:1.
+
+The support module adopts a stylesheet into the components that draw them (the settings
+navigation list, About, and the picker list of the search dialog) that matches each known
+literal by value and replaces it with the entity color of the same hue (`#0D47A1` takes
+`--indigo-color`, `#F1C447` `--amber-color`), so the tiles stay as distinct from one another as
+in stock Home Assistant while following the theme's entity palette. Every project theme sets
+`ha-themes-icon-tile-palette-share` (`100%`) and `ha-themes-icon-tile-max-lightness` (`0.6`,
+in OKLCH), which caps the tile so the white glyph keeps about 4:1 in both modes. Without
+those variables the rules reproduce the literal, so other themes see the stock tiles. A
+literal the table does not know keeps its stock color; `toolkit/tests/test_icon_tiles.py`
+fails when the installed frontend uses one. The Home Assistant and Open Home Foundation logos
+on About are brand marks and are left alone.
+
 ## Backdrop blur
 
 Components expose `backdrop-filter` hooks, all unset (`none`) by default:

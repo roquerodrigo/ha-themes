@@ -11,6 +11,7 @@ from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
     FLAT_ELEVATION,
+    ICON_TILE_HARMONY,
     OVERLAY_EDGE,
     ROLE_DEFAULTS,
     ROLE_FALLBACKS,
@@ -65,7 +66,7 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
 def _build(definition: ThemeDefinition) -> BuiltTheme:
     resolver = PaletteResolver(definition.palette)
 
-    base = resolver.core_tokens() | TYPOGRAPHY_BRIDGE
+    base = resolver.core_tokens() | TYPOGRAPHY_BRIDGE | ICON_TILE_HARMONY
     for role, value in definition.typography.items():
         if role == FONT_STYLESHEET_KEY:
             base[FONT_STYLESHEET_TOKEN] = _css_string(str(value))
