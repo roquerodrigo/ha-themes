@@ -60,7 +60,8 @@ The integration:
   (Home Assistant hard-codes Roboto on the page body), loads web fonts and recolors the
   generic integration icons. It is served under a content-hash URL, so browser and service
   worker caches never keep an outdated copy;
-- raises a repair issue if the themes directory is not included in `configuration.yaml`.
+- raises a repair issue if the themes directory is not included in `configuration.yaml`, or
+  with the error if Home Assistant refuses to reload the themes.
 
 ## Documentation
 

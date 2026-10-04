@@ -8,7 +8,11 @@ from atomicwrites import AtomicWriter
 from homeassistant.helpers import issue_registry
 from homeassistant.util.file import WriteError
 
-from custom_components.ha_themes.const import DOMAIN, ISSUE_THEMES_NOT_LOADED
+from custom_components.ha_themes.const import (
+    DOMAIN,
+    ISSUE_THEMES_NOT_LOADED,
+    ISSUE_THEMES_RELOAD_FAILED,
+)
 from custom_components.ha_themes.theme_installer import HaThemesThemeInstaller
 
 if TYPE_CHECKING:
@@ -19,10 +23,10 @@ if TYPE_CHECKING:
 THEMES_INCLUDE = "frontend:\n  themes: !include_dir_merge_named themes\n"
 
 
-def issue(hass: HomeAssistant) -> issue_registry.IssueEntry | None:
-    return issue_registry.async_get(hass).async_get_issue(
-        DOMAIN, ISSUE_THEMES_NOT_LOADED
-    )
+def issue(
+    hass: HomeAssistant, issue_id: str = ISSUE_THEMES_NOT_LOADED
+) -> issue_registry.IssueEntry | None:
+    return issue_registry.async_get(hass).async_get_issue(DOMAIN, issue_id)
 
 
 async def test_missing_themes_include_raises_a_repair_issue(
@@ -93,18 +97,47 @@ async def test_interrupted_write_keeps_the_previous_file(
     assert sorted(installer.target_directory.iterdir()) == files_before
 
 
-async def test_reload_failure_is_logged_and_reported(
+async def test_reload_failure_reports_the_error_instead_of_the_include(
     hass: HomeAssistant,
     frontend: None,
     config_directory: Path,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
+    (config_directory / "configuration.yaml").write_text(THEMES_INCLUDE)
+    (config_directory / "themes").mkdir()
+    (config_directory / "themes" / "mine.yaml").write_text("Mine: 12\n")
+    installer = HaThemesThemeInstaller(hass)
+
+    await installer.async_install()
+
+    assert issue(hass) is None
+    failure = issue(hass, ISSUE_THEMES_RELOAD_FAILED)
+    assert failure is not None
+    assert failure.translation_placeholders is not None
+    error = failure.translation_placeholders["error"]
+    assert error.startswith("Failed to reload themes: ")
+    assert "Failed to reload themes: Failed to reload themes" not in caplog.text
+    assert error in caplog.text
+
+    (config_directory / "themes" / "mine.yaml").unlink()
+    await installer.async_install()
+    assert issue(hass, ISSUE_THEMES_RELOAD_FAILED) is None
+    assert issue(hass) is None
+
+
+async def test_uninstall_removes_the_reload_failure_issue(
+    hass: HomeAssistant, frontend: None, config_directory: Path
+) -> None:
     (config_directory / "configuration.yaml").write_text(
         "frontend:\n  themes:\n    Broken: 12\n"
     )
-    await HaThemesThemeInstaller(hass).async_install()
-    assert "Failed to reload themes" in caplog.text
-    assert issue(hass) is not None
+    installer = HaThemesThemeInstaller(hass)
+    await installer.async_install()
+    assert issue(hass, ISSUE_THEMES_RELOAD_FAILED) is not None
+
+    await installer.async_uninstall()
+
+    assert issue(hass, ISSUE_THEMES_RELOAD_FAILED) is None
 
 
 async def test_loaded_themes_is_empty_without_the_frontend(hass: HomeAssistant) -> None:

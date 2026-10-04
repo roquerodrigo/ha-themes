@@ -13,7 +13,13 @@ from homeassistant.helpers import issue_registry
 from homeassistant.util.file import write_utf8_file_atomic
 from homeassistant.util.yaml import load_yaml_dict
 
-from .const import DOMAIN, ISSUE_THEMES_NOT_LOADED, LOGGER, THEMES_DIRECTORY
+from .const import (
+    DOMAIN,
+    ISSUE_THEMES_NOT_LOADED,
+    ISSUE_THEMES_RELOAD_FAILED,
+    LOGGER,
+    THEMES_DIRECTORY,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -28,8 +34,9 @@ class HaThemesThemeInstaller:
 
     Home Assistant only loads themes from the `frontend: themes:` YAML and replaces
     anything else on every `frontend.reload_themes`, so the themes are installed as
-    files the standard `!include_dir_merge_named themes` picks up, then reloaded. When
-    the configuration does not include that directory a repair issue explains the fix.
+    files the standard `!include_dir_merge_named themes` picks up, then reloaded. A
+    repair issue explains the fix when the reload fails or the configuration does not
+    include that directory.
     """
 
     def __init__(self, hass: HomeAssistant) -> None:
@@ -50,8 +57,8 @@ class HaThemesThemeInstaller:
     async def async_install(self) -> tuple[str, ...]:
         """Install or update the theme files and reload the frontend themes."""
         installed = await self._hass.async_add_executor_job(self._synchronize_files)
-        await self._async_reload_themes()
-        self._update_issue(installed)
+        reload_error = await self._async_reload_themes()
+        self._update_issues(installed, reload_error)
         LOGGER.debug("Installed themes %s into %s", installed, self.target_directory)
         return installed
 
@@ -59,7 +66,8 @@ class HaThemesThemeInstaller:
         """Remove the installed theme files and reload the frontend themes."""
         await self._hass.async_add_executor_job(self._remove_files)
         await self._async_reload_themes()
-        issue_registry.async_delete_issue(self._hass, DOMAIN, ISSUE_THEMES_NOT_LOADED)
+        self._delete_issue(ISSUE_THEMES_NOT_LOADED)
+        self._delete_issue(ISSUE_THEMES_RELOAD_FAILED)
 
     def _remove_files(self) -> None:
         """Delete the installed theme directory, if present."""
@@ -81,33 +89,51 @@ class HaThemesThemeInstaller:
             names.extend(str(theme) for theme in load_yaml_dict(source))
         return tuple(names)
 
-    async def _async_reload_themes(self) -> None:
-        """Ask the frontend to re-read the themes from the configuration."""
+    async def _async_reload_themes(self) -> str | None:
+        """Ask the frontend to re-read the themes and return the error, if any."""
         try:
             await self._hass.services.async_call(
                 FRONTEND_DOMAIN, RELOAD_THEMES_SERVICE, blocking=True
             )
         except HomeAssistantError as error:
-            LOGGER.warning("Failed to reload themes: %s", error)
+            LOGGER.warning("%s", error)
+            return str(error)
+        return None
 
-    def _update_issue(self, installed: tuple[str, ...]) -> None:
-        """Raise a repair issue while the installed themes are not being loaded."""
-        if set(installed) <= self.loaded_themes:
-            issue_registry.async_delete_issue(
-                self._hass, DOMAIN, ISSUE_THEMES_NOT_LOADED
-            )
+    def _update_issues(
+        self, installed: tuple[str, ...], reload_error: str | None
+    ) -> None:
+        """Raise the repair issue that explains why the themes are not loaded."""
+        if reload_error is not None:
+            self._delete_issue(ISSUE_THEMES_NOT_LOADED)
+            self._create_issue(ISSUE_THEMES_RELOAD_FAILED, {"error": reload_error})
             return
-        issue_registry.async_create_issue(
-            self._hass,
-            DOMAIN,
+        self._delete_issue(ISSUE_THEMES_RELOAD_FAILED)
+        if set(installed) <= self.loaded_themes:
+            self._delete_issue(ISSUE_THEMES_NOT_LOADED)
+            return
+        self._create_issue(
             ISSUE_THEMES_NOT_LOADED,
-            is_fixable=False,
-            severity=issue_registry.IssueSeverity.WARNING,
-            translation_key=ISSUE_THEMES_NOT_LOADED,
-            translation_placeholders={
+            {
                 "directory": f"{THEMES_DIRECTORY}/{DOMAIN}",
                 "configuration": (
                     "frontend:\n  themes: !include_dir_merge_named themes"
                 ),
             },
         )
+
+    def _create_issue(self, issue_id: str, placeholders: dict[str, str]) -> None:
+        """Create or update one of the integration's repair issues."""
+        issue_registry.async_create_issue(
+            self._hass,
+            DOMAIN,
+            issue_id,
+            is_fixable=False,
+            severity=issue_registry.IssueSeverity.WARNING,
+            translation_key=issue_id,
+            translation_placeholders=placeholders,
+        )
+
+    def _delete_issue(self, issue_id: str) -> None:
+        """Remove one of the integration's repair issues, if present."""
+        issue_registry.async_delete_issue(self._hass, DOMAIN, issue_id)
