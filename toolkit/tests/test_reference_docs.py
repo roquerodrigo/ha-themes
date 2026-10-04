@@ -1,5 +1,9 @@
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
-from ha_theme_kit.inventory.reference_docs import find_broken_references, render_global_reference
+from ha_theme_kit.inventory.reference_docs import (
+    DOCS_DIRECTORY,
+    find_broken_references,
+    render_global_reference,
+)
 from ha_theme_kit.theme.roles import UPSTREAM_FIXES
 
 
@@ -36,3 +40,11 @@ def test_every_broken_default_in_the_catalog_has_an_upstream_fix() -> None:
     ]
 
     assert unfixed == []
+
+
+def test_theming_guide_names_the_captured_versions() -> None:
+    catalog = TokenCatalog.load()
+    guide = (DOCS_DIRECTORY / "theming-guide.md").read_text()
+
+    assert f"frontend `{catalog.frontend_version}` / Core `{catalog.core_version}`" in guide
+    assert f"## Known upstream issues (frontend {catalog.frontend_version})" in guide
