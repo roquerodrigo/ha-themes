@@ -1,0 +1,63 @@
+title: Theme Lab
+views:
+  - title: Components
+    path: components
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Lights
+          - type: tile
+            entity: light.bed_light
+          - type: tile
+            entity: light.ceiling_lights
+          - type: tile
+            entity: light.kitchen_lights
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.living_room_rgbww_lights
+          - type: tile
+            entity: fan.living_room_fan
+          - type: tile
+            entity: cover.kitchen_window
+            features:
+              - type: cover-open-close
+      - type: grid
+        cards:
+          - type: heading
+            heading: Climate
+          - type: thermostat
+            entity: climate.ecobee
+          - type: weather-forecast
+            entity: weather.demo_weather_south
+      - type: grid
+        cards:
+          - type: heading
+            heading: Media and security
+          - type: media-control
+            entity: media_player.living_room
+          - type: entities
+            title: Locks
+            entities:
+              - lock.front_door
+              - lock.kitchen_door
+              - lock.openable_lock
+          - type: markdown
+            content: >-
+              ## Markdown
+
+              Body text uses the **body** font. `Inline code` uses the code font, and
+              [links](#) use the link color.
+      - type: grid
+        cards:
+          - type: heading
+            heading: History
+          - type: history-graph
+            entities:
+              - sensor.outside_temperature
+              - sensor.outside_humidity
+          - type: gauge
+            entity: sensor.outside_humidity

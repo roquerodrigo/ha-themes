@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 dev/config/*
+!dev/config/dashboards/
 !dev/config/configuration.yaml
 dev/credentials.env
 dev/*.log

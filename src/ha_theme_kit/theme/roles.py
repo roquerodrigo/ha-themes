@@ -114,6 +114,21 @@ FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
 ) | {"md-sys-color-shadow": "transparent"}
 """A transparent zero shadow instead of `none` stays valid inside comma-separated shadow lists."""
 
+BACKDROP_BLUR_FILTERS: dict[str, str] = {
+    "app-header-backdrop-filter": "blur(20px) saturate(160%)",
+    "ha-card-backdrop-filter": "blur(16px) saturate(140%)",
+    "ha-dialog-surface-backdrop-filter": "blur(24px) saturate(160%)",
+    "ha-dialog-scrim-backdrop-filter": "blur(6px) brightness(68%)",
+}
+
+TRANSLUCENT_SURFACES: dict[str, tuple[str, float]] = {
+    "app-header-background-color": ("header_background", 0.72),
+    "ha-card-background": ("surface", 0.8),
+    "ha-dialog-surface-background": ("surface", 0.85),
+}
+"""A backdrop filter only shows through a translucent background, so each blurred element
+also gets its role color with alpha."""
+
 TYPOGRAPHY_BRIDGE: dict[str, str] = {
     "md-ref-typeface-plain": "var(--ha-font-family-body)",
     "mdc-typography-font-family": "var(--ha-font-family-body)",

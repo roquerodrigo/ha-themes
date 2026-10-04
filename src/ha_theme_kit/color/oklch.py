@@ -23,6 +23,11 @@ def rgb_to_hex(red: float, green: float, blue: float) -> str:
     return "#" + "".join(f"{channel:02x}" for channel in channels)
 
 
+def hex_to_rgba(hex_color: str, alpha: float | str) -> str:
+    red, green, blue = (round(channel * 255) for channel in hex_to_rgb(hex_color))
+    return f"rgba({red}, {green}, {blue}, {alpha})"
+
+
 def _to_linear(channel: float) -> float:
     if abs(channel) <= 0.04045:
         return channel / 12.92

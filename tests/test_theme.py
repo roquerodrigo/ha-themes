@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
 from ha_theme_kit.theme.builder import build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
@@ -92,7 +93,10 @@ def test_chrome_follows_background_unless_set() -> None:
     theme = build_theme(minimal_definition(roles={"dark": {"sidebar_background": "#000000"}}))
     light = theme.modes["light"]
     assert light["sidebar-background-color"] == light["primary-background-color"]
-    assert light["app-header-background-color"] == light["primary-background-color"]
+    assert light["app-theme-color"] == light["primary-background-color"]
+    assert light["app-header-background-color"] == hex_to_rgba(
+        light["primary-background-color"], 0.72
+    )
     assert theme.modes["dark"]["sidebar-background-color"] == "#000000"
 
 
@@ -110,3 +114,16 @@ def test_system_ui_variant_drops_web_fonts() -> None:
     assert variant.base["ha-font-family-body"] == SYSTEM_UI_FONT_STACK
     assert variant.base["ha-font-family-code"] == "Fira Code"
     assert variant.font_stylesheet is None
+
+
+def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"surface": "#ffffff"}}))
+    assert theme.base["ha-card-backdrop-filter"].startswith("blur(")
+    assert theme.modes["light"]["ha-card-background"] == "rgba(255, 255, 255, 0.8)"
+    assert theme.modes["light"]["app-theme-color"].startswith("#")
+
+
+def test_backdrop_blur_can_be_disabled() -> None:
+    theme = build_theme(minimal_definition(backdrop_blur=False))
+    assert "ha-card-backdrop-filter" not in theme.base
+    assert "ha-card-background" not in theme.modes["dark"]

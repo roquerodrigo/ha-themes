@@ -1,6 +1,6 @@
 import re
 
-from ha_theme_kit.color.oklch import hex_to_rgb
+from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.color.palette import PALETTE_STEPS, generate_tonal_scale
 
 REQUIRED_FAMILIES = ("primary", "neutral", "red", "orange", "green")
@@ -49,5 +49,4 @@ class PaletteResolver:
         color = self.scales[family][step]
         if alpha is None:
             return color
-        red, green, blue = (round(channel * 255) for channel in hex_to_rgb(color))
-        return f"rgba({red}, {green}, {blue}, {alpha})"
+        return hex_to_rgba(color, alpha)

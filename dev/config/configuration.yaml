@@ -6,6 +6,15 @@ frontend:
   extra_module_url:
     - /local/ha-themes/ha-themes.js
 
+lovelace:
+  dashboards:
+    theme-lab:
+      mode: yaml
+      filename: dashboards/theme-lab.yaml
+      title: Theme Lab
+      icon: mdi:palette
+      show_in_sidebar: true
+
 config:
 history:
 logbook:

@@ -26,7 +26,7 @@ components        ha-button, ha-card, dialogs, tiles …
 | Core palette | `ha-color-{primary,neutral,red,orange,green}-{05…95}`, `ha-color-black/white` | Eleven-step tonal scales. Everything semantic derives from them. |
 | Semantic colors | `ha-color-{text,border,fill,on,surface,form}-*` | Role colors in three intensities (`quiet`, `normal`, `loud`) and states (`resting`, `hover`, `active`). |
 | Foundation | `ha-space-*`, `ha-border-{width,radius}-*`, `ha-box-shadow-*`, `ha-animation-duration-*` | Spacing (4px grid), radii, elevation and motion. Motion collapses to `1ms` under `prefers-reduced-motion`. |
-| Typography | `ha-font-{family,size,weight}-*`, `ha-line-height-*` | Families, a size scale multiplied by `ha-font-size-scale`, weights. |
+| Typography | `ha-font-{family,size,weight}-*`, `ha-line-height-*` | Families, a size scale multiplied by `ha-font-size-scale`, weights. `ha-font-family-longform` is declared but not read by any component. |
 | Application colors | `primary-color`, `card-background-color`, `sidebar-*`, `input-*` … | The classic theme variables. Many are **hard-coded hex values per mode**, not derived. |
 | State colors | `state-<domain>-<state>-color` | Entity colors, mostly pointing at the named colors (`--amber-color`, …). |
 | Data visualization | `color-1…54`, `energy-*`, `history-*` | Chart, energy dashboard and history colors. |
@@ -95,6 +95,27 @@ generates one support module, registered with `frontend: extra_module_url:`, tha
 `typography.stylesheet`. With both in place, an audit of every rendered text node in Chrome
 finds only the theme font. Fonts declared on the document are visible inside every shadow
 root, and the module runs on every page.
+
+## Backdrop blur
+
+Components expose `backdrop-filter` hooks, all unset (`none`) by default:
+
+| Hook | Element | Background it blurs through |
+| --- | --- | --- |
+| `app-header-backdrop-filter` | Fixed top bar of dashboards (`hui-root`) and the overview | `app-header-background-color` |
+| `ha-card-backdrop-filter` | Every `ha-card` | `ha-card-background` (falls back to `card-background-color`) |
+| `ha-dialog-surface-backdrop-filter` | Dialog and bottom-sheet surfaces | `ha-dialog-surface-background` |
+| `ha-dialog-scrim-backdrop-filter` | The page behind a modal (default `brightness(68%)`) | the scrim itself |
+| `ha-bottom-sheet-*-backdrop-filter` | Bottom sheets on mobile; fall back to the dialog hooks | — |
+
+A blur is only visible through a translucent background, so each hook needs its background
+token set to a color with alpha. Settings pages scroll in a container that starts below
+the top bar, so nothing passes underneath their header; the effect shows on dashboards,
+the overview and dialogs. The sidebar and dropdown menus have no hook.
+
+Keep `card-background-color` opaque and make only `ha-card-background` translucent: the
+former is also used for surfaces that sit on top of other content, such as popovers, and
+`app-theme-color` (the browser's theme color) should stay an opaque hex value.
 
 ## Known upstream issues (frontend 20260826.7)
 

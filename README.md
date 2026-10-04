@@ -10,7 +10,7 @@ builds themes from a small, validated definition.
 
 | Light | Dark |
 | --- | --- |
-| ![Anthropic theme, light](previews/anthropic/overview-light.png) | ![Anthropic theme, dark](previews/anthropic/overview-dark.png) |
+| ![Anthropic theme, light](previews/anthropic/dashboard-light.png) | ![Anthropic theme, dark](previews/anthropic/dialog-dark.png) |
 
 ## Contents
 
@@ -30,11 +30,12 @@ builds themes from a small, validated definition.
 
 | Theme | Description |
 | --- | --- |
-| [Anthropic](themes/anthropic.yaml) | Warm paper neutrals, clay primary, brand blue and green accents; Poppins and Lora |
+| [Anthropic](themes/anthropic.yaml) | Warm paper neutrals, clay primary, brand blue and green accents; Poppins |
 | [Anthropic System UI](themes/anthropic.yaml) | The same theme in the platform's UI font |
 
 All themes share the [house conventions](docs/creating-a-theme.md#house-conventions):
-sidebar and header in the page background, no shadows, and a system-ui variant.
+sidebar and header in the page background, no shadows, backdrop blur on the header,
+cards and dialogs, and a system-ui variant.
 
 Installation steps are in [creating-a-theme.md](docs/creating-a-theme.md#installing-a-theme).
 
@@ -47,6 +48,10 @@ uv sync
 scripts/dev-server                 # local Home Assistant with demo entities on :8123
 uv run python scripts/dev-onboard.py   # first run only: creates the local test user
 ```
+
+The dev instance includes a **Theme Lab** dashboard
+([`dev/config/dashboards/theme-lab.yaml`](dev/config/dashboards/theme-lab.yaml)) with tiles,
+thermostat, weather, media, entities, markdown and history cards, used by the previews.
 
 | Command | Purpose |
 | --- | --- |

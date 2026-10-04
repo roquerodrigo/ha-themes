@@ -1,12 +1,15 @@
 from dataclasses import dataclass
 
+from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.theme.definition import MODES, ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
+    BACKDROP_BLUR_FILTERS,
     FLAT_ELEVATION,
     ROLE_DEFAULTS,
     ROLE_FALLBACKS,
     ROLE_TOKENS,
+    TRANSLUCENT_SURFACES,
     TYPOGRAPHY_BRIDGE,
     UPSTREAM_FIXES,
 )
@@ -53,6 +56,8 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
         base[TYPOGRAPHY_TOKENS[role]] = str(value)
     if not definition.shadows:
         base.update(FLAT_ELEVATION)
+    if definition.backdrop_blur:
+        base.update(BACKDROP_BLUR_FILTERS)
     base.update(_resolve_all(resolver, definition.tokens.get("base", {})))
 
     modes: dict[str, dict[str, str]] = {}
@@ -68,10 +73,21 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
         tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}))
         for role, value in resolved_roles[mode].items():
             tokens.update(dict.fromkeys(ROLE_TOKENS[role], value))
+        if definition.backdrop_blur:
+            tokens.update(_translucent_surfaces(resolved_roles[mode]))
         tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {})))
         modes[mode] = tokens
 
     return BuiltTheme(definition, base, modes, resolved_roles)
+
+
+def _translucent_surfaces(roles: dict[str, str]) -> dict[str, str]:
+    surfaces = {
+        token: hex_to_rgba(roles[role], alpha)
+        for token, (role, alpha) in TRANSLUCENT_SURFACES.items()
+    }
+    surfaces["app-theme-color"] = roles["header_background"]
+    return surfaces
 
 
 def _resolve_all(resolver: PaletteResolver, values: dict[str, str]) -> dict[str, str]:

@@ -1,7 +1,8 @@
 name: Anthropic
 description: >-
   Warm paper neutrals, clay as the primary action color, and the brand's blue and
-  green as supporting accents. Headings and UI text in Poppins, long-form text in Lora.
+  green as supporting accents, set in Poppins. Lora is assigned to the long-form token,
+  which the frontend does not read yet.
 
 palette:
   primary:

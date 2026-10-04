@@ -14,6 +14,9 @@ Every theme built here follows these defaults, so a new theme gets them for free
   dividers keep the regions apart.
 - **No shadows.** Elevation tokens are flattened (cards, dialogs, menus, tooltips, the
   Material and Web Awesome components). A theme opts back in with `shadows: true`.
+- **Backdrop blur.** The header, cards, dialogs and bottom sheets get a translucent
+  background (their role color with alpha) plus a `backdrop-filter` blur, and the modal
+  scrim blurs the page behind it. A theme opts out with `backdrop_blur: false`.
 - **A system-ui variant.** Each definition produces two themes in the same file:
   `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
   UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download.
@@ -33,6 +36,7 @@ uv run ha-themes preview my-theme
 name: My Theme                 # theme name shown in the profile picker
 description: One paragraph.
 shadows: false                 # optional, default false
+backdrop_blur: true            # optional, default true
 
 palette:                       # required: primary, neutral, red, orange, green
   primary: "#d97757"           # a seed: generates steps 05…95 with the frontend's algorithm
@@ -50,7 +54,7 @@ palette:                       # required: primary, neutral, red, orange, green
 typography:                    # optional
   body: "Poppins, Arial, sans-serif"
   heading: "Poppins, Arial, sans-serif"
-  longform: "Lora, Georgia, serif"
+  longform: "Lora, Georgia, serif"   # declared by the frontend, not read by any component yet
   code: "JetBrains Mono, monospace"
   size_scale: "1"
   stylesheet: "https://fonts.googleapis.com/css2?family=…"   # loaded by the support module
