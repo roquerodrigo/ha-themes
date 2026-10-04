@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 import urllib.parse
 import urllib.request
@@ -6,6 +7,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page, sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
@@ -13,6 +15,9 @@ from ha_theme_kit.inventory.local_theme_selection import LocalThemeSelection
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CREDENTIALS_FILE = PROJECT_ROOT / "dev" / "credentials.env"
+NAVIGATION_ATTEMPTS = 3
+INTERRUPTED_NAVIGATION = "is interrupted by another navigation"
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -74,7 +79,8 @@ def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
     """Yield a logged-in page of the installed Google Chrome, using an isolated profile.
 
     Themes applied with `open_with_theme` stay inside the page; on exit the last tested theme
-    is saved to the user's profile with dark mode on automatic, for manual testing.
+    is saved to the user's profile with dark mode on automatic, for manual testing. When the
+    session body fails, a failing restore is logged so the original error still propagates.
     """
     tokens = json.dumps(instance.login())
     with sync_playwright() as playwright:
@@ -93,8 +99,13 @@ def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
         )
         try:
             yield page
+        except BaseException:
+            _restore_after_failure(page, instance, local_selection)
+            raise
+        else:
+            _leave_in_automatic_mode(page, instance, local_selection)
         finally:
-            _leave_in_automatic_mode(page, instance, LOCAL_SELECTIONS.pop(id(page)))
+            LOCAL_SELECTIONS.pop(id(page), None)
             browser.close()
 
 
@@ -119,12 +130,34 @@ def _wait_for_app(page: Page) -> None:
     )
 
 
+def _goto_when_settled(page: Page, url: str) -> None:
+    for attempt in range(1, NAVIGATION_ATTEMPTS + 1):
+        try:
+            page.goto(url, wait_until="domcontentloaded")
+            return
+        except PlaywrightError as error:
+            if INTERRUPTED_NAVIGATION not in error.message or attempt == NAVIGATION_ATTEMPTS:
+                raise
+            page.wait_for_load_state("domcontentloaded")
+
+
+def _restore_after_failure(
+    page: Page, instance: DevInstance, local_selection: LocalThemeSelection
+) -> None:
+    try:
+        _leave_in_automatic_mode(page, instance, local_selection)
+    except Exception:
+        LOGGER.warning(
+            "could not leave the dev instance with dark mode on automatic", exc_info=True
+        )
+
+
 def _leave_in_automatic_mode(
     page: Page, instance: DevInstance, local_selection: LocalThemeSelection
 ) -> None:
     tested_theme = (local_selection.selection or {}).get("theme")
     local_selection.persist = True
-    page.goto(f"{instance.url}/lovelace/0", wait_until="domcontentloaded")
+    _goto_when_settled(page, f"{instance.url}/lovelace/0")
     _wait_for_app(page)
     theme = (
         tested_theme
