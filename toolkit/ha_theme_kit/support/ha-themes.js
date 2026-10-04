@@ -277,12 +277,19 @@ timeFieldStyles.replaceSync(`
   }
 `);
 
+// The input chip locks its pill shape on its own host, out of reach of the theme's radius.
+const inputChipStyles = new CSSStyleSheet();
+inputChipStyles.replaceSync(`
+  :host { --md-input-chip-container-shape: var(--ha-themes-corner-radius, 16px); }
+`);
+
 const hostStyles = new Map([
   ["ha-input", inputFieldStyles],
   ["ha-textarea", textareaFieldStyles],
   ["ha-picker-field", pickerFieldStyles],
   ["ha-labels-picker", labelsFieldStyles],
   ["ha-base-time-input", timeFieldStyles],
+  ["ha-input-chip", inputChipStyles],
   ["ha-config-navigation-list", iconTileStyles],
   ["ha-config-info", iconTileStyles],
   ["ha-picker-combo-box", iconTileStyles],

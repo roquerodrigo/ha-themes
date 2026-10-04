@@ -204,6 +204,62 @@ FIELD_OUTLINE: dict[str, str] = {
 module outlines them instead, takes the focus and error colors over to the outline, hides the
 line and clears the fill."""
 
+CORNER_RADIUS_TOKEN = "ha-themes-corner-radius"
+"""Read by the support module where a component locks a literal radius on its own host."""
+
+CORNER_RADIUS_SCALE: tuple[str, ...] = (
+    "ha-border-radius-xs",
+    "ha-border-radius-s",
+    "ha-border-radius-small",
+    "ha-border-radius-sm",
+    "ha-border-radius-md",
+    "ha-border-radius-lg",
+    "ha-border-radius-xl",
+    "ha-border-radius-2xl",
+    "ha-border-radius-3xl",
+    "ha-border-radius-4xl",
+    "ha-border-radius-5xl",
+    "ha-border-radius-6xl",
+    "ha-border-radius-pill",
+)
+"""The frontend's radius scale, plus the three names components read but it never declares.
+`ha-border-radius-square` and `ha-border-radius-circle` are shapes, not sizes, and stay."""
+
+CORNER_RADIUS_BRIDGES: tuple[str, ...] = (
+    "wa-border-radius-s",
+    "wa-border-radius-m",
+    "wa-border-radius-l",
+    "wa-border-radius-pill",
+    "wa-form-control-border-radius",
+    "wa-panel-border-radius",
+    "mdc-shape-small",
+    "mdc-shape-medium",
+    "mdc-shape-large",
+    "md-sys-shape-corner-small",
+    "md-filter-chip-container-shape",
+    "ha-assist-chip-container-shape",
+    "ha-card-border-radius",
+    "ha-card-features-border-radius",
+    "ha-dialog-border-radius",
+    "ha-bottom-sheet-border-radius",
+    "ha-section-border-radius",
+    "ha-button-border-radius",
+    "ha-badge-border-radius",
+    "ha-heading-badge-border-radius",
+    "ha-tile-icon-border-radius",
+    "ha-favorite-color-button-border-radius",
+    "ha-tooltip-border-radius",
+    "ha-input-search-border-radius",
+    "ha-checkbox-border-radius",
+    "ha-bar-border-radius",
+    "ha-progress-bar-border-radius",
+    "calendar-border-radius",
+    "markdown-image-border-radius",
+)
+"""Component and library radii that fall back to a literal or to a fixed step of the scale
+instead of following it, so the scale alone would not reach them. `md-sys-shape-corner-full`
+stays: it rounds focus rings and the circular icon buttons and avatars."""
+
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
 
