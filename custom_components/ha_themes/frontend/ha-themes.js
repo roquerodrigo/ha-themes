@@ -78,12 +78,23 @@ const recolor = (image, color) => {
 const genericIconCache = new Map();
 const recoloredCache = new Map();
 
+const sameOriginUrl = (url) => {
+  const resolved = new URL(url, location.href);
+  return resolved.origin === location.origin ? resolved : null;
+};
+
 const recoloredUrl = async (url, color) => {
-  const key = new URL(url, location.href).pathname;
+  const resolved = sameOriginUrl(url);
+  if (!resolved) {
+    return null;
+  }
+  const key = resolved.pathname;
   if (!genericIconCache.has(key)) {
     genericIconCache.set(
       key,
-      loadImage(url).then((image) => (isGenericIcon(image) ? image : null), () => null),
+      loadImage(url)
+        .then((image) => (isGenericIcon(image) ? image : null))
+        .catch(() => null),
     );
   }
   const image = await genericIconCache.get(key);
