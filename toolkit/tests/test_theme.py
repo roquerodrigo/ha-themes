@@ -282,6 +282,7 @@ def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) ->
     assert "fonts.googleapis.com" not in module
     assert "--ha-themes-brand-icon-color" in module
     assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
+    assert "--ha-themes-menu-background" in module
 
 
 def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
@@ -291,6 +292,13 @@ def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
     assert FONT_STYLESHEET_TOKEN.startswith(prefix)
     for tokens in build_theme(minimal_definition()).modes.values():
         assert any(key.startswith(prefix) for key in tokens)
+
+
+def test_menus_follow_the_surface_role_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"menu_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["ha-themes-menu-background"] == light["mdc-theme-surface"]
+    assert theme.modes["dark"]["ha-themes-menu-background"] == "#000000"
 
 
 def test_brand_icons_follow_the_primary_role() -> None:

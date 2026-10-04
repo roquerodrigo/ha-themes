@@ -4,9 +4,11 @@ Semantic `ha-color-*` tokens already derive from the core palette, so the roles 
 cover what the palette cannot reach: application tokens the frontend hard-codes per mode.
 
 `card-background-color` belongs to the page plane: the frontend paints it on elements that
-sit directly on the page (the logbook's floating date, data tables, headers). Raised
-surfaces have their own hooks — `ha-card-background`, the Material and Web Awesome
-surfaces — so cards, menus and dialogs keep the surface tone.
+sit directly on the page (the logbook's floating date, data tables, headers). Cards and
+dialogs have their own hooks (`ha-card-background`, `ha-dialog-surface-background`) and keep
+the surface tone. Dropdown menus derive their surface from `card-background-color` on their
+own host, out of a theme's reach, so the support module repaints them with
+`ha-themes-menu-background`.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
@@ -46,6 +48,7 @@ ROLE_TOKENS: dict[str, tuple[str, ...]] = {
     "header_background": ("app-header-background-color",),
     "header_text": ("app-header-text-color",),
     "brand_icon": ("ha-themes-brand-icon-color",),
+    "menu_background": ("ha-themes-menu-background",),
 }
 
 ROLE_DEFAULTS: dict[str, dict[str, str]] = {
@@ -107,9 +110,10 @@ ROLE_FALLBACKS: dict[str, str] = {
     "sidebar_background": "background",
     "header_background": "background",
     "brand_icon": "primary",
+    "menu_background": "surface",
 }
-"""Roles that follow another role unless a theme sets them: chrome blends into the page, and
-generic integration icons take the primary color."""
+"""Roles that follow another role unless a theme sets them: chrome blends into the page,
+generic integration icons take the primary color, and menus are raised like cards."""
 
 PROJECT_TOKEN_PREFIX = "ha-themes-"
 """Variables read by the support module rather than the frontend."""
@@ -181,6 +185,7 @@ UPSTREAM_FIXES: dict[str, dict[str, str]] = {
 CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text", "background", 4.5),
     ("text", "surface", 4.5),
+    ("text", "menu_background", 4.5),
     ("text_secondary", "surface", 4.5),
     ("text_on_primary", "primary", 3.0),
     ("link", "surface", 4.5),
