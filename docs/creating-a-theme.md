@@ -150,6 +150,7 @@ section and value named.
 | `primary` | `primary-color`, `ha-color-fill-primary-loud-resting`, `-active` | `{primary.40}` | `{primary.50}` |
 | `primary_hover` | `ha-color-fill-primary-loud-hover` | `{primary.30}` | `{primary.60}` |
 | `primary_light` / `primary_dark` / `primary_darker` | `light-/dark-/darker-primary-color` | `80` / `30` / `20` | `30` / `60` / `70` |
+| `text_on_primary_light` | `text-light-primary-color` (avatar initials, person badges, Assist debug chat) | `{neutral.05}` | `{neutral.95}` |
 | `accent` | `accent-color` | `{orange.60}` | `{orange.60}` |
 | `link` | `ha-color-text-link` | `{primary.40}` | `{primary.60}` |
 | `divider` | `divider-color`, `outline-color` | `{neutral.05@0.12}` | `{neutral.90@0.12}` |
@@ -242,8 +243,8 @@ Assistant would keep only one of them. It then reports, per theme:
 
 - tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
 - WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1),
-  on-primary text on `primary`, `primary_hover` and `accent` (4.5:1), and primary and error
-  on surface (3:1);
+  on-primary text on `primary`, `primary_hover` and `accent` (4.5:1), `text_on_primary_light`
+  on `primary_light` (4.5:1), and primary and error on surface (3:1);
 - the chart series checks above, per mode;
 - the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
   be darker than the dark `background`, and the three statuses must stay at least OKLab
