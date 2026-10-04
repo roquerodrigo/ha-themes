@@ -4,6 +4,7 @@ const fontStylesheets = [
 
 const BRAND_PATH = "/api/brands/";
 const BRAND_ICON_COLOR_VARIABLE = "--ha-themes-brand-icon-color";
+const BRAND_ICON_COLOR_DECLARATION = new RegExp(`${BRAND_ICON_COLOR_VARIABLE}\\s*:\\s*([^;]*)`);
 // Generic integration icons on the brands CDN are a single flat color; real logos are not.
 const GENERIC_ICON_RGB = [0, 171, 248];
 const CHANNEL_TOLERANCE = 3;
@@ -30,8 +31,13 @@ for (const href of fontStylesheets) {
   });
 }
 
-const brandIconColor = () =>
-  getComputedStyle(document.documentElement).getPropertyValue(BRAND_ICON_COLOR_VARIABLE).trim();
+const brandIconColor = (element) =>
+  getComputedStyle(element).getPropertyValue(BRAND_ICON_COLOR_VARIABLE).trim();
+
+const declaredBrandIconColor = (styleAttribute) =>
+  styleAttribute?.includes(BRAND_ICON_COLOR_VARIABLE)
+    ? styleAttribute.match(BRAND_ICON_COLOR_DECLARATION)?.[1].trim()
+    : undefined;
 
 const loadImage = (url) =>
   new Promise((resolve, reject) => {
@@ -153,7 +159,7 @@ const applyTo = async (element) => {
   if (!source) {
     return;
   }
-  const color = brandIconColor();
+  const color = brandIconColor(element);
   const replacement = color ? await recoloredUrl(source, color) : null;
   if (originalSource(element) !== source) {
     return;
@@ -194,6 +200,19 @@ const scan = (root) => {
   }
 };
 
+const rescan = (element) => {
+  scan(element);
+  if (element.shadowRoot) {
+    scan(element.shadowRoot);
+  }
+};
+
+// Themes (global, per view or per card) are applied as inline custom properties on an element.
+const changesBrandIconColor = (mutation) =>
+  mutation.attributeName === "style" &&
+  declaredBrandIconColor(mutation.oldValue) !==
+    declaredBrandIconColor(mutation.target.getAttribute("style"));
+
 const watchedRoots = new WeakSet();
 const watch = (root) => {
   if (watchedRoots.has(root)) {
@@ -203,6 +222,9 @@ const watch = (root) => {
   new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
+        if (changesBrandIconColor(mutation)) {
+          rescan(mutation.target);
+        }
         if (isBrandElement(mutation.target)) {
           applyTo(mutation.target);
         }
@@ -223,6 +245,7 @@ const watch = (root) => {
     subtree: true,
     attributes: true,
     attributeFilter: ["src", "style"],
+    attributeOldValue: true,
   });
   scan(root);
 };
@@ -233,14 +256,5 @@ Element.prototype.attachShadow = function attachShadow(...options) {
   queueMicrotask(() => watch(root));
   return root;
 };
-
-let lastColor = brandIconColor();
-new MutationObserver(() => {
-  const color = brandIconColor();
-  if (color !== lastColor) {
-    lastColor = color;
-    scan(document);
-  }
-}).observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
 
 watch(document);
