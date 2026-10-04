@@ -128,8 +128,13 @@ def render_component_reference(catalog: TokenCatalog) -> str:
     lines = _header(catalog, "Component hook reference")
     lines += [
         "Custom properties that components read with `var()` but that are **not** declared",
-        "globally. They are hooks: unset by default, so the component falls back to the value",
-        "shown. A theme can set any of them. Found by scanning the shipped frontend bundle.",
+        "globally. They are hooks, found by scanning the shipped frontend bundle.",
+        "",
+        "- Hooks with an empty **Set on `:host`** are unset by default: the component falls",
+        "  back to the value shown, and a theme can set them.",
+        "- Hooks with a **Set on `:host`** value are assigned by at least one component on its",
+        "  own host element. That declaration beats the theme's value inside that component, so",
+        "  a theme only reaches the components that leave the hook unset.",
         "",
         "Groups are sorted by reach; `md-*`, `mdc-*` and `wa-*` hooks belong to third-party",
         "components and are less stable across releases than `ha-*` hooks.",
@@ -156,12 +161,13 @@ def render_component_reference(catalog: TokenCatalog) -> str:
             "",
             f"## {group}",
             "",
-            "| Token | Fallback | Uses |",
-            "| --- | --- | ---: |",
+            "| Token | Fallback | Set on `:host` | Uses |",
+            "| --- | --- | --- | ---: |",
         ]
         for entry in sorted(entries, key=lambda item: (-item.consumers, item.name)):
             fallback = "<br>".join(_cell(value) for value in entry.fallbacks[:3])
-            lines.append(f"| `{entry.name}` | {fallback} | {entry.consumers} |")
+            host_values = "<br>".join(_cell(value) for value in entry.host_values[:3])
+            lines.append(f"| `{entry.name}` | {fallback} | {host_values} | {entry.consumers} |")
     return "\n".join(lines) + "\n"
 
 
