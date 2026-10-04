@@ -46,10 +46,10 @@ async def test_stale_files_are_removed_and_unchanged_files_kept(
     installer = HaThemesThemeInstaller(hass)
     await installer.async_install()
     target = installer.target_directory
-    stale = target / "retired-theme.yaml"
-    stale.write_text("Retired: {}\n")
     kept = next(target.glob("*.yaml"))
     modified_at = kept.stat().st_mtime_ns
+    stale = target / "retired-theme.yaml"
+    stale.write_text("Retired: {}\n")
 
     await installer.async_install()
 
