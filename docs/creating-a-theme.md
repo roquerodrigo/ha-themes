@@ -181,6 +181,14 @@ section and value named.
 | `code_background` | `markdown-code-background-color` | `{neutral.95}` | `{neutral.05}` |
 | `brand_icon` | `ha-themes-brand-icon-color` (read by the support module) | `primary` | `primary` |
 | `menu_background` | `ha-themes-menu-background` (read by the support module) | `surface` | `surface` |
+| `code_editor_background` | `code-editor-background-color` (the code editor, its completion popover and full-screen mode) | `surface` | `surface` |
+| `syntax_comment` | `codemirror-comment` | `{neutral.50}` | `{neutral.60}` |
+| `syntax_keyword` | `codemirror-keyword`, `-attribute`, `-tag` | `{primary.30}` | `{primary.60}` |
+| `syntax_property` | `codemirror-property` (YAML keys, template names) | `{neutral.20}` | `{neutral.80}` |
+| `syntax_string` | `codemirror-string`, `-string-2`, `-string2` | `{green.40}` | `{green.60}` |
+| `syntax_number` | `codemirror-number`, `-atom` (numbers, booleans, `null`) | `{orange.30}` | `{orange.60}` |
+| `syntax_variable` | `codemirror-variable`, `-variable-2`, `-variable-3`, `-qualifier`, `-type`, `-builtin`, `-meta` | `{neutral.20}` | `{neutral.80}` |
+| `syntax_punctuation` | `codemirror-def`, `-operator` (brackets, delimiters, colons, operators) | `{neutral.40}` | `{neutral.70}` |
 | `sidebar_background` / `header_background` | `sidebar-background-color` / `app-header-background-color` | `background` | `background` |
 | `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-*`, `app-header-text-color` | — | — |
 | `state_active` | `state-active-color` | — | — |
@@ -216,12 +224,15 @@ the ones that stand out:
 | Energy dashboard totals card | Its data table, the one nested inside a card, paints it | Clears the table's background so the card shows through in a single tone |
 
 Other `ha-md-list` lists sit inside cards or clear their background, so they need nothing.
-Two overlays keep the page tone: pickers that open as a bottom sheet on narrow screens
-(`ha-bottom-sheet-surface-background`) and the code editor's completion popover and
-full-screen mode (`code-editor-background-color`, which themes leave unset). Because these
-overlays and the sticky table headers sit on top of other content, `card-background-color`
-must stay opaque; only `ha-card-background` and `ha-dialog-surface-background` are made
-translucent.
+The code editor, its completion popover and its full-screen mode would also read it, but
+the builder sets `code-editor-background-color` from the `code_editor_background` role, which
+follows `surface`: the editor stays level with the card it sits in, and the popover and the
+full-screen editor sit raised like menus. The `syntax_*` roles color the code on it, and the
+validation fails unless comments reach 3:1 and all other code 4.5:1 against that background.
+Pickers that open as a bottom sheet on narrow screens (`ha-bottom-sheet-surface-background`)
+keep the page tone. Because they and the sticky table headers sit on top of other content,
+`card-background-color` must stay opaque; only `ha-card-background` and
+`ha-dialog-surface-background` are made translucent.
 
 ### Entity colors
 

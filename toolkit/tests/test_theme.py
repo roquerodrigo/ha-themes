@@ -313,6 +313,58 @@ def test_menus_follow_the_surface_role_unless_set() -> None:
     assert theme.modes["dark"]["ha-themes-menu-background"] == "#000000"
 
 
+def test_code_editor_follows_the_surface_role_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"code_editor_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["code-editor-background-color"] == light["mdc-theme-surface"]
+    assert theme.modes["dark"]["code-editor-background-color"] == "#000000"
+
+
+def test_syntax_roles_replace_every_frontend_codemirror_color() -> None:
+    catalog = TokenCatalog.load()
+    frontend_syntax_tokens = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.name.startswith("--codemirror-") and (entry.dark or entry.fallbacks)
+    }
+    theme = build_theme(minimal_definition())
+    for tokens in theme.modes.values():
+        assert frontend_syntax_tokens <= tokens.keys()
+
+
+def test_default_syntax_colors_pass_on_the_default_code_editor_in_each_mode() -> None:
+    report = validate_theme(build_theme(minimal_definition()), TokenCatalog.load())
+
+    syntax_results = [
+        result for result in report.contrast if result.background_role == "code_editor_background"
+    ]
+    assert {result.mode for result in syntax_results} == {"light", "dark"}
+    assert all(result.passes for result in syntax_results)
+    assert {
+        result.minimum for result in syntax_results if result.foreground_role == "syntax_comment"
+    } == {3.0}
+
+
+def test_validation_flags_syntax_colors_below_their_floor() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={"dark": {"syntax_comment": "{neutral.40}", "syntax_string": "{green.40}"}}
+        )
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        result.foreground_role
+        for result in report.contrast
+        if result.mode == "dark"
+        and result.background_role == "code_editor_background"
+        and not result.passes
+    }
+    assert failing == {"syntax_comment", "syntax_string"}
+    assert not report.ok
+
+
 def test_brand_icons_follow_the_primary_role() -> None:
     theme = build_theme(minimal_definition())
     for tokens in theme.modes.values():
