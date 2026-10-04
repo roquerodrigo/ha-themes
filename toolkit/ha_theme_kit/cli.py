@@ -50,6 +50,29 @@ def _theme_sources(selected: list[str]) -> list[Path]:
     return [source for source in sources if source.stem in selected]
 
 
+class DuplicateThemeNamesError(Exception):
+    def __init__(self, sources_by_name: dict[str, list[str]]) -> None:
+        clashes = "; ".join(
+            f"{name!r} in {', '.join(sources)}" for name, sources in sources_by_name.items()
+        )
+        super().__init__(
+            f"theme names must be unique across themes-src (change `name:`): {clashes}"
+        )
+
+
+def _reject_duplicate_theme_names() -> None:
+    from ha_theme_kit.theme.definition import ThemeDefinition
+    from ha_theme_kit.theme.variants import theme_family
+
+    sources_by_name: dict[str, list[str]] = {}
+    for source in _theme_sources([]):
+        for variant in theme_family(ThemeDefinition.load(source)):
+            sources_by_name.setdefault(variant.name, []).append(source.name)
+    duplicates = {name: files for name, files in sources_by_name.items() if len(files) > 1}
+    if duplicates:
+        raise DuplicateThemeNamesError(duplicates)
+
+
 def command_build(arguments: argparse.Namespace) -> int:
     from ha_theme_kit.theme.builder import build_theme
     from ha_theme_kit.theme.definition import ThemeDefinition
@@ -57,6 +80,7 @@ def command_build(arguments: argparse.Namespace) -> int:
     from ha_theme_kit.theme.variants import theme_family
     from ha_theme_kit.theme.writer import write_support_module, write_theme_family
 
+    _reject_duplicate_theme_names()
     catalog = TokenCatalog.load()
     failed = False
     families = []
@@ -224,7 +248,7 @@ def main() -> int:
     arguments = parser.parse_args()
     try:
         return arguments.handler(arguments)
-    except UnknownThemesError as error:
+    except (UnknownThemesError, DuplicateThemeNamesError) as error:
         parser.error(str(error))
 
 
