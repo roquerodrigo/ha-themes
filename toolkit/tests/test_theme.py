@@ -1,7 +1,11 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 import yaml
+from annotatedyaml import parse_yaml
+from homeassistant.helpers.json import json_bytes
+from homeassistant.util.json import json_loads
 
 from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
@@ -120,6 +124,18 @@ def test_rendered_yaml_is_a_home_assistant_theme() -> None:
     theme = document["Minimal"]
     assert set(theme["modes"]) == {"light", "dark"}
     assert theme["ha-color-primary-50"] == "#d97757"
+
+
+def test_rendered_yaml_round_trips_through_home_assistant_with_non_ascii_text() -> None:
+    definition = replace(
+        minimal_definition(tokens={"base": {"card-title": "Nuit \U0001f319\u2028\u0085 é"}}),
+        name="Minimal \U0001f319 Café",
+    )
+    themes = [build_theme(variant) for variant in theme_family(definition)]
+    rendered = render_home_assistant_yaml(themes, "test")
+    document = parse_yaml(rendered)
+    assert document["Minimal \U0001f319 Café"]["card-title"] == "Nuit \U0001f319\u2028\u0085 é"
+    assert json_loads(json_bytes(document)) == document
 
 
 def test_validation_flags_tokens_missing_from_catalog() -> None:
