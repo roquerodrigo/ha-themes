@@ -13,11 +13,11 @@
     "issues": {
         "themes_not_loaded": {
             "title": "HA Themes cannot load its themes",
-            "description": "The themes were installed into `{directory}`, but Home Assistant does not load themes from that directory. Make `frontend: themes:` in `configuration.yaml` read as follows, restart Home Assistant, then reload this integration:\n\n```yaml\n{configuration}\n```"
+            "description": "The themes were installed into `{directory}`, but Home Assistant does not load themes from that directory. Make `frontend: themes:` in `configuration.yaml` read as follows, then reload the themes (**Developer tools → YAML → Themes**) or restart Home Assistant:\n\n```yaml\n{configuration}\n```"
         },
         "themes_reload_failed": {
             "title": "HA Themes could not reload the themes",
-            "description": "Home Assistant refused to reload the themes, so the installed themes may be missing or outdated. Fix the error below in `configuration.yaml` or in the theme files it includes, then reload this integration:\n\n```\n{error}\n```"
+            "description": "Home Assistant refused to reload the themes, so the installed themes may be missing or outdated. Fix the error below in `configuration.yaml` or in the theme files it includes, then reload the themes (**Developer tools → YAML → Themes**):\n\n```\n{error}\n```"
         }
     }
 }
