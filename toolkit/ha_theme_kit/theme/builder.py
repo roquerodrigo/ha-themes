@@ -23,6 +23,8 @@ from ha_theme_kit.theme.tinted_on_colors import build_tinted_on_colors
 
 FONT_STYLESHEET_KEY = "stylesheet"
 FONT_STYLESHEET_TOKEN = "ha-themes-font-stylesheet"
+FONT_SIZE_ADJUST_KEY = "size_adjust"
+FONT_SIZE_ADJUST_TOKEN = "ha-themes-font-size-adjust"
 TYPOGRAPHY_TOKENS = {
     "body": "ha-font-family-body",
     "heading": "ha-font-family-heading",
@@ -67,6 +69,9 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
     for role, value in definition.typography.items():
         if role == FONT_STYLESHEET_KEY:
             base[FONT_STYLESHEET_TOKEN] = _css_string(str(value))
+            continue
+        if role == FONT_SIZE_ADJUST_KEY:
+            base[FONT_SIZE_ADJUST_TOKEN] = _x_height_ratio(str(value))
             continue
         if role not in TYPOGRAPHY_TOKENS:
             raise ValueError(f"unknown typography role {role!r}")
@@ -115,6 +120,18 @@ def _css_string(value: str) -> str:
     """A bare URL would end the custom property at its first `;`."""
     escaped = value.replace("\\", "\\\\").replace('"', '\\"')
     return f'"{escaped}"'
+
+
+def _x_height_ratio(value: str) -> str:
+    try:
+        ratio = float(value)
+    except ValueError:
+        ratio = 0
+    if not 0 < ratio < 1:
+        raise ValueError(
+            f"typography size_adjust must be an x-height ratio between 0 and 1, got {value!r}"
+        )
+    return value
 
 
 def _translucent_surfaces(roles: dict[str, str], mode: str) -> dict[str, str]:

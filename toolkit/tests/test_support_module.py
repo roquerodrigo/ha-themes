@@ -310,6 +310,28 @@ def test_each_themed_subtree_uses_its_own_color(page: Page, page_errors: list[st
     assert page_errors == []
 
 
+def test_body_takes_the_theme_font_and_its_size_adjustment(
+    page: Page, page_errors: list[str]
+) -> None:
+    body_font = (
+        "() => { const style = getComputedStyle(document.body); "
+        "return [style.fontFamily, style.fontSizeAdjust]; }"
+    )
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty("--ha-font-family-body", "Arial");
+          document.documentElement.style.setProperty("--ha-themes-font-size-adjust", "0.5");
+        }"""
+    )
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.wait_for_function(f"() => ({body_font})()[0] === 'Arial'")
+    assert page.evaluate(body_font) == ["Arial", "0.5"]
+
+    remove_root_variable(page, "--ha-themes-font-size-adjust")
+    assert page.evaluate(body_font) == ["Arial", "none"]
+    assert page_errors == []
+
+
 def test_font_stylesheet_follows_the_theme_variable(page: Page, page_errors: list[str]) -> None:
     links = "() => [...document.head.querySelectorAll('link[data-ha-themes-font-stylesheet]')]"
     page.evaluate(
