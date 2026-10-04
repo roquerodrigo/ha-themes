@@ -8,6 +8,8 @@ clamped into a band that reads on that mode's surfaces.
 from dataclasses import dataclass, field
 
 from ha_theme_kit.color.oklch import restyle
+from ha_theme_kit.theme.lightness_bands import parse_lightness_bands
+from ha_theme_kit.theme.modes import MODES
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 
 FRONTEND_NAMED_HUES = {
@@ -92,18 +94,21 @@ class EntityColorSettings:
         if not document:
             return cls()
         defaults = cls()
-        lightness = {mode: tuple(band) for mode, band in (document.get("lightness") or {}).items()}
-        unknown = (
-            set(document.get("pinned") or {})
-            - set(FRONTEND_NAMED_HUES)
-            - set(NEUTRAL_NAMES["light"])
-        )
+        lightness = parse_lightness_bands("entity_colors", document.get("lightness"))
+        pinned = document.get("pinned") or {}
+        unknown = set(pinned) - set(FRONTEND_NAMED_HUES) - set(NEUTRAL_NAMES["light"])
         if unknown:
             raise ValueError(f"entity_colors.pinned has unknown colors {sorted(unknown)}")
+        for name, value in pinned.items():
+            if isinstance(value, dict) and set(value) != set(MODES):
+                raise ValueError(
+                    f"entity_colors.pinned.{name} must set exactly {list(MODES)} or be a"
+                    f" single color, got {sorted(value)}"
+                )
         return cls(
             chroma_cap=float(document.get("chroma_cap", defaults.chroma_cap)),
             lightness={**defaults.lightness, **lightness},
-            pinned=document.get("pinned") or {},
+            pinned=pinned,
         )
 
 

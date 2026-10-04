@@ -3,7 +3,9 @@ from pathlib import Path
 
 import yaml
 
-MODES = ("light", "dark")
+from ha_theme_kit.theme.chart_palette import ChartSettings
+from ha_theme_kit.theme.entity_palette import EntityColorSettings
+from ha_theme_kit.theme.modes import MODES
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,11 @@ class ThemeDefinition:
             unknown_modes = set(document.get(section) or {}) - {*MODES, "base"}
             if unknown_modes:
                 raise ValueError(f"{path.name}: unknown {section} modes {sorted(unknown_modes)}")
+        try:
+            EntityColorSettings.from_document(document.get("entity_colors"))
+            ChartSettings.from_document(document.get("charts"))
+        except ValueError as error:
+            raise ValueError(f"{path.name}: {error}") from error
         return cls(
             slug=path.stem,
             name=document["name"],
