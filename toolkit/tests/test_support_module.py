@@ -558,3 +558,147 @@ def test_icon_tiles_take_the_entity_color_of_their_hue(page: Page, page_errors: 
     )
     assert stock == [[13, 71, 161], [241, 196, 71]]
     assert page_errors == []
+
+
+FIELD_VARIABLES = {
+    "--ha-themes-field-outline": "1",
+    "--ha-themes-field-border-color": "rgb(255, 0, 0)",
+    "--ha-themes-field-border-radius": "8px",
+}
+
+ADD_FIELDS = """() => {
+  const root = document.documentElement.style;
+  root.setProperty("--primary-color", "rgb(0, 0, 255)");
+  root.setProperty("--ha-color-border-danger-normal", "rgb(0, 128, 0)");
+  root.setProperty("--ha-border-radius-sm", "4px");
+  root.setProperty("--ha-border-radius-square", "0px");
+  const stockSheet = (css) => {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(css);
+    return sheet;
+  };
+  const addControl = (hostName, controlName, id, hostCss) => {
+    const host = document.createElement(hostName);
+    host.id = `${id}-host`;
+    const shadow = host.attachShadow({ mode: "open" });
+    shadow.adoptedStyleSheets = [stockSheet(hostCss)];
+    const control = document.createElement(controlName);
+    control.className = "input";
+    const controlShadow = control.attachShadow({ mode: "open" });
+    const base = document.createElement("div");
+    base.id = id;
+    base.part = "base";
+    const field = document.createElement("input");
+    field.id = `${id}-field`;
+    base.append(field);
+    controlShadow.append(base);
+    shadow.append(control);
+    document.body.append(host);
+    return host;
+  };
+  const sharedCss = ".input::part(base) { border: none; border-radius: 4px 4px 0 0; }";
+  addControl("ha-input", "wa-input", "input", `${sharedCss}
+    :host([appearance=material]) ::part(base)::after { content: ""; display: block; height: 1px; }`
+  ).setAttribute("appearance", "material");
+  addControl("ha-textarea", "wa-textarea", "textarea", `${sharedCss}
+    wa-textarea::part(base)::after { content: ""; display: block; height: 1px; }`);
+  const picker = document.createElement("ha-picker-field");
+  const pickerShadow = picker.attachShadow({ mode: "open" });
+  pickerShadow.adoptedStyleSheets = [stockSheet(`
+    ha-combo-box-item {
+      display: block; border-radius: 4px; border-end-start-radius: 0; border-end-end-radius: 0;
+    }
+    ha-combo-box-item::after { content: ""; display: block; height: 1px; }`)];
+  const item = document.createElement("ha-combo-box-item");
+  item.id = "picker";
+  item.tabIndex = 0;
+  pickerShadow.append(item);
+  document.body.append(picker);
+}"""
+
+FIELD_STYLES = """(id) => {
+  const element = window.findElement(id);
+  const style = getComputedStyle(element);
+  return {
+    width: style.borderTopWidth,
+    color: style.borderTopColor,
+    radius: `${style.borderTopLeftRadius} ${style.borderBottomLeftRadius}`,
+    underline: getComputedStyle(element, "::after").opacity,
+  };
+}"""
+
+
+def field_styles(page: Page, element_id: str) -> dict[str, str]:
+    return page.evaluate(FIELD_STYLES, element_id)
+
+
+def set_field_variables(page: Page) -> None:
+    for name, value in FIELD_VARIABLES.items():
+        page.evaluate(
+            "([name, value]) => window.setVariable(document.documentElement, name, value)",
+            [name, value],
+        )
+
+
+@pytest.mark.parametrize("element_id", ["input", "textarea", "picker"])
+def test_form_fields_keep_their_underline_without_the_field_variables(
+    page: Page, page_errors: list[str], element_id: str
+) -> None:
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.evaluate(ADD_FIELDS)
+    page.wait_for_function(
+        "() => window.findElement('input-host').shadowRoot.adoptedStyleSheets.length === 2"
+    )
+
+    styles = field_styles(page, element_id)
+    assert styles["width"] == "0px"
+    assert styles["underline"] == "1"
+    assert styles["radius"] == "4px 0px"
+    assert page_errors == []
+
+
+@pytest.mark.parametrize("element_id", ["input", "textarea", "picker"])
+def test_form_fields_take_an_outline_instead_of_the_underline(
+    page: Page, page_errors: list[str], element_id: str
+) -> None:
+    set_root_color(page, "rgb(255, 0, 0)")
+    set_field_variables(page)
+    page.evaluate(ADD_FIELDS)
+    page.wait_for_function(f"() => ({FIELD_STYLES})('{element_id}').width === '1px'")
+
+    assert field_styles(page, element_id) == {
+        "width": "1px",
+        "color": "rgb(255, 0, 0)",
+        "radius": "8px 8px",
+        "underline": "0",
+    }
+
+    remove_root_variable(page, "--ha-themes-field-outline")
+    page.wait_for_function(f"() => ({FIELD_STYLES})('{element_id}').underline === '1'")
+    assert field_styles(page, element_id)["width"] == "0px"
+    assert page_errors == []
+
+
+def test_outlined_fields_show_focus_and_errors_in_the_outline(
+    page: Page, page_errors: list[str]
+) -> None:
+    set_root_color(page, "rgb(255, 0, 0)")
+    set_field_variables(page)
+    page.evaluate(ADD_FIELDS)
+    page.wait_for_function(f"() => ({FIELD_STYLES})('input').width === '1px'")
+
+    page.evaluate("() => window.findElement('input-field').focus()")
+    assert field_styles(page, "input")["color"] == "rgb(0, 0, 255)"
+    page.evaluate(
+        "() => window.findElement('input-host').shadowRoot.querySelector('wa-input')"
+        ".classList.add('invalid')"
+    )
+    assert field_styles(page, "input")["color"] == "rgb(0, 128, 0)"
+
+    page.evaluate("() => window.findElement('picker').focus()")
+    assert field_styles(page, "picker")["color"] == "rgb(0, 0, 255)"
+    page.evaluate(
+        "() => window.findElement('picker').getRootNode().host.setAttribute('invalid', '')"
+    )
+    assert field_styles(page, "picker")["color"] == "rgb(0, 128, 0)"
+    assert page_errors == []

@@ -22,6 +22,7 @@ class ThemeDefinition:
     charts: dict = field(default_factory=dict)
     shadows: bool = False
     backdrop_blur: bool = True
+    field_outline: bool = True
 
     @classmethod
     def load(cls, path: Path) -> ThemeDefinition:
@@ -37,6 +38,7 @@ class ThemeDefinition:
             "charts",
             "shadows",
             "backdrop_blur",
+            "field_outline",
         }
         if unknown_sections:
             raise ValueError(f"{path.name}: unknown sections {sorted(unknown_sections)}")
@@ -62,6 +64,7 @@ class ThemeDefinition:
             charts=document.get("charts") or {},
             shadows=_require_bool(path, document, "shadows", default=False),
             backdrop_blur=_require_bool(path, document, "backdrop_blur", default=True),
+            field_outline=_require_bool(path, document, "field_outline", default=True),
         )
 
 

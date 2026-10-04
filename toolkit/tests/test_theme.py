@@ -21,6 +21,7 @@ from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     CONTRAST_PAIRS,
     DASHBOARD_HEADER_BACKGROUND_TOKEN,
+    FIELD_OUTLINE,
     ICON_TILE_HARMONY,
     ROLE_TOKENS,
     TOAST_EDGE_TOKEN,
@@ -275,6 +276,25 @@ def test_flat_overlays_keep_an_outline_unless_shadows_are_enabled() -> None:
     for key in ("ha-tooltip-box-shadow", TOAST_EDGE_TOKEN):
         assert flat[key] == "0 0 0 1px var(--outline-color)"
         assert key not in build_theme(minimal_definition(shadows=True)).base
+
+
+def test_form_fields_are_outlined_unless_disabled() -> None:
+    base = build_theme(minimal_definition()).base
+    assert {token: base[token] for token in FIELD_OUTLINE} == FIELD_OUTLINE
+    assert base["ha-themes-field-outline"] == "1"
+    assert base["ha-themes-field-border-color"] == "var(--ha-color-border-neutral-quiet)"
+    unoutlined = build_theme(minimal_definition(field_outline=False)).base
+    assert not set(FIELD_OUTLINE) & set(unoutlined)
+
+
+def test_field_outline_flag_defaults_to_on_and_loads_from_the_source(tmp_path: Path) -> None:
+    source = tmp_path / "flags.yaml"
+    source.write_text(yaml.safe_dump({"name": "Flags", "palette": MINIMAL_PALETTE}))
+    assert ThemeDefinition.load(source).field_outline
+    source.write_text(
+        yaml.safe_dump({"name": "Flags", "palette": MINIMAL_PALETTE, "field_outline": False})
+    )
+    assert not ThemeDefinition.load(source).field_outline
 
 
 def test_system_ui_variant_drops_web_fonts() -> None:
@@ -571,7 +591,7 @@ def test_lightness_bands_must_be_ordered_and_in_range(
         ThemeDefinition.load(source)
 
 
-@pytest.mark.parametrize("key", ["shadows", "backdrop_blur"])
+@pytest.mark.parametrize("key", ["shadows", "backdrop_blur", "field_outline"])
 def test_flags_reject_quoted_booleans(tmp_path: Path, key: str) -> None:
     source = tmp_path / "bad.yaml"
     source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, key: "false"}))

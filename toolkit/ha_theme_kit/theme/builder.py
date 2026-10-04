@@ -10,6 +10,7 @@ from ha_theme_kit.theme.neutral_layers import FORM_BACKGROUND, layer_neutral_fil
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
+    FIELD_OUTLINE,
     FLAT_ELEVATION,
     ICON_TILE_HARMONY,
     OVERLAY_EDGE,
@@ -82,6 +83,8 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         base.update(FLAT_ELEVATION | OVERLAY_EDGE)
     if definition.backdrop_blur:
         base.update(BACKDROP_BLUR_FILTERS)
+    if definition.field_outline:
+        base.update(FIELD_OUTLINE)
     base.update(_resolve_all(resolver, definition.tokens.get("base", {}), "tokens.base"))
 
     entity_settings = EntityColorSettings.from_document(definition.entity_colors)
