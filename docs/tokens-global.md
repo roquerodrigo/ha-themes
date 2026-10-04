@@ -18,13 +18,13 @@ against a running instance. Theme keys are the token name without the leading `-
 | [semantic-color](#semantic-color) | 103 |
 | [foundation](#foundation) | 43 |
 | [typography](#typography) | 29 |
-| [application](#application) | 103 |
+| [application](#application) | 111 |
 | [state-color](#state-color) | 85 |
 | [data-visualization](#data-visualization) | 64 |
 | [code-editor](#code-editor) | 18 |
 | [webawesome](#webawesome) | 94 |
 | [material-bridge](#material-bridge) | 48 |
-| [layout](#layout) | 26 |
+| [layout](#layout) | 18 |
 
 ## Broken upstream references
 
@@ -427,11 +427,22 @@ The classic theme variables used across the app.
 | `--primary-background-color` | `#fafafa` | `#111` | 178 |
 | `--secondary-background-color` | `#e5e5e5` | `#282828` | 34 |
 
+### application / button
+
+| Token | Light | Dark | Uses |
+| --- | --- | --- | ---: |
+| `--ha-button-neutral-color` |  | `#d9dae0` | 0 |
+| `--ha-button-neutral-light-color` |  | `#6a7081` | 0 |
+| `--ha-button-primary-light-color` |  | `#4082a040` | 0 |
+| `--ha-button-warning-light-color` |  | `#917b54c1` | 0 |
+
 ### application / chip
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
 | `--chip-background-color` | `rgba(var(--rgb-primary-text-color), .15)` |  | 0 |
+| `--ha-assist-chip-active-container-color` | `rgba(var(--rgb-primary-color), .15)` |  | 40 |
+| `--ha-assist-chip-filled-container-color` | `rgba(var(--rgb-primary-text-color), .15)` |  | 39 |
 
 ### application / input
 
@@ -474,49 +485,28 @@ The classic theme variables used across the app.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--accent-color` | `#ff9800` |  | 98 |
 | `--amber-color` | `#ffc107` |  | 4 |
-| `--app-theme-color` | `var(--app-header-background-color)` |  | 2 |
 | `--black-color` | `#000` |  | 0 |
 | `--blue-color` | `#2196f3` |  | 6 |
 | `--blue-grey-color` | `#607d8b` |  | 4 |
 | `--brown-color` | `#795548` |  | 0 |
 | `--cyan-color` | `#00bcd4` |  | 10 |
 | `--dark-grey-color` | `#606060` |  | 4 |
-| `--dark-primary-color` | `#0288d1` |  | 2 |
-| `--darker-primary-color` | `#016194` |  | 0 |
 | `--deep-orange-color` | `#ff6f22` |  | 4 |
 | `--deep-purple-color` | `#6e41ab` |  | 4 |
 | `--disabled-color` | `#bdbdbd` | `#464646` | 42 |
-| `--divider-color` | `#0000001f` | `#e1e1e11f` | 322 |
-| `--error-color` | `#db4437` |  | 259 |
 | `--green-color` | `#4caf50` |  | 7 |
 | `--grey-color` | `#9e9e9e` |  | 5 |
-| `--ha-assist-chip-active-container-color` | `rgba(var(--rgb-primary-color), .15)` |  | 40 |
-| `--ha-assist-chip-filled-container-color` | `rgba(var(--rgb-primary-text-color), .15)` |  | 39 |
-| `--ha-button-neutral-color` |  | `#d9dae0` | 0 |
-| `--ha-button-neutral-light-color` |  | `#6a7081` | 0 |
-| `--ha-button-primary-light-color` |  | `#4082a040` | 0 |
-| `--ha-button-warning-light-color` |  | `#917b54c1` | 0 |
 | `--indigo-color` | `#3f51b5` |  | 4 |
-| `--info-color` | `#039be5` |  | 92 |
 | `--light-blue-color` | `#03a9f4` |  | 6 |
 | `--light-green-color` | `#8bc34a` |  | 0 |
 | `--light-grey-color` | `#bdbdbd` |  | 4 |
-| `--light-primary-color` | `#b3e5fc` |  | 17 |
 | `--lime-color` | `#cddc39` |  | 4 |
 | `--orange-color` | `#ff9800` |  | 7 |
-| `--outline-color` | `#0000001f` | `#e1e1e11f` | 82 |
-| `--outline-hover-color` | `#0000003d` | `#e1e1e13d` | 0 |
 | `--pink-color` | `#e91e63` |  | 0 |
-| `--primary-color` | `var(--ha-color-primary-40)` |  | 365 |
 | `--purple-color` | `#926bc7` |  | 6 |
 | `--red-color` | `#f44336` |  | 7 |
-| `--scrollbar-thumb-color` | `#c2c2c2` | `#6e6e6e` | 127 |
-| `--shadow-color` | `#00000029` | `#0000007a` | 4 |
-| `--success-color` | `#43a047` |  | 111 |
 | `--teal-color` | `#009688` |  | 8 |
-| `--warning-color` | `#ffa600` |  | 111 |
 | `--white-color` | `#fff` |  | 27 |
 | `--yellow-color` | `#ffeb3b` |  | 4 |
 
@@ -534,6 +524,26 @@ The classic theme variables used across the app.
 | `--rgb-success-color` | `67, 160, 71` |  | 1 |
 | `--rgb-text-primary-color` | `255, 255, 255` |  | 0 |
 | `--rgb-warning-color` | `255, 166, 0` |  | 1 |
+
+### application / roles
+
+| Token | Light | Dark | Uses |
+| --- | --- | --- | ---: |
+| `--accent-color` | `#ff9800` |  | 98 |
+| `--app-theme-color` | `var(--app-header-background-color)` |  | 2 |
+| `--dark-primary-color` | `#0288d1` |  | 2 |
+| `--darker-primary-color` | `#016194` |  | 0 |
+| `--divider-color` | `#0000001f` | `#e1e1e11f` | 322 |
+| `--error-color` | `#db4437` |  | 259 |
+| `--info-color` | `#039be5` |  | 92 |
+| `--light-primary-color` | `#b3e5fc` |  | 17 |
+| `--outline-color` | `#0000001f` | `#e1e1e11f` | 82 |
+| `--outline-hover-color` | `#0000003d` | `#e1e1e13d` | 0 |
+| `--primary-color` | `var(--ha-color-primary-40)` |  | 365 |
+| `--scrollbar-thumb-color` | `#c2c2c2` | `#6e6e6e` | 127 |
+| `--shadow-color` | `#00000029` | `#0000007a` | 4 |
+| `--success-color` | `#43a047` |  | 111 |
+| `--warning-color` | `#ffa600` |  | 111 |
 
 ### application / sidebar
 
@@ -565,7 +575,15 @@ The classic theme variables used across the app.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
+| `--dark-disabled-opacity` | `.38` |  | 0 |
+| `--dark-divider-opacity` | `.12` |  | 6 |
+| `--dark-primary-opacity` | `.87` |  | 6 |
+| `--dark-secondary-opacity` | `.54` |  | 1 |
 | `--disabled-text-color` | `#bdbdbd` | `#6f6f6f` | 104 |
+| `--light-disabled-opacity` | `.3` |  | 1 |
+| `--light-divider-opacity` | `.12` |  | 0 |
+| `--light-primary-opacity` | `1` |  | 0 |
+| `--light-secondary-opacity` | `.7` |  | 1 |
 | `--primary-text-color` | `var(--ha-color-text-primary)` | `#e1e1e1` | 395 |
 | `--secondary-text-color` | `var(--ha-color-text-secondary)` | `#9b9b9b` | 407 |
 | `--text-light-primary-color` | `#212121` |  | 10 |
@@ -1159,15 +1177,6 @@ Maps ha tokens onto legacy material components.
 
 Safe areas, direction and structural values.
 
-### layout / dark
-
-| Token | Light | Dark | Uses |
-| --- | --- | --- | ---: |
-| `--dark-disabled-opacity` | `.38` |  | 0 |
-| `--dark-divider-opacity` | `.12` |  | 6 |
-| `--dark-primary-opacity` | `.87` |  | 6 |
-| `--dark-secondary-opacity` | `.54` |  | 1 |
-
 ### layout / direction
 
 | Token | Light | Dark | Uses |
@@ -1186,15 +1195,6 @@ Safe areas, direction and structural values.
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
 | `--header-height` | `56px` |  | 98 |
-
-### layout / light
-
-| Token | Light | Dark | Uses |
-| --- | --- | --- | ---: |
-| `--light-disabled-opacity` | `.3` |  | 1 |
-| `--light-divider-opacity` | `.12` |  | 0 |
-| `--light-primary-opacity` | `1` |  | 0 |
-| `--light-secondary-opacity` | `.7` |  | 1 |
 
 ### layout / margin
 

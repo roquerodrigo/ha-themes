@@ -1,8 +1,10 @@
 import re
 from dataclasses import dataclass
 
+from ha_theme_kit.theme.entity_palette import FRONTEND_NAMED_HUES, NEUTRAL_NAMES
+
 CORE_PALETTE = re.compile(r"^--ha-color-(black|white|(?P<family>[a-z]+)-\d+)$")
-NAMED_COLOR = re.compile(r"^--([a-z]+-)*[a-z]+-color$")
+NAMED_COLORS = frozenset({*FRONTEND_NAMED_HUES, *NEUTRAL_NAMES["light"], "black", "white"})
 
 
 @dataclass(frozen=True)
@@ -39,6 +41,17 @@ _TYPOGRAPHY_PREFIXES = (
     "--ha-moz-osx-font-smoothing",
     "--md-list-item-",
 )
+_APPLICATION_PREFIXES = {
+    "sidebar": "sidebar",
+    "input": "input",
+    "label-badge": "label-badge",
+    "app-header": "app-header",
+    "table": "table",
+    "slider": "slider",
+    "chip": "chip",
+    "ha-assist-chip": "chip",
+    "ha-button": "button",
+}
 _LAYOUT_PREFIXES = ("--safe-", "--header-height", "--direction", "--float-", "--margin-title-")
 
 
@@ -64,7 +77,7 @@ def classify_global_token(name: str) -> Classification:
         return Classification("data-visualization", name.removeprefix("--").split("-")[0])
     if name.startswith("--codemirror-"):
         return Classification("code-editor", "syntax")
-    if name.startswith(_LAYOUT_PREFIXES) or name.endswith("-opacity"):
+    if name.startswith(_LAYOUT_PREFIXES):
         return Classification("layout", name.removeprefix("--").split("-")[0])
     return Classification("application", _application_group(name))
 
@@ -83,15 +96,15 @@ def _application_group(name: str) -> str:
     bare = name.removeprefix("--")
     if bare.startswith("rgb-"):
         return "rgb-channels"
-    for prefix in ("sidebar", "input", "label-badge", "app-header", "table", "slider", "chip"):
+    for prefix, group in _APPLICATION_PREFIXES.items():
         if bare.startswith(prefix):
-            return prefix
+            return group
     if "background" in bare:
         return "background"
-    if "text" in bare:
+    if "text" in bare or bare.endswith("-opacity"):
         return "text"
-    if NAMED_COLOR.match(name):
-        return "named-colors"
+    if bare.endswith("-color"):
+        return "named-colors" if bare.removesuffix("-color") in NAMED_COLORS else "roles"
     return "misc"
 
 
