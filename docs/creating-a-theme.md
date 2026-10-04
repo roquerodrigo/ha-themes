@@ -214,9 +214,12 @@ reads. The frontend's default theme declares several tokens nothing reads —
 `ha-color-text-link`, `ha-color-text-disabled`, `darker-primary-color`, `outline-hover-color` —
 so there is no `link` role: links are drawn in `primary-color`, the `primary` role. Since
 `primary` is also the brand fill of buttons, badges and switches, the builder never moves it and
-validation holds it to the 3:1 of a graphical part; check its link contrast by eye. Anthropic's
-clay reaches 3.85–4.05:1 in light mode (stock 3.12–3.26:1) and 4.24–4.86:1 in dark mode (stock
-5.0–5.8:1), where links on cards are therefore slightly fainter than stock.
+validation holds it to the 3:1 of a graphical part; check its link contrast by eye. Anthropic
+picks its primary for links as much as for fills: a deeper clay (`primary.30`, `#9c4a2e`) with
+white text in light mode and a lighter clay (`primary.60`, `#e89378`) with dark text in dark
+mode, which puts links at 6.1:1 and 5.6:1 on cards and loud buttons at 6.1:1 and 7.8:1. The
+theme also points `ha-color-on-primary-normal` (plain text buttons such as Lock/Unlock and card
+links) at the same deep clay in light mode, so every primary-colored text reads alike.
 
 Form fields (`ha-color-form-background`, `-hover`, `-disabled`), the quiet and normal neutral
 fills and `ha-color-surface-low` point at fixed neutral steps that suit the frontend's own
