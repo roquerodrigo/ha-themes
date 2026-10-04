@@ -64,8 +64,29 @@ def command_build(arguments: argparse.Namespace) -> int:
                         f"    {mark} {result.mode:5} {result.foreground_role} on"
                         f" {result.background_role}: {result.ratio}:1 (min {result.minimum})"
                     )
+            for chart in report.charts:
+                mark = "✓" if chart.passes else "✗"
+                print(
+                    f"    {mark} {chart.mode:5} chart series: CVD ΔE {chart.worst_cvd_distance},"
+                    f" normal ΔE {chart.worst_normal_distance}"
+                    + (
+                        f", lightness off-band {chart.outside_lightness_band}"
+                        if chart.outside_lightness_band
+                        else ""
+                    )
+                    + (
+                        f", low chroma {chart.below_chroma_floor}"
+                        if chart.below_chroma_floor
+                        else ""
+                    )
+                    + (
+                        f", sub-3:1 (legend and tooltip carry identity) {chart.below_mark_contrast}"
+                        if chart.below_mark_contrast
+                        else ""
+                    )
+                )
             if report.ok:
-                print("    ✓ all tokens known, all contrast checks pass")
+                print("    ✓ all tokens known, all contrast and chart checks pass")
             failed = failed or not report.ok
     every_theme = [
         build_theme(variant)
@@ -78,17 +99,53 @@ def command_build(arguments: argparse.Namespace) -> int:
 
 
 def command_preview(arguments: argparse.Namespace) -> int:
-    from ha_theme_kit.inventory.dev_instance import DevInstance
+    from ha_theme_kit.theme.builder import build_theme
     from ha_theme_kit.theme.definition import ThemeDefinition
-    from ha_theme_kit.theme.preview import capture_previews
+    from ha_theme_kit.theme.preview import PREVIEWS_DIRECTORY, capture_previews
+    from ha_theme_kit.theme.swatches import capture_swatches
     from ha_theme_kit.theme.variants import theme_family
 
-    instance = DevInstance.from_credentials_file()
     for source in _theme_sources(arguments.themes):
-        for definition in theme_family(ThemeDefinition.load(source)):
-            for path in capture_previews(instance, definition.name, definition.slug):
+        definition = ThemeDefinition.load(source)
+        swatches = capture_swatches(build_theme(definition), PREVIEWS_DIRECTORY / source.stem)
+        for path in swatches:
+            print(f"wrote {path.relative_to(PROJECT_ROOT)}")
+        if arguments.palette_only:
+            continue
+        from ha_theme_kit.inventory.dev_instance import DevInstance
+
+        instance = DevInstance.from_credentials_file()
+        for variant in theme_family(definition):
+            for path in capture_previews(instance, variant.name, variant.slug):
                 print(f"wrote {path.relative_to(PROJECT_ROOT)}")
     return 0
+
+
+def command_palette(arguments: argparse.Namespace) -> int:
+    from ha_theme_kit.theme.builder import build_theme
+    from ha_theme_kit.theme.chart_palette import suggest_series_orders
+    from ha_theme_kit.theme.definition import ThemeDefinition
+
+    for source in _theme_sources(arguments.themes):
+        definition = ThemeDefinition.load(source)
+        theme = build_theme(definition)
+        seeds = list(definition.charts.get("series") or [])
+        print(f"{source.stem}: chart series orders that keep slot 1 (CVD ΔE, normal ΔE)")
+        for cvd, normal, order in suggest_series_orders(theme.chart_series):
+            labels = [seeds[index] if seeds else f"slot {index + 1}" for index in order]
+            print(f"  {cvd:5} {normal:5}  {', '.join(labels)}")
+        for mode in theme.modes:
+            print(f"  {mode} entity colors:")
+            for token, value in theme.modes[mode].items():
+                if token.endswith("-color") and token.removesuffix("-color") in _named_colors():
+                    print(f"    {token:24} {value}")
+    return 0
+
+
+def _named_colors() -> set[str]:
+    from ha_theme_kit.theme.entity_palette import FRONTEND_NAMED_HUES, NEUTRAL_NAMES
+
+    return set(FRONTEND_NAMED_HUES) | set(NEUTRAL_NAMES["light"])
 
 
 def main() -> int:
@@ -109,8 +166,17 @@ def main() -> int:
     build.add_argument("--verbose", action="store_true", help="list every contrast check")
     build.set_defaults(handler=command_build)
 
+    palette = commands.add_parser(
+        "palette", help="suggest chart series orders and list entity colors"
+    )
+    palette.add_argument("themes", nargs="*", help="theme slugs (default: all)")
+    palette.set_defaults(handler=command_palette)
+
     preview = commands.add_parser("preview", help="screenshot themes in Google Chrome")
     preview.add_argument("themes", nargs="*", help="theme slugs (default: all)")
+    preview.add_argument(
+        "--palette-only", action="store_true", help="only render the palette swatch sheets"
+    )
     preview.set_defaults(handler=command_preview)
 
     arguments = parser.parse_args()

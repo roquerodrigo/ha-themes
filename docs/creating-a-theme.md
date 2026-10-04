@@ -17,6 +17,10 @@ Every theme built here follows these defaults, so a new theme gets them for free
 - **Backdrop blur.** The header, cards, dialogs and bottom sheets get a translucent
   background (their role color with alpha) plus a `backdrop-filter` blur, and the modal
   scrim blurs the page behind it. A theme opts out with `backdrop_blur: false`.
+- **A harmonized entity palette.** The frontend's named colors — which every entity state
+  color references — keep their hue and meaning but are restyled per mode: chroma capped to
+  the theme's mood and lightness clamped into a band that reads on that mode's surfaces.
+  Energy and weather-icon colors follow them.
 - **A system-ui variant.** Each definition produces two themes in the same file:
   `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
   UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download.
@@ -65,6 +69,26 @@ roles:                         # optional per mode; unset roles use the defaults
     surface: "#ffffff"
   dark:
     background: "#262624"
+
+entity_colors:                 # optional; defaults shown
+  chroma_cap: 0.16
+  lightness:
+    light: [0.50, 0.80]
+    dark: [0.62, 0.86]
+  pinned:                      # named colors to set explicitly, per mode or for both
+    deep-orange: "{primary.50}"
+    blue:
+      light: "{blue.40}"
+      dark: "{blue.50}"
+
+charts:                        # optional; without it the frontend's series stay in place
+  series:                      # exactly eight seeds, in order: slot 1 is the opening color
+    - "{primary.50}"
+    - "{blue.50}"
+    # … six more
+  lightness:                   # optional per-mode band the seeds are stepped into
+    light: [0.50, 0.72]
+    dark: [0.58, 0.66]
 
 tokens:                        # optional raw tokens, applied last
   base:                        # mode-independent only
@@ -119,13 +143,45 @@ link: "{primary.30}"           # → #9c4a2e
 
 Roles marked — are only written when set; otherwise the frontend's derived default applies.
 
+### Entity colors
+
+Entity icons, tiles, timelines and the thermostat read `state-*` colors, which point at the
+frontend's named colors (`--amber-color` for lights on, `--green-color` for locked, …). The
+builder restyles each of the eighteen chromatic named colors in OKLCH: the hue stays, the
+chroma is capped at `chroma_cap`, and the lightness is clamped into the mode's band, so the
+same palette reads on light and dark surfaces. `light-grey`, `grey`, `dark-grey` and
+`disabled` come from the neutral scale. `pinned` replaces any of them outright.
+
+The same colors drive the energy dashboard (`energy-*`: grid in blue, return in purple,
+solar in orange, non-fossil in green, battery in teal and pink, gas in red, water in cyan)
+and the weather icons (sun in amber, moon in yellow, rain in light blue, clouds and snow
+from the neutral scale).
+
+Any `state-<domain>-…-color` can still be set under `tokens` for one-off changes; see the
+resolution order in [tokens-components.md](tokens-components.md#dynamic-families).
+
+### Chart series
+
+Graphs, calendars and maps read `color-1` … `color-54` in JavaScript. The eight `series`
+seeds are stepped per mode into the lightness band with a chroma floor of 0.105, and must
+pass the categorical checks in both modes: lightness band, chroma floor, adjacent
+color-vision-deficiency separation (protanopia and deuteranopia simulated with Machado
+2009, OKLab ΔE ≥ 6, target 8) and adjacent normal-vision separation (ΔE ≥ 15). Colors
+under 3:1 against the card surface are reported but allowed: every chart has a legend and
+tooltips. Slots 9–54 repeat the eight hues at lighter and darker steps; past eight series
+identity is no longer guaranteed, so prefer fewer series per chart.
+
+The order matters as much as the hues. `ha-themes palette <slug>` ranks the orders that
+keep slot 1 and pass in both modes; pick one and write it into `series`.
+
 ### Validation
 
 `ha-themes build` reports, per theme:
 
 - tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
 - WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1), and
-  primary, error and on-primary text (3:1).
+  primary, error and on-primary text (3:1);
+- the chart series checks above, per mode.
 
 `--strict` turns any failure into a non-zero exit code.
 

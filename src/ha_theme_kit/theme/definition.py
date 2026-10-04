@@ -15,6 +15,8 @@ class ThemeDefinition:
     typography: dict[str, str] = field(default_factory=dict)
     roles: dict[str, dict[str, str]] = field(default_factory=dict)
     tokens: dict[str, dict[str, str]] = field(default_factory=dict)
+    entity_colors: dict = field(default_factory=dict)
+    charts: dict = field(default_factory=dict)
     shadows: bool = False
     backdrop_blur: bool = True
 
@@ -28,6 +30,8 @@ class ThemeDefinition:
             "typography",
             "roles",
             "tokens",
+            "entity_colors",
+            "charts",
             "shadows",
             "backdrop_blur",
         }
@@ -45,6 +49,8 @@ class ThemeDefinition:
             typography=document.get("typography") or {},
             roles=document.get("roles") or {},
             tokens=document.get("tokens") or {},
+            entity_colors=document.get("entity_colors") or {},
+            charts=document.get("charts") or {},
             shadows=bool(document.get("shadows", False)),
             backdrop_blur=bool(document.get("backdrop_blur", True)),
         )

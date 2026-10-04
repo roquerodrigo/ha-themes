@@ -87,6 +87,7 @@ def test_shipped_themes_validate_against_catalog(source: Path) -> None:
         report = validate_theme(build_theme(variant), catalog)
         assert report.unknown_tokens == []
         assert all(result.passes for result in report.contrast)
+        assert all(chart.passes for chart in report.charts)
 
 
 def test_chrome_follows_background_unless_set() -> None:

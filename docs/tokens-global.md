@@ -315,11 +315,11 @@ Spacing, borders, radii, elevation and motion.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--ha-animation-duration-fast` | `.15s` (reduced motion: `1ms` |  | 30 |
+| `--ha-animation-duration-fast` | `.15s` (reduced motion: `1ms` |  | 33 |
 | `--ha-animation-duration-instant` | `75ms` (reduced motion: `1ms` |  | 6 |
 | `--ha-animation-duration-none` | `1ms` (reduced motion: `1ms` |  | 0 |
-| `--ha-animation-duration-normal` | `.25s` (reduced motion: `1ms` |  | 147 |
-| `--ha-animation-duration-slow` | `.35s` (reduced motion: `1ms` |  | 12 |
+| `--ha-animation-duration-normal` | `.25s` (reduced motion: `1ms` |  | 148 |
+| `--ha-animation-duration-slow` | `.35s` (reduced motion: `1ms` |  | 13 |
 
 ### foundation / spacing
 
@@ -379,7 +379,7 @@ Font families, sizes, weights and line heights.
 | `--ha-font-size-4xl` | `calc(32px * var(--ha-font-size-scale))` |  | 3 |
 | `--ha-font-size-5xl` | `calc(40px * var(--ha-font-size-scale))` |  | 0 |
 | `--ha-font-size-l` | `calc(16px * var(--ha-font-size-scale))` |  | 182 |
-| `--ha-font-size-m` | `calc(14px * var(--ha-font-size-scale))` |  | 325 |
+| `--ha-font-size-m` | `calc(14px * var(--ha-font-size-scale))` |  | 326 |
 | `--ha-font-size-s` | `calc(12px * var(--ha-font-size-scale))` |  | 244 |
 | `--ha-font-size-scale` | `1` |  | 4 |
 | `--ha-font-size-xl` | `calc(20px * var(--ha-font-size-scale))` |  | 220 |
@@ -474,20 +474,20 @@ The classic theme variables used across the app.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--accent-color` | `#ff9800` |  | 95 |
+| `--accent-color` | `#ff9800` |  | 98 |
 | `--amber-color` | `#ffc107` |  | 4 |
-| `--app-theme-color` | `var(--app-header-background-color)` |  | 0 |
+| `--app-theme-color` | `var(--app-header-background-color)` |  | 2 |
 | `--black-color` | `#000` |  | 0 |
 | `--blue-color` | `#2196f3` |  | 6 |
 | `--blue-grey-color` | `#607d8b` |  | 4 |
 | `--brown-color` | `#795548` |  | 0 |
-| `--cyan-color` | `#00bcd4` |  | 6 |
+| `--cyan-color` | `#00bcd4` |  | 10 |
 | `--dark-grey-color` | `#606060` |  | 4 |
-| `--dark-primary-color` | `#0288d1` |  | 0 |
+| `--dark-primary-color` | `#0288d1` |  | 2 |
 | `--darker-primary-color` | `#016194` |  | 0 |
 | `--deep-orange-color` | `#ff6f22` |  | 4 |
 | `--deep-purple-color` | `#6e41ab` |  | 4 |
-| `--disabled-color` | `#bdbdbd` | `#464646` | 39 |
+| `--disabled-color` | `#bdbdbd` | `#464646` | 42 |
 | `--divider-color` | `#0000001f` | `#e1e1e11f` | 322 |
 | `--error-color` | `#db4437` |  | 259 |
 | `--green-color` | `#4caf50` |  | 7 |
@@ -499,23 +499,23 @@ The classic theme variables used across the app.
 | `--ha-button-primary-light-color` |  | `#4082a040` | 0 |
 | `--ha-button-warning-light-color` |  | `#917b54c1` | 0 |
 | `--indigo-color` | `#3f51b5` |  | 4 |
-| `--info-color` | `#039be5` |  | 91 |
+| `--info-color` | `#039be5` |  | 92 |
 | `--light-blue-color` | `#03a9f4` |  | 6 |
 | `--light-green-color` | `#8bc34a` |  | 0 |
 | `--light-grey-color` | `#bdbdbd` |  | 4 |
-| `--light-primary-color` | `#b3e5fc` |  | 14 |
+| `--light-primary-color` | `#b3e5fc` |  | 17 |
 | `--lime-color` | `#cddc39` |  | 4 |
 | `--orange-color` | `#ff9800` |  | 7 |
 | `--outline-color` | `#0000001f` | `#e1e1e11f` | 82 |
 | `--outline-hover-color` | `#0000003d` | `#e1e1e13d` | 0 |
 | `--pink-color` | `#e91e63` |  | 0 |
-| `--primary-color` | `var(--ha-color-primary-40)` |  | 359 |
+| `--primary-color` | `var(--ha-color-primary-40)` |  | 365 |
 | `--purple-color` | `#926bc7` |  | 6 |
 | `--red-color` | `#f44336` |  | 7 |
 | `--scrollbar-thumb-color` | `#c2c2c2` | `#6e6e6e` | 127 |
 | `--shadow-color` | `#00000029` | `#0000007a` | 4 |
 | `--success-color` | `#43a047` |  | 111 |
-| `--teal-color` | `#009688` |  | 5 |
+| `--teal-color` | `#009688` |  | 8 |
 | `--warning-color` | `#ffa600` |  | 111 |
 | `--white-color` | `#fff` |  | 27 |
 | `--yellow-color` | `#ffeb3b` |  | 4 |
@@ -525,11 +525,11 @@ The classic theme variables used across the app.
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
 | `--rgb-accent-color` | `255, 152, 0` |  | 4 |
-| `--rgb-card-background-color` | `255, 255, 255` | `28,28,28` | 3 |
+| `--rgb-card-background-color` | `255, 255, 255` | `28,28,28` | 7 |
 | `--rgb-error-color` | `219, 68, 55` |  | 1 |
 | `--rgb-info-color` | `3, 155, 229` |  | 1 |
 | `--rgb-primary-color` | `0, 154, 199` |  | 55 |
-| `--rgb-primary-text-color` | `33, 33, 33` | `225,225,225` | 33 |
+| `--rgb-primary-text-color` | `33, 33, 33` | `225,225,225` | 37 |
 | `--rgb-secondary-text-color` | `114, 114, 114` | `155,155,155` | 3 |
 | `--rgb-success-color` | `67, 160, 71` |  | 1 |
 | `--rgb-text-primary-color` | `255, 255, 255` |  | 0 |
@@ -565,10 +565,10 @@ The classic theme variables used across the app.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--disabled-text-color` | `#bdbdbd` | `#6f6f6f` | 103 |
-| `--primary-text-color` | `var(--ha-color-text-primary)` | `#e1e1e1` | 391 |
-| `--secondary-text-color` | `var(--ha-color-text-secondary)` | `#9b9b9b` | 405 |
-| `--text-light-primary-color` | `#212121` |  | 7 |
+| `--disabled-text-color` | `#bdbdbd` | `#6f6f6f` | 104 |
+| `--primary-text-color` | `var(--ha-color-text-primary)` | `#e1e1e1` | 395 |
+| `--secondary-text-color` | `var(--ha-color-text-secondary)` | `#9b9b9b` | 407 |
+| `--text-light-primary-color` | `#212121` |  | 10 |
 | `--text-primary-color` | `#fff` |  | 61 |
 
 ## state-color
@@ -653,7 +653,7 @@ Per-domain and per-state entity colors.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--state-humidifier-on-color` | `var(--blue-color)` |  | 0 |
+| `--state-humidifier-on-color` | `var(--blue-color)` |  | 1 |
 
 ### state-color / icon
 
@@ -743,7 +743,7 @@ Per-domain and per-state entity colors.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--state-unavailable-color` | `var(--state-icon-unavailable-color,var(--disabled-text-color))` |  | 38 |
+| `--state-unavailable-color` | `var(--state-icon-unavailable-color,var(--disabled-text-color))` |  | 39 |
 
 ### state-color / update
 
@@ -803,7 +803,7 @@ Chart, energy and history colors.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--color-1` | `#4269d0` |  | 0 |
+| `--color-1` | `#4269d0` |  | 22 |
 | `--color-10` | `#094bad` |  | 0 |
 | `--color-11` | `#c99000` |  | 0 |
 | `--color-12` | `#d84f3e` |  | 0 |
@@ -862,14 +862,14 @@ Chart, energy and history colors.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--energy-battery-in-color` | `#f06292` |  | 1 |
-| `--energy-battery-out-color` | `#4db6ac` |  | 1 |
+| `--energy-battery-in-color` | `#f06292` |  | 3 |
+| `--energy-battery-out-color` | `#4db6ac` |  | 3 |
 | `--energy-gas-color` | `#8e021b` |  | 2 |
-| `--energy-grid-consumption-color` | `#488fc2` |  | 3 |
-| `--energy-grid-return-color` | `#8353d1` | `#a280db` | 3 |
+| `--energy-grid-consumption-color` | `#488fc2` |  | 5 |
+| `--energy-grid-return-color` | `#8353d1` | `#a280db` | 5 |
 | `--energy-non-fossil-color` | `#0f9d58` |  | 1 |
-| `--energy-solar-color` | `#ff9800` |  | 1 |
-| `--energy-water-color` | `#00bcd4` |  | 2 |
+| `--energy-solar-color` | `#ff9800` |  | 3 |
+| `--energy-water-color` | `#00bcd4` |  | 4 |
 
 ### data-visualization / history
 
@@ -1172,7 +1172,7 @@ Safe areas, direction and structural values.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--direction` | `ltr` |  | 133 |
+| `--direction` | `ltr` |  | 134 |
 
 ### layout / float
 
@@ -1207,7 +1207,7 @@ Safe areas, direction and structural values.
 
 | Token | Light | Dark | Uses |
 | --- | --- | --- | ---: |
-| `--safe-area-inset-bottom` | `var(--app-safe-area-inset-bottom,env(safe-area-inset-bottom,0px))` |  | 243 |
+| `--safe-area-inset-bottom` | `var(--app-safe-area-inset-bottom,env(safe-area-inset-bottom,0px))` |  | 260 |
 | `--safe-area-inset-left` | `var(--app-safe-area-inset-left,env(safe-area-inset-left,0px))` |  | 224 |
 | `--safe-area-inset-right` | `var(--app-safe-area-inset-right,env(safe-area-inset-right,0px))` |  | 227 |
 | `--safe-area-inset-top` | `var(--app-safe-area-inset-top,env(safe-area-inset-top,0px))` |  | 216 |

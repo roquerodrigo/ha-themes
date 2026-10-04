@@ -21,7 +21,22 @@ PREVIEW_SHOTS = {
     "dialog": PreviewShot("/theme-lab/components", more_info_entity="light.bed_light"),
     "settings": PreviewShot("/config/dashboard"),
     "entities": PreviewShot("/config/entities"),
-    "history": PreviewShot("/history"),
+    "history": PreviewShot(
+        "/history?entity_id="
+        + ",".join(
+            (
+                "sensor.outside_temperature",
+                "light.bed_light",
+                "light.ceiling_lights",
+                "lock.front_door",
+                "lock.kitchen_door",
+                "climate.ecobee",
+                "cover.kitchen_window",
+                "media_player.living_room",
+                "binary_sensor.basement_floor_wet",
+            )
+        )
+    ),
 }
 
 

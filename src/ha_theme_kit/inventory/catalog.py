@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from ha_theme_kit.inventory.browser_capture import RuntimeCapture
-from ha_theme_kit.inventory.bundle_scan import TokenUsage
+from ha_theme_kit.inventory.bundle_scan import BundleScan
 from ha_theme_kit.inventory.classification import (
     classify_component_token,
     classify_global_token,
@@ -43,6 +43,7 @@ class TokenCatalog:
     core_version: str
     captured_at: str
     tokens: dict[str, TokenEntry]
+    dynamic_families: dict[str, int] = field(default_factory=dict)
 
     def save(self, path: Path = CATALOG_FILE) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -50,6 +51,7 @@ class TokenCatalog:
             "frontend_version": self.frontend_version,
             "core_version": self.core_version,
             "captured_at": self.captured_at,
+            "dynamic_families": self.dynamic_families,
             "tokens": [asdict(entry) for entry in sorted(self.tokens.values(), key=_sort_key)],
         }
         path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
@@ -68,9 +70,7 @@ def _sort_key(entry: TokenEntry) -> tuple[str, str, str]:
     return (entry.layer, entry.group, entry.name)
 
 
-def build_catalog(
-    runtime: RuntimeCapture, usage: dict[str, TokenUsage], frontend_version: str
-) -> TokenCatalog:
+def build_catalog(runtime: RuntimeCapture, scan: BundleScan, frontend_version: str) -> TokenCatalog:
     tokens: dict[str, TokenEntry] = {}
     for name, light_value in runtime.light.declared.items():
         classification = classify_global_token(name)
@@ -95,7 +95,7 @@ def build_catalog(
                 dark=dark_value,
                 resolved_dark=runtime.dark.computed.get(name),
             )
-    for name, token_usage in usage.items():
+    for name, token_usage in scan.usage.items():
         if is_private_token(name):
             continue
         entry = tokens.get(name)
@@ -111,4 +111,5 @@ def build_catalog(
         core_version=importlib.metadata.version("homeassistant"),
         captured_at=datetime.now(UTC).date().isoformat(),
         tokens=tokens,
+        dynamic_families=scan.dynamic_families,
     )

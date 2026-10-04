@@ -53,16 +53,52 @@ def hex_to_oklch(hex_color: str) -> Oklch:
     return Oklch(lightness, chroma, hue)
 
 
-def oklch_to_hex(color: Oklch) -> str:
+def _oklch_to_linear_rgb(color: Oklch) -> tuple[float, float, float]:
     axis_a = color.chroma * math.cos(math.radians(color.hue))
     axis_b = color.chroma * math.sin(math.radians(color.hue))
     long_cone = (color.lightness + 0.3963377774 * axis_a + 0.2158037573 * axis_b) ** 3
     medium_cone = (color.lightness - 0.1055613458 * axis_a - 0.0638541728 * axis_b) ** 3
     short_cone = (color.lightness - 0.0894841775 * axis_a - 1.2914855480 * axis_b) ** 3
-    red = 4.0767416621 * long_cone - 3.3077115913 * medium_cone + 0.2309699292 * short_cone
-    green = -1.2684380046 * long_cone + 2.6097574011 * medium_cone - 0.3413193965 * short_cone
-    blue = -0.0041960863 * long_cone - 0.7034186147 * medium_cone + 1.7076147010 * short_cone
+    return (
+        4.0767416621 * long_cone - 3.3077115913 * medium_cone + 0.2309699292 * short_cone,
+        -1.2684380046 * long_cone + 2.6097574011 * medium_cone - 0.3413193965 * short_cone,
+        -0.0041960863 * long_cone - 0.7034186147 * medium_cone + 1.7076147010 * short_cone,
+    )
+
+
+def fit_to_gamut(color: Oklch) -> Oklch:
+    """Reduce chroma, keeping lightness and hue, until the color fits in sRGB."""
+    tolerance = 1e-4
+    while color.chroma > 0 and not all(
+        -tolerance <= channel <= 1 + tolerance for channel in _oklch_to_linear_rgb(color)
+    ):
+        color = Oklch(color.lightness, max(0.0, color.chroma - 0.002), color.hue)
+    return color
+
+
+def oklch_to_hex(color: Oklch) -> str:
+    red, green, blue = _oklch_to_linear_rgb(color)
     return rgb_to_hex(_to_gamma(red), _to_gamma(green), _to_gamma(blue))
+
+
+def restyle(
+    hex_color: str,
+    lightness_range: tuple[float, float] | None = None,
+    chroma_range: tuple[float, float] | None = None,
+) -> str:
+    """Clamp a color's OKLCH lightness and chroma into ranges, keeping its hue."""
+    color = hex_to_oklch(hex_color)
+    if lightness_range:
+        color = Oklch(
+            min(max(color.lightness, lightness_range[0]), lightness_range[1]),
+            color.chroma,
+            color.hue,
+        )
+    if chroma_range:
+        color = Oklch(
+            color.lightness, min(max(color.chroma, chroma_range[0]), chroma_range[1]), color.hue
+        )
+    return oklch_to_hex(fit_to_gamut(color))
 
 
 def relative_luminance(hex_color: str) -> float:

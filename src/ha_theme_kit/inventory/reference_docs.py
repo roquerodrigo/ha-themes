@@ -97,6 +97,29 @@ def render_global_reference(catalog: TokenCatalog) -> str:
     return "\n".join(lines) + "\n"
 
 
+DYNAMIC_FAMILY_NOTES = {
+    "--state-": (
+        "Entity state colors. For a domain in the frontend's stateful list the first set "
+        "token wins: `--state-<domain>-<device_class>-<state>-color`, "
+        "`--state-<domain>-<state>-color`, `--state-<domain>-<active|inactive>-color`, "
+        "`--state-<active|inactive>-color`. Any combination can be set by a theme."
+    ),
+    "--graph-color-": (
+        "Chart series override, read with `getPropertyValue` before `--color-N`; unset by "
+        "default. Use hex values: the charts parse them in JavaScript."
+    ),
+    "--color-": (
+        "Chart, calendar and map series 1-54, cycled as `index % 54 + 1`. Read in "
+        "JavaScript, so use hex values."
+    ),
+    "--weather-icon-": (
+        "Weather icon parts (`sun`, `moon`, `rain`, `snow`, `cloud-front`, `cloud-back`) as "
+        "`--weather-icon-<part>-color`, and `--weather-icon-<condition>` as a background "
+        "image that replaces the icon for that condition."
+    ),
+}
+
+
 def render_component_reference(catalog: TokenCatalog) -> str:
     components = [entry for entry in catalog.tokens.values() if entry.layer == "component"]
     groups: dict[str, list[TokenEntry]] = defaultdict(list)
@@ -111,6 +134,22 @@ def render_component_reference(catalog: TokenCatalog) -> str:
         "Groups are sorted by reach; `md-*`, `mdc-*` and `wa-*` hooks belong to third-party",
         "components and are less stable across releases than `ha-*` hooks.",
     ]
+    if catalog.dynamic_families:
+        lines += [
+            "",
+            "## Dynamic families",
+            "",
+            "Names the frontend builds at runtime (template literals), so they never appear",
+            "literally in the bundle. **Chunks** is how many frontend chunks build each one.",
+            "",
+            "| Prefix | Chunks | How it is resolved |",
+            "| --- | ---: | --- |",
+        ]
+        lines += [
+            f"| `{prefix}…` | {count} | {DYNAMIC_FAMILY_NOTES.get(prefix, '')} |"
+            for prefix, count in catalog.dynamic_families.items()
+            if prefix in DYNAMIC_FAMILY_NOTES
+        ]
     ordered = sorted(groups.items(), key=lambda item: -sum(e.consumers for e in item[1]))
     for group, entries in ordered:
         lines += [

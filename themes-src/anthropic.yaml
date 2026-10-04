@@ -61,16 +61,24 @@ roles:
     state_icon: "{blue.60}"
     scrollbar: "{neutral.30}"
 
-tokens:
-  base:
-    color-1: "{primary.50}"
-    color-2: "{blue.50}"
-    color-3: "{green.50}"
-    color-4: "{orange.50}"
-    color-5: "#9b87c4"
-    color-6: "#cf8fa6"
-    color-7: "#8a6e5a"
-    color-8: "#5aa59a"
-    energy-grid-consumption-color: "{blue.50}"
-    energy-solar-color: "{primary.50}"
-    energy-non-fossil-color: "{green.50}"
+entity_colors:
+  chroma_cap: 0.11
+  pinned:
+    deep-orange: "{primary.50}"
+    red:
+      light: "{red.50}"
+      dark: "{red.60}"
+    blue:
+      light: "{blue.40}"
+      dark: "{blue.50}"
+
+charts:
+  series:
+    - "{primary.50}"
+    - "{blue.50}"
+    - "#c46686"
+    - "{orange.50}"
+    - "#8f7ec5"
+    - "#728f47"
+    - "#5566b0"
+    - "#2da28f"

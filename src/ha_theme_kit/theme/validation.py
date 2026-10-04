@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 
 from ha_theme_kit.color.oklch import contrast_ratio
+from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS
@@ -26,10 +27,15 @@ class ContrastResult:
 class ValidationReport:
     unknown_tokens: list[str]
     contrast: list[ContrastResult]
+    charts: list[CategoricalReport]
 
     @property
     def ok(self) -> bool:
-        return not self.unknown_tokens and all(result.passes for result in self.contrast)
+        return (
+            not self.unknown_tokens
+            and all(result.passes for result in self.contrast)
+            and all(report.passes for report in self.charts)
+        )
 
 
 def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport:
@@ -49,7 +55,11 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
                     minimum,
                 )
             )
-    return ValidationReport(unknown, contrast)
+    charts = [
+        check_categorical(series, mode, theme.roles[mode]["surface"])
+        for mode, series in theme.chart_series.items()
+    ]
+    return ValidationReport(unknown, contrast, charts)
 
 
 def _is_hex(value: str | None) -> bool:

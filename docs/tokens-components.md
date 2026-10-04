@@ -10,6 +10,18 @@ shown. A theme can set any of them. Found by scanning the shipped frontend bundl
 Groups are sorted by reach; `md-*`, `mdc-*` and `wa-*` hooks belong to third-party
 components and are less stable across releases than `ha-*` hooks.
 
+## Dynamic families
+
+Names the frontend builds at runtime (template literals), so they never appear
+literally in the bundle. **Chunks** is how many frontend chunks build each one.
+
+| Prefix | Chunks | How it is resolved |
+| --- | ---: | --- |
+| `--color-…` | 22 | Chart, calendar and map series 1-54, cycled as `index % 54 + 1`. Read in JavaScript, so use hex values. |
+| `--graph-color-…` | 22 | Chart series override, read with `getPropertyValue` before `--color-N`; unset by default. Use hex values: the charts parse them in JavaScript. |
+| `--state-…` | 34 | Entity state colors. For a domain in the frontend's stateful list the first set token wins: `--state-<domain>-<device_class>-<state>-color`, `--state-<domain>-<state>-color`, `--state-<domain>-<active|inactive>-color`, `--state-<active|inactive>-color`. Any combination can be set by a theme. |
+| `--weather-icon-…` | 2 | Weather icon parts (`sun`, `moon`, `rain`, `snow`, `cloud-front`, `cloud-back`) as `--weather-icon-<part>-color`, and `--weather-icon-<condition>` as a background image that replaces the icon for that condition. |
+
 ## md-list
 
 | Token | Fallback | Uses |
@@ -307,7 +319,7 @@ components and are less stable across releases than `ha-*` hooks.
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--ha-card-border-radius` | `12px`<br>`8px`<br>`var(--ha-border-radius-lg)` | 217 |
-| `--ha-card-background` | `var(--card-background-color)`<br>`var(--card-background-color,white)` | 73 |
+| `--ha-card-background` | `var(--card-background-color)`<br>`var(--card-background-color,white)` | 74 |
 | `--ha-card-header-color` | `var(--primary-text-color)` | 73 |
 | `--ha-card-border-width` | `1px`<br>`var(--ha-border-width-sm)` | 72 |
 | `--ha-card-header-font-family` | `inherit` | 72 |
@@ -668,29 +680,29 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--mdc-icon-size` | `24px` | 108 |
 
-## hide
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--hide-duration` | `.2s` | 103 |
-
 ## show
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--show-duration` | `.2s`<br>`50ms` | 103 |
+| `--show-duration` | `.2s`<br>`50ms` | 104 |
 
-## backdrop
+## hide
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--backdrop-filter` |  | 99 |
+| `--hide-duration` | `.2s` | 104 |
 
 ## wa-spacing
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--wa-spacing-xs` |  | 99 |
+
+## backdrop
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--backdrop-filter` |  | 99 |
 
 ## ha-progress
 
@@ -743,6 +755,14 @@ components and are less stable across releases than `ha-*` hooks.
 | `--settings-row-prefix-display` |  | 10 |
 | `--settings-row-prefix-flex` | `1` | 10 |
 | `--settings-row-switch-padding-block` | `var(--ha-space-4)` | 10 |
+
+## thumb
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--thumb-size` |  | 59 |
+| `--thumb-height` |  | 7 |
+| `--thumb-width` |  | 7 |
 
 ## ha-dropdown
 
@@ -828,14 +848,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--md-filter-chip-with-leading-icon-leading-space` | `8px` | 1 |
 | `--md-filter-chip-with-trailing-icon-trailing-space` | `8px` | 1 |
 
-## thumb
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--thumb-size` |  | 59 |
-| `--thumb-height` |  | 7 |
-| `--thumb-width` |  | 7 |
-
 ## full
 
 | Token | Fallback | Uses |
@@ -851,6 +863,12 @@ components and are less stable across releases than `ha-*` hooks.
 | `--track-height` |  | 13 |
 | `--track-size` |  | 7 |
 | `--track-clr` |  | 1 |
+
+## wa-line
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--wa-line-height-normal` |  | 60 |
 
 ## control
 
@@ -906,24 +924,18 @@ components and are less stable across releases than `ha-*` hooks.
 | `--control-switch-padding` |  | 1 |
 | `--control-switch-thickness` |  | 1 |
 
-## wa-line
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--wa-line-height-normal` |  | 60 |
-
-## body
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--body-width` |  | 57 |
-
 ## select
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--select-menu-width` |  | 42 |
 | `--select-selected-text-padding-end` | `12px` | 15 |
+
+## body
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--body-width` |  | 57 |
 
 ## expansion
 
@@ -1039,31 +1051,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-tab-padding-end` | `var(--wa-space-l)` | 1 |
 | `--ha-tab-padding-start` | `var(--wa-space-l)` | 1 |
 
-## bounce
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--bounce-height` | `-.5em` | 4 |
-| `--bounce-jump-scale-x` | `.9` | 4 |
-| `--bounce-jump-scale-y` | `1.1` | 4 |
-| `--bounce-land-scale-x` | `1.05` | 4 |
-| `--bounce-land-scale-y` | `.95` | 4 |
-| `--bounce-rebound` | `-.125em` | 4 |
-| `--bounce-start-scale-x` | `1.1` | 4 |
-| `--bounce-start-scale-y` | `.9` | 4 |
-
-## button
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--button-toggle-icon-size` | `20px` | 8 |
-| `--button-color-fill-loud-active` |  | 4 |
-| `--button-color-fill-loud-hover` |  | 4 |
-| `--button-color-fill-normal-active` |  | 4 |
-| `--button-color-fill-normal-hover` |  | 4 |
-| `--button-color-fill-quiet-active` |  | 4 |
-| `--button-height` | `24px`<br>`32px`<br>`40px` | 4 |
-
 ## ha-label
 
 | Token | Fallback | Uses |
@@ -1081,6 +1068,31 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-label-badge-title-font-size` | `.9em` | 1 |
 | `--ha-label-badge-title-font-weight` | `var(--ha-font-weight-normal)` | 1 |
 | `--ha-label-badge-title-width` | `5em` | 1 |
+
+## button
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--button-toggle-icon-size` | `20px` | 8 |
+| `--button-color-fill-loud-active` |  | 4 |
+| `--button-color-fill-loud-hover` |  | 4 |
+| `--button-color-fill-normal-active` |  | 4 |
+| `--button-color-fill-normal-hover` |  | 4 |
+| `--button-color-fill-quiet-active` |  | 4 |
+| `--button-height` | `24px`<br>`32px`<br>`40px` | 4 |
+
+## bounce
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--bounce-height` | `-.5em` | 4 |
+| `--bounce-jump-scale-x` | `.9` | 4 |
+| `--bounce-jump-scale-y` | `1.1` | 4 |
+| `--bounce-land-scale-x` | `1.05` | 4 |
+| `--bounce-land-scale-y` | `.95` | 4 |
+| `--bounce-rebound` | `-.125em` | 4 |
+| `--bounce-start-scale-x` | `1.1` | 4 |
+| `--bounce-start-scale-y` | `.9` | 4 |
 
 ## md-outlined
 
@@ -1143,19 +1155,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--hover-clr` |  | 1 |
 | `--hover-color` | `var(--primary-color)` | 1 |
 
-## app
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--app-safe-area-inset-bottom` | `env(safe-area-inset-bottom,0px)` | 4 |
-| `--app-safe-area-inset-left` | `env(safe-area-inset-left,0px)` | 4 |
-| `--app-safe-area-inset-right` | `env(safe-area-inset-right,0px)` | 4 |
-| `--app-safe-area-inset-top` | `env(safe-area-inset-top,0px)` | 4 |
-| `--app-header-edit-background-color` | `#455a64` | 3 |
-| `--app-header-edit-text-color` | `#fff`<br>`white` | 3 |
-| `--app-header-backdrop-filter` | `none` | 1 |
-| `--app-header-selection-bar-color` | `var(--app-header-text-color,white)` | 1 |
-
 ## ha-button
 
 | Token | Fallback | Uses |
@@ -1188,6 +1187,19 @@ components and are less stable across releases than `ha-*` hooks.
 | `--mdc-ripple-top` | `0`<br>`calc(50% - 50%)` | 1 |
 | `--mdc-ripple-z-index` | `0`<br>`1` | 1 |
 
+## app
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--app-safe-area-inset-bottom` | `env(safe-area-inset-bottom,0px)` | 4 |
+| `--app-safe-area-inset-left` | `env(safe-area-inset-left,0px)` | 4 |
+| `--app-safe-area-inset-right` | `env(safe-area-inset-right,0px)` | 4 |
+| `--app-safe-area-inset-top` | `env(safe-area-inset-top,0px)` | 4 |
+| `--app-header-edit-background-color` | `#455a64` | 3 |
+| `--app-header-edit-text-color` | `#fff`<br>`white` | 3 |
+| `--app-header-backdrop-filter` | `none` | 1 |
+| `--app-header-selection-bar-color` | `var(--app-header-text-color,white)` | 1 |
+
 ## tile
 
 | Token | Fallback | Uses |
@@ -1214,6 +1226,12 @@ components and are less stable across releases than `ha-*` hooks.
 | `--tile-info-secondary-letter-spacing` |  | 1 |
 | `--tile-info-secondary-line-height` |  | 1 |
 
+## graph
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--graph-color-1` |  | 22 |
+
 ## arrow
 
 | Token | Fallback | Uses |
@@ -1226,6 +1244,19 @@ components and are less stable across releases than `ha-*` hooks.
 | `--arrow-size-diagonal` |  | 3 |
 | `--arrow-size-div` |  | 3 |
 
+## percentage
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--percentage` | `0%` | 20 |
+
+## ha-textarea
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-textarea-max-height` | `200px` | 10 |
+| `--ha-textarea-padding-bottom` |  | 10 |
+
 ## animation
 
 | Token | Fallback | Uses |
@@ -1235,19 +1266,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--animation-duration` | `1s`<br>`2s` | 4 |
 | `--animation-iteration-count` | `infinite` | 4 |
 | `--animation-timing` | `cubic-bezier(.28, .84, .42, 1)`<br>`cubic-bezier(.4, 0, .6, 1)`<br>`ease-in-out` | 4 |
-
-## ha-textarea
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-textarea-max-height` | `200px` | 10 |
-| `--ha-textarea-padding-bottom` |  | 10 |
-
-## percentage
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--percentage` | `0%` | 20 |
 
 ## flip
 
@@ -1285,6 +1303,18 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--time-input-flex` | `unset` | 15 |
 
+## weather
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--weather-icon-cloud-back-color` | `#d4d4d4` | 2 |
+| `--weather-icon-cloud-front-color` | `#f9f9f9` | 2 |
+| `--weather-icon-moon-color` | `#fcf497` | 2 |
+| `--weather-icon-rain-color` | `#30b3ff` | 2 |
+| `--weather-icon-snow-color` | `#f9f9f9` | 2 |
+| `--weather-icon-snow-stroke-color` | `#d4d4d4` | 2 |
+| `--weather-icon-sun-color` | `#fdd93c` | 2 |
+
 ## actions
 
 | Token | Fallback | Uses |
@@ -1310,17 +1340,22 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-tile-info-secondary-letter-spacing` | `.4px` | 1 |
 | `--ha-tile-info-secondary-line-height` | `var(--ha-line-height-condensed)` | 1 |
 
-## weather
+## wa-transition
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--weather-icon-cloud-back-color` | `#d4d4d4` | 2 |
-| `--weather-icon-cloud-front-color` | `#f9f9f9` | 2 |
-| `--weather-icon-moon-color` | `#fcf497` | 2 |
-| `--weather-icon-rain-color` | `#30b3ff` | 2 |
-| `--weather-icon-snow-color` | `#f9f9f9` | 2 |
-| `--weather-icon-snow-stroke-color` | `#d4d4d4` | 2 |
-| `--weather-icon-sun-color` | `#fdd93c` | 2 |
+| `--wa-transition-slow` | `.2s` | 13 |
+
+## code
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--code-editor-background-color` | `var(--card-background-color)`<br>`var(--secondary-background-color)` | 4 |
+| `--code-editor-gutter-color` | `var(--secondary-background-color, whitesmoke)`<br>`var(--secondary-background-color,whitesmoke)` | 3 |
+| `--code-editor-toolbar-height` |  | 2 |
+| `--code-mirror-max-height` | `unset` | 2 |
+| `--code-font-family` | `monospace` | 1 |
+| `--code-mirror-height` | `auto` | 1 |
 
 ## border
 
@@ -1334,17 +1369,6 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--check-list-item-graphic-margin-top` |  | 13 |
 
-## code
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--code-editor-background-color` | `var(--card-background-color)`<br>`var(--secondary-background-color)` | 4 |
-| `--code-editor-gutter-color` | `var(--secondary-background-color, whitesmoke)`<br>`var(--secondary-background-color,whitesmoke)` | 3 |
-| `--code-editor-toolbar-height` |  | 2 |
-| `--code-mirror-max-height` | `unset` | 2 |
-| `--code-font-family` | `monospace` | 1 |
-| `--code-mirror-height` | `auto` | 1 |
-
 ## feature
 
 | Token | Fallback | Uses |
@@ -1357,29 +1381,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--feature-divider-inset` |  | 1 |
 | `--feature-precipitation-opacity` |  | 1 |
 | `--feature-tint` |  | 1 |
-
-## wa-transition
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--wa-transition-slow` | `.2s` | 13 |
-
-## beat
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--beat-fade-opacity` | `.4` | 4 |
-| `--beat-fade-scale` | `1.125` | 4 |
-| `--beat-scale` | `1.25` | 4 |
-
-## md-ripple
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--md-ripple-hover-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
-| `--md-ripple-hover-opacity` | `.08` | 3 |
-| `--md-ripple-pressed-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
-| `--md-ripple-pressed-opacity` | `.12` | 3 |
 
 ## safe
 
@@ -1395,25 +1396,34 @@ components and are less stable across releases than `ha-*` hooks.
 | `--safe-triangle-submenu-start-x` | `0` | 1 |
 | `--safe-triangle-submenu-start-y` | `0` | 1 |
 
-## circumference
+## md-ripple
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--circumference` |  | 11 |
+| `--md-ripple-hover-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
+| `--md-ripple-hover-opacity` | `.08` | 3 |
+| `--md-ripple-pressed-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
+| `--md-ripple-pressed-opacity` | `.12` | 3 |
+
+## beat
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--beat-fade-opacity` | `.4` | 4 |
+| `--beat-fade-scale` | `1.125` | 4 |
+| `--beat-scale` | `1.25` | 4 |
+
+## sidepane
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--sidepane-width` | `250px` | 11 |
 
 ## columns
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--columns` | `1` | 11 |
-
-## ha-bar
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-bar-background-color` | `var(--secondary-background-color)` | 4 |
-| `--ha-bar-border-radius` | `var(--ha-border-radius-sm)` | 4 |
-| `--ha-bar-primary-color` | `var(--primary-color)` | 3 |
 
 ## ha-formfield
 
@@ -1426,6 +1436,20 @@ components and are less stable across releases than `ha-*` hooks.
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--radius` |  | 11 |
+
+## circumference
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--circumference` |  | 11 |
+
+## ha-bar
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-bar-background-color` | `var(--secondary-background-color)` | 4 |
+| `--ha-bar-border-radius` | `var(--ha-border-radius-sm)` | 4 |
+| `--ha-bar-primary-color` | `var(--primary-color)` | 3 |
 
 ## round
 
@@ -1443,11 +1467,11 @@ components and are less stable across releases than `ha-*` hooks.
 | `--round-slider-path-color` | `lightgray` | 1 |
 | `--round-slider-path-width` | `3` | 1 |
 
-## sidepane
+## main
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--sidepane-width` | `250px` | 11 |
+| `--main-title-margin` | `var(--ha-space-2)`<br>`var(--ha-space-6)` | 10 |
 
 ## config
 
@@ -1462,12 +1486,6 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--ha-select-box-image-size` | `96px` | 10 |
 
-## main
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--main-title-margin` | `var(--ha-space-2)`<br>`var(--ha-space-6)` | 10 |
-
 ## slider
 
 | Token | Fallback | Uses |
@@ -1478,22 +1496,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--slider-tooltip-range` |  | 2 |
 | `--slider-size` |  | 1 |
 | `--slider-track-bar-border-radius` |  | 1 |
-
-## ha-color
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-color-90` |  | 4 |
-| `--ha-color-neutral-00` |  | 4 |
-| `--ha-color-on-error-normal` |  | 1 |
-
-## ha-entity
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-entity-toggle-switch-size` | `20px` | 3 |
-| `--ha-entity-toggle-switch-thumb-size` | `14px` | 3 |
-| `--ha-entity-toggle-switch-width` | `38px` | 3 |
 
 ## ha-section
 
@@ -1518,12 +1520,13 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-view-sections-row-gap` | `24px` | 1 |
 | `--ha-view-sections-row-height` | `56px` | 1 |
 
-## auto
+## ha-entity
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--auto-size-available-height` | `none` | 4 |
-| `--auto-size-available-width` | `none` | 4 |
+| `--ha-entity-toggle-switch-size` | `20px` | 3 |
+| `--ha-entity-toggle-switch-thumb-size` | `14px` | 3 |
+| `--ha-entity-toggle-switch-width` | `38px` | 3 |
 
 ## column
 
@@ -1533,7 +1536,16 @@ components and are less stable across releases than `ha-*` hooks.
 | `--column-span` | `1` | 2 |
 | `--column-count` |  | 1 |
 | `--column-max-width` |  | 1 |
+| `--column-min-width` |  | 1 |
 | `--column-size` | `1` | 1 |
+
+## ha-color
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-color-90` |  | 4 |
+| `--ha-color-neutral-00` |  | 4 |
+| `--ha-color-on-error-normal` |  | 1 |
 
 ## ha-help
 
@@ -1541,6 +1553,27 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--ha-help-tooltip-color` | `var(--disabled-text-color)` | 4 |
 | `--ha-help-tooltip-size` | `14px` | 4 |
+
+## wa-button
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--wa-button-transform-active` |  | 4 |
+| `--wa-button-transform-hover` |  | 4 |
+
+## secondary
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--secondary-color` |  | 4 |
+| `--secondary-opacity` |  | 4 |
+
+## auto
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--auto-size-available-height` | `none` | 4 |
+| `--auto-size-available-width` | `none` | 4 |
 
 ## row
 
@@ -1551,20 +1584,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--row-size` | `1` | 2 |
 | `--row-span` |  | 1 |
 
-## secondary
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--secondary-color` |  | 4 |
-| `--secondary-opacity` |  | 4 |
-
-## wa-button
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--wa-button-transform-active` |  | 4 |
-| `--wa-button-transform-hover` |  | 4 |
-
 ## wa-scroll
 
 | Token | Fallback | Uses |
@@ -1572,18 +1591,18 @@ components and are less stable across releases than `ha-*` hooks.
 | `--wa-scroll-lock-gutter` |  | 4 |
 | `--wa-scroll-lock-size` |  | 4 |
 
+## ha-entities
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-entities-picker-entity-min-width` | `auto` | 7 |
+
 ## error
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--error-state-color` | `var(--error-color)` | 6 |
 | `--error-log-card-height` | `calc(100vh - 255px)` | 1 |
-
-## ha-entities
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-entities-picker-entity-min-width` | `auto` | 7 |
 
 ## indent
 
@@ -1597,14 +1616,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--indent-markers` |  | 1 |
 | `--indent-size` | `2em` | 1 |
 
-## background
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--background-color` | `white` | 3 |
-| `--background-color-hover` |  | 2 |
-| `--background-clr` |  | 1 |
-
 ## ha-picture
 
 | Token | Fallback | Uses |
@@ -1613,6 +1624,29 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-picture-card-text-color` | `white` | 2 |
 | `--ha-picture-icon-button-color` | `#a9a9a9` | 1 |
 | `--ha-picture-icon-button-on-color` | `white` | 1 |
+
+## service
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--service-control-items-border-top` | `1px solid var(--divider-color)` | 4 |
+| `--service-control-padding` | `0 16px`<br>`0 var(--ha-space-4)` | 2 |
+
+## scale
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--scale-direction` |  | 4 |
+| `--scale-ruler-color` |  | 1 |
+| `--scale-ruler-surface` |  | 1 |
+
+## background
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--background-color` | `white` | 3 |
+| `--background-color-hover` |  | 2 |
+| `--background-clr` |  | 1 |
 
 ## handle
 
@@ -1630,20 +1664,19 @@ components and are less stable across releases than `ha-*` hooks.
 | `--metric-bar-ok-color` | `var(--success-color)` | 2 |
 | `--metric-bar-warning-color` | `var(--warning-color)` | 2 |
 
-## scale
+## ha-sidebar
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--scale-direction` |  | 4 |
-| `--scale-ruler-color` |  | 1 |
-| `--scale-ruler-surface` |  | 1 |
+| `--ha-sidebar-width` | `0px`<br>`256px` | 3 |
+| `--ha-sidebar-expanded-item-width` | `248px` | 1 |
+| `--ha-sidebar-expanded-width` | `256px` | 1 |
 
-## service
+## gauge
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--service-control-items-border-top` | `1px solid var(--divider-color)` | 4 |
-| `--service-control-padding` | `0 16px`<br>`0 var(--ha-space-4)` | 2 |
+| `--gauge-color` |  | 5 |
 
 ## calendar
 
@@ -1653,30 +1686,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--calendar-border-radius` | `var(--mdc-shape-small,4px)` | 1 |
 | `--calendar-border-width` | `1px` | 1 |
 | `--calendar-header-padding` |  | 1 |
-
-## g
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--g-delay` | `0s` | 1 |
-| `--g-dur` | `2s` | 1 |
-| `--g-rot` |  | 1 |
-| `--g-x` |  | 1 |
-| `--g-y` |  | 1 |
-
-## gauge
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--gauge-color` |  | 5 |
-
-## ha-sidebar
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-sidebar-width` | `0px`<br>`256px` | 3 |
-| `--ha-sidebar-expanded-item-width` | `248px` | 1 |
-| `--ha-sidebar-expanded-width` | `256px` | 1 |
 
 ## ha-split
 
@@ -1688,15 +1697,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-split-panel-max` | `100%` | 1 |
 | `--ha-split-panel-min` | `0` | 1 |
 
-## logbook
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--logbook-category-automation-color` | `var(--light-blue-color)` | 2 |
-| `--logbook-category-integration-color` | `var(--teal-color)` | 1 |
-| `--logbook-horizontal-padding` | `var(--ha-space-4)` | 1 |
-| `--logbook-max-height` |  | 1 |
-
 ## mdc-checkbox
 
 | Token | Fallback | Uses |
@@ -1706,6 +1706,13 @@ components and are less stable across releases than `ha-*` hooks.
 | `--mdc-checkbox-ripple-size` | `40px` | 1 |
 | `--mdc-checkbox-state-layer-size` | `40px`<br>`48px` | 1 |
 | `--mdc-checkbox-touch-target-size` | `40px` | 1 |
+
+## text
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--text-color` |  | 3 |
+| `--text-accent-color` | `var(--text-primary-color)` | 2 |
 
 ## sidebar
 
@@ -1717,13 +1724,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--sidebar-menu-button-text-color` | `var(--primary-text-color)` | 1 |
 | `--sidebar-width` |  | 1 |
 
-## text
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--text-color` |  | 3 |
-| `--text-accent-color` | `var(--text-primary-color)` | 2 |
-
 ## timeline
 
 | Token | Fallback | Uses |
@@ -1734,27 +1734,31 @@ components and are less stable across releases than `ha-*` hooks.
 | `--timeline-line-color` | `var(--timeline-color,var(--secondary-text-color))` | 1 |
 | `--timeline-top-margin` |  | 1 |
 
+## logbook
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--logbook-category-automation-color` | `var(--light-blue-color)` | 2 |
+| `--logbook-category-integration-color` | `var(--teal-color)` | 1 |
+| `--logbook-horizontal-padding` | `var(--ha-space-4)` | 1 |
+| `--logbook-max-height` |  | 1 |
+
+## g
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--g-delay` | `0s` | 1 |
+| `--g-dur` | `2s` | 1 |
+| `--g-rot` |  | 1 |
+| `--g-x` |  | 1 |
+| `--g-y` |  | 1 |
+
 ## circle
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--circle-color` | `var(--divider-color)` | 3 |
 | `--circle-clr` | `var(--stroke-clr)` | 1 |
-
-## fade
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--fade-opacity` | `.4` | 4 |
-
-## grid
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--grid-card-column-count` |  | 1 |
-| `--grid-card-gap` | `8px` | 1 |
-| `--grid-column-count` |  | 1 |
-| `--grid-layout-slider` |  | 1 |
 
 ## ha-automation
 
@@ -1763,14 +1767,12 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-automation-editor-max-width` |  | 3 |
 | `--ha-automation-editor-width` | `1540px` | 1 |
 
-## ha-badge
+## padding
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-badge-border-radius` | `calc(var(--ha-badge-size,36px) / 2)` | 1 |
-| `--ha-badge-font-size` | `var(--ha-font-size-s)` | 1 |
-| `--ha-badge-icon-size` | `18px` | 1 |
-| `--ha-badge-size` | `36px` | 1 |
+| `--padding-bottom` | `8px` | 2 |
+| `--padding-top` | `8px` | 2 |
 
 ## ha-font
 
@@ -1779,30 +1781,6 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-font-body` |  | 2 |
 | `--ha-font-body-l` |  | 1 |
 | `--ha-font-weight-semi-bold` |  | 1 |
-
-## ha-marker
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-marker-border-radius` | `50%` | 1 |
-| `--ha-marker-color` | `var(--primary-color)` | 1 |
-| `--ha-marker-font-size` | `var(--ha-font-size-xl)` | 1 |
-| `--ha-marker-size` | `48px` | 1 |
-
-## min
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--min` |  | 2 |
-| `--min-height` | `30dvh`<br>`30vh` | 1 |
-| `--min-width` |  | 1 |
-
-## padding
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--padding-bottom` | `8px` | 2 |
-| `--padding-top` | `8px` | 2 |
 
 ## path
 
@@ -1822,11 +1800,34 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--rotate-angle` | `0deg` | 4 |
 
+## fade
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--fade-opacity` | `.4` | 4 |
+
 ## speed
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--speed` |  | 4 |
+
+## ha-marker
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-marker-border-radius` | `50%` | 1 |
+| `--ha-marker-color` | `var(--primary-color)` | 1 |
+| `--ha-marker-font-size` | `var(--ha-font-size-xl)` | 1 |
+| `--ha-marker-size` | `48px` | 1 |
+
+## min
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--min` |  | 2 |
+| `--min-height` | `30dvh`<br>`30vh` | 1 |
+| `--min-width` |  | 1 |
 
 ## view
 
@@ -1837,48 +1838,35 @@ components and are less stable across releases than `ha-*` hooks.
 | `--view-container-padding-bottom` | `0px` | 1 |
 | `--view-container-padding-top` | `0px` | 1 |
 
-## active
+## ha-badge
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--active-color` | `var(--primary-color)` | 2 |
-| `--active-clr` |  | 1 |
+| `--ha-badge-border-radius` | `calc(var(--ha-badge-size,36px) / 2)` | 1 |
+| `--ha-badge-font-size` | `var(--ha-font-size-s)` | 1 |
+| `--ha-badge-icon-size` | `18px` | 1 |
+| `--ha-badge-size` | `36px` | 1 |
 
-## badge
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--badge-padding` | `0`<br>`0px` | 2 |
-| `--badge-color` |  | 1 |
-
-## data
+## grid
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--data-table-border-width` | `1px` | 1 |
-| `--data-table-empty-row-height` | `var(--safe-area-inset-bottom,0px)` | 1 |
-| `--data-table-row-height` | `52px` | 1 |
-
-## disabled
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--disabled-active-clr` |  | 1 |
-| `--disabled-clr` |  | 1 |
-| `--disabled-hover-clr` |  | 1 |
-
-## entities
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--entities-divider-color` | `var(--divider-color)` | 2 |
-| `--entities-card-row-gap` | `var(--card-row-gap,8px)` | 1 |
+| `--grid-card-column-count` |  | 1 |
+| `--grid-card-gap` | `8px` | 1 |
+| `--grid-column-count` |  | 1 |
+| `--grid-layout-slider` |  | 1 |
 
 ## file
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--file-upload-image-border-radius` |  | 3 |
+
+## picture
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--picture-opacity` | `1` | 3 |
 
 ## ha-border
 
@@ -1896,33 +1884,32 @@ components and are less stable across releases than `ha-*` hooks.
 | `--ha-clock-card-analog-face-border-radius` | `none` | 1 |
 | `--ha-clock-card-analog-face-padding` | `none` | 1 |
 
-## hassio
+## video
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--hassio-bar-critical-color` | `var(--error-color)` | 1 |
-| `--hassio-bar-ok-color` | `var(--success-color)` | 1 |
-| `--hassio-bar-warning-color` | `var(--warning-color)` | 1 |
+| `--video-max-height` | `calc(100vh - 97px)` | 3 |
 
-## hat
+## badge
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--hat-graph-branch-height` |  | 1 |
-| `--hat-graph-node-size` |  | 1 |
-| `--hat-graph-spacing` |  | 1 |
+| `--badge-padding` | `0`<br>`0px` | 2 |
+| `--badge-color` |  | 1 |
 
-## picture
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--picture-opacity` | `1` | 3 |
-
-## popup
+## active
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--popup-border-width` |  | 3 |
+| `--active-color` | `var(--primary-color)` | 2 |
+| `--active-clr` |  | 1 |
+
+## entities
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--entities-divider-color` | `var(--divider-color)` | 2 |
+| `--entities-card-row-gap` | `var(--card-row-gap,8px)` | 1 |
 
 ## restore
 
@@ -1932,13 +1919,29 @@ components and are less stable across releases than `ha-*` hooks.
 | `--restore-card-border-width` |  | 1 |
 | `--restore-card-box-shadow` |  | 1 |
 
-## section
+## hat
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--section-background-color` | `var(--ha-section-background-color, var(--secondary-background-color))` | 1 |
-| `--section-background-opacity` |  | 1 |
-| `--section-header-text-color` | `var(--primary-text-color)` | 1 |
+| `--hat-graph-branch-height` |  | 1 |
+| `--hat-graph-node-size` |  | 1 |
+| `--hat-graph-spacing` |  | 1 |
+
+## disabled
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--disabled-active-clr` |  | 1 |
+| `--disabled-clr` |  | 1 |
+| `--disabled-hover-clr` |  | 1 |
+
+## hassio
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--hassio-bar-critical-color` | `var(--error-color)` | 1 |
+| `--hassio-bar-ok-color` | `var(--success-color)` | 1 |
+| `--hassio-bar-warning-color` | `var(--warning-color)` | 1 |
 
 ## start
 
@@ -1947,79 +1950,27 @@ components and are less stable across releases than `ha-*` hooks.
 | `--start-slot-width` | `0px` | 2 |
 | `--start` |  | 1 |
 
-## video
+## section
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--video-max-height` | `calc(100vh - 97px)` | 3 |
+| `--section-background-color` | `var(--ha-section-background-color, var(--secondary-background-color))` | 1 |
+| `--section-background-opacity` |  | 1 |
+| `--section-header-text-color` | `var(--primary-text-color)` | 1 |
 
-## badges
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--badges-aligmnent` | `center` | 1 |
-| `--badges-wrap` | `wrap` | 1 |
-
-## box
+## popup
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--box-shadow` |  | 2 |
+| `--popup-border-width` |  | 3 |
 
-## card
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--card-row-gap` | `8px` | 1 |
-| `--card-text-align` | `inherit` | 1 |
-
-## chat
+## data
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--chat-background-color-hass` | `var(--secondary-background-color)` | 1 |
-| `--chat-background-color-user` | `var(--primary-color)` | 1 |
-
-## default
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--default-icon-clr` |  | 1 |
-| `--default-trigger-color` |  | 1 |
-
-## divider
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--divider-hit-area` |  | 1 |
-| `--divider-width` |  | 1 |
-
-## favorite
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--favorite-item-active-background-color` |  | 1 |
-| `--favorite-items-max-width` | `250px` | 1 |
-
-## form
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--form-grid-column-count` | `auto-fit` | 1 |
-| `--form-grid-min-width` | `200px` | 1 |
-
-## gradient
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--gradient` |  | 2 |
-
-## ha-favorite
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-favorite-color-button-border-radius` | `var(--ha-border-radius-pill)` | 1 |
-| `--ha-favorite-color-button-size` | `40px` | 1 |
+| `--data-table-border-width` | `1px` | 1 |
+| `--data-table-empty-row-height` | `var(--safe-area-inset-bottom,0px)` | 1 |
+| `--data-table-row-height` | `52px` | 1 |
 
 ## ha-top
 
@@ -2034,43 +1985,25 @@ components and are less stable across releases than `ha-*` hooks.
 | `--horizontal-padding` | `16px` | 1 |
 | `--horizontal-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
 
-## input
+## form
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--input-padding-inline-start` | `0` | 2 |
+| `--form-grid-column-count` | `auto-fit` | 1 |
+| `--form-grid-min-width` | `200px` | 1 |
 
-## keypad
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--keypad-columns` |  | 2 |
-
-## marker
+## gradient
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--marker-height` |  | 1 |
-| `--marker-width` |  | 1 |
+| `--gradient` |  | 2 |
 
-## masonry
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--masonry-view-card-margin` | `4px 4px 8px` | 2 |
-
-## media
+## favorite
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--media-browse-item-size` | `175px` | 1 |
-| `--media-browser-max-height` | `100%` | 1 |
-
-## node
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--node-color` | `var(--secondary-text-color)` | 2 |
+| `--favorite-item-active-background-color` |  | 1 |
+| `--favorite-items-max-width` | `250px` | 1 |
 
 ## particle
 
@@ -2079,6 +2012,39 @@ components and are less stable across releases than `ha-*` hooks.
 | `--particle-x` |  | 1 |
 | `--particle-y` |  | 1 |
 
+## masonry
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--masonry-view-card-margin` | `4px 4px 8px` | 2 |
+
+## keypad
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--keypad-columns` |  | 2 |
+
+## divider
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--divider-hit-area` |  | 1 |
+| `--divider-width` |  | 1 |
+
+## chat
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--chat-background-color-hass` | `var(--secondary-background-color)` | 1 |
+| `--chat-background-color-user` | `var(--primary-color)` | 1 |
+
+## media
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--media-browse-item-size` | `175px` | 1 |
+| `--media-browser-max-height` | `100%` | 1 |
+
 ## shadow
 
 | Token | Fallback | Uses |
@@ -2086,11 +2052,19 @@ components and are less stable across releases than `ha-*` hooks.
 | `--shadow-default` |  | 1 |
 | `--shadow-focus` |  | 1 |
 
-## stack
+## ha-favorite
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--stack-card-gap` | `8px` | 2 |
+| `--ha-favorite-color-button-border-radius` | `var(--ha-border-radius-pill)` | 1 |
+| `--ha-favorite-color-button-size` | `40px` | 1 |
+
+## card
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--card-row-gap` | `8px` | 1 |
+| `--card-text-align` | `inherit` | 1 |
 
 ## stroke
 
@@ -2099,53 +2073,62 @@ components and are less stable across releases than `ha-*` hooks.
 | `--stroke-clr` |  | 1 |
 | `--stroke-color` | `var(--secondary-text-color)` | 1 |
 
+## default
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--default-icon-clr` |  | 1 |
+| `--default-trigger-color` |  | 1 |
+
+## node
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--node-color` | `var(--secondary-text-color)` | 2 |
+
+## badges
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--badges-aligmnent` | `center` | 1 |
+| `--badges-wrap` | `wrap` | 1 |
+
+## input
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--input-padding-inline-start` | `0` | 2 |
+
 ## value
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--value` | `0`<br>`0%` | 2 |
 
-## action
+## marker
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--action-color` | `inherit`<br>`transparent` | 1 |
+| `--marker-height` |  | 1 |
+| `--marker-width` |  | 1 |
 
-## alarm
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--alarm-state-color` |  | 1 |
-
-## base
+## stack
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--base-column-count` |  | 1 |
+| `--stack-card-gap` | `8px` | 2 |
 
-## brightness
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--brightness-font-size` |  | 1 |
-
-## category
+## box
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--category-color` | `var(--secondary-text-color)` | 1 |
+| `--box-shadow` |  | 2 |
 
-## cause
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--cause-icon-size` |  | 1 |
-
-## chart
+## radio
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--chart-max-height` | `350px` | 1 |
+| `--radio-list-item-graphic-margin-top` |  | 1 |
 
 ## clock
 
@@ -2153,29 +2136,29 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--clock-size` |  | 1 |
 
-## codemirror
+## tick
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--codemirror-string2` | `#07a` | 1 |
+| `--tick-rotation` |  | 1 |
 
-## content
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--content-column-count` |  | 1 |
-
-## cursor
+## ha-toast
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--cursor-size` |  | 1 |
+| `--ha-toast-bottom-offset` | `0px` | 1 |
 
-## dot
+## notification
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--dot-pos` |  | 1 |
+| `--notification-stack-bottom-offset` | `0px` | 1 |
+
+## vacuum
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--vacuum-color` |  | 1 |
 
 ## dropdown
 
@@ -2183,41 +2166,11 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--dropdown-width` |  | 1 |
 
-## end
+## chart
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--end` |  | 1 |
-
-## focus
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--focus-color` |  | 1 |
-
-## footer
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--footer-max-width` | `600px` | 1 |
-
-## forecast
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--forecast-icon-size` | `40px` | 1 |
-
-## gap
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--gap` |  | 1 |
-
-## glance
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--glance-column-width` | `20%` | 1 |
+| `--chart-max-height` | `350px` | 1 |
 
 ## ha-empty
 
@@ -2231,77 +2184,29 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--ha-filter-pane-width` | `320px` | 1 |
 
-## ha-media
+## tab
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-media-browser-thumbnail-fit` | `contain` | 1 |
+| `--tab-bar-height` | `56px` | 1 |
 
-## ha-person
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-person-badge-font-size-long` | `var(--ha-font-size-s)` | 1 |
-
-## ha-pulse
+## focus
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-pulse-opacity` | `.3` | 1 |
+| `--focus-color` |  | 1 |
 
-## ha-stack
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-stack-title-text-align` | `start` | 1 |
-
-## ha-toast
+## gap
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-toast-bottom-offset` | `0px` | 1 |
+| `--gap` |  | 1 |
 
-## header
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--header-bar-padding` |  | 1 |
-
-## high
+## glance
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--high-color` | `var(--disabled-color)` | 1 |
-
-## history
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--history-max-height` |  | 1 |
-
-## lovelace
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--lovelace-background` | `var(--primary-background-color)` | 1 |
-
-## low
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--low-color` | `var(--disabled-color)` | 1 |
-
-## modes
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--modes-count` | `1` | 1 |
-
-## mower
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--mower-color` |  | 1 |
+| `--glance-column-width` | `20%` | 1 |
 
 ## name
 
@@ -2309,89 +2214,41 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--name-font-size` |  | 1 |
 
-## narrow
+## brightness
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--narrow-column-gap` |  | 1 |
+| `--brightness-font-size` |  | 1 |
 
-## notification
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--notification-stack-bottom-offset` | `0px` | 1 |
-
-## person
+## ha-stack
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--person-badge-font-size` | `var(--ha-font-size-m)` | 1 |
+| `--ha-stack-title-text-align` | `start` | 1 |
 
-## position
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--position` |  | 1 |
-
-## radio
+## forecast
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--radio-list-item-graphic-margin-top` |  | 1 |
+| `--forecast-icon-size` | `40px` | 1 |
 
-## rail
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--rail-gap` | `22px` | 1 |
-
-## rotation
+## low
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--rotation` |  | 1 |
+| `--low-color` | `var(--disabled-color)` | 1 |
 
-## rows
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--rows` | `1` | 1 |
-
-## sheen
+## high
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--sheen-color` |  | 1 |
+| `--high-color` | `var(--disabled-color)` | 1 |
 
-## tab
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--tab-bar-height` | `56px` | 1 |
-
-## table
+## action
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--table-row-width` | `100%` | 1 |
-
-## testing
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--testing-color` |  | 1 |
-
-## tick
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--tick-rotation` |  | 1 |
-
-## top
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--top-margin` |  | 1 |
+| `--action-color` | `inherit`<br>`transparent` | 1 |
 
 ## trigger
 
@@ -2399,17 +2256,185 @@ components and are less stable across releases than `ha-*` hooks.
 | --- | --- | ---: |
 | `--trigger-color` | `var(--default-trigger-color)` | 1 |
 
-## vacuum
+## ha-pulse
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--vacuum-color` |  | 1 |
+| `--ha-pulse-opacity` | `.3` | 1 |
+
+## lovelace
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--lovelace-background` | `var(--primary-background-color)` | 1 |
+
+## zone
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--zone-radius-color` |  | 1 |
+
+## ha-media
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-media-browser-thumbnail-fit` | `contain` | 1 |
+
+## cursor
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--cursor-size` |  | 1 |
+
+## sheen
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--sheen-color` |  | 1 |
+
+## mower
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--mower-color` |  | 1 |
+
+## end
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--end` |  | 1 |
+
+## position
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--position` |  | 1 |
+
+## rail
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rail-gap` | `22px` | 1 |
+
+## dot
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--dot-pos` |  | 1 |
+
+## category
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--category-color` | `var(--secondary-text-color)` | 1 |
+
+## cause
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--cause-icon-size` |  | 1 |
+
+## narrow
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--narrow-column-gap` |  | 1 |
+
+## top
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--top-margin` |  | 1 |
+
+## content
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--content-column-count` |  | 1 |
+
+## footer
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--footer-max-width` | `600px` | 1 |
+
+## person
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--person-badge-font-size` | `var(--ha-font-size-m)` | 1 |
+
+## ha-person
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-person-badge-font-size-long` | `var(--ha-font-size-s)` | 1 |
 
 ## vertical
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--vertical-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
+
+## testing
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--testing-color` |  | 1 |
+
+## rotation
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rotation` |  | 1 |
+
+## codemirror
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--codemirror-string2` | `#07a` | 1 |
+
+## rows
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rows` | `1` | 1 |
+
+## base
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--base-column-count` |  | 1 |
+
+## alarm
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--alarm-state-color` |  | 1 |
+
+## table
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--table-row-width` | `100%` | 1 |
+
+## modes
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--modes-count` | `1` | 1 |
+
+## history
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--history-max-height` |  | 1 |
+
+## header
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--header-bar-padding` |  | 1 |
 
 ## welcome
 

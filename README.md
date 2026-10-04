@@ -35,7 +35,11 @@ builds themes from a small, validated definition.
 
 All themes share the [house conventions](docs/creating-a-theme.md#house-conventions):
 sidebar and header in the page background, no shadows, backdrop blur on the header,
-cards and dialogs, and a system-ui variant.
+cards and dialogs, a harmonized entity palette and a system-ui variant.
+
+| Palette, light | Palette, dark |
+| --- | --- |
+| ![Anthropic palette, light](previews/anthropic/palette-light.png) | ![Anthropic palette, dark](previews/anthropic/palette-dark.png) |
 
 Installation steps are in [creating-a-theme.md](docs/creating-a-theme.md#installing-a-theme).
 
@@ -56,7 +60,8 @@ thermostat, weather, media, entities, markdown and history cards, used by the pr
 | Command | Purpose |
 | --- | --- |
 | `uv run ha-themes build [slug…] [--strict]` | Build `themes-src/` into `themes/` and validate |
-| `uv run ha-themes preview [slug…]` | Screenshot themes in Google Chrome into `previews/` |
+| `uv run ha-themes preview [slug…] [--palette-only]` | Render palette sheets and screenshot themes in Google Chrome into `previews/` |
+| `uv run ha-themes palette [slug…]` | Rank chart series orders that pass the checks, and list entity colors |
 | `uv run ha-themes catalog` | Re-capture the token catalog from the dev instance and regenerate the reference docs |
 | `uv run ha-themes docs` | Regenerate the reference docs from `catalog/tokens.json` |
 | `uv run pytest` / `uv run ruff check` | Tests and lint |

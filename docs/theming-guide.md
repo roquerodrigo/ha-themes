@@ -96,6 +96,27 @@ generates one support module, registered with `frontend: extra_module_url:`, tha
 finds only the theme font. Fonts declared on the document are visible inside every shadow
 root, and the module runs on every page.
 
+## Entity and chart colors
+
+- **Entity colors resolve through a chain.** For each stateful domain the frontend tries
+  `--state-<domain>-<device_class>-<state>-color`, then `--state-<domain>-<state>-color`,
+  `--state-<domain>-<active|inactive>-color` and `--state-<active|inactive>-color`. The
+  declared defaults point at the named colors (`--amber-color`, `--green-color`, …), so
+  restyling the named colors re-tints every entity at once.
+- **Named colors have no dark variants.** The stock palette uses the same values in both
+  modes, so `--indigo-color` and `--deep-purple-color` reach only about 2.5:1 on the dark
+  card surface, under the 3:1 expected of icons.
+- **Charts read colors in JavaScript.** `--graph-color-N` is tried first and is unset by
+  default; `--color-N` (1–54, cycled) is the fallback and is also used by calendars and
+  maps. The values are parsed as colors in script, so use hex.
+- **The stock chart series are well separated but not mode-aware.** Measured with the
+  categorical checks, the eight default series keep adjacent color-vision-deficiency
+  separation at ΔE 10.8 and normal-vision separation at 18.0, but three sit above the
+  light-mode lightness band, three are below the chroma floor, five are under 3:1 on a
+  white card, and the same values are used in dark mode. Pushing them into a band without
+  re-ordering collapses their separation, which is why the builder leaves them alone
+  unless a theme declares its own series.
+
 ## Backdrop blur
 
 Components expose `backdrop-filter` hooks, all unset (`none`) by default:

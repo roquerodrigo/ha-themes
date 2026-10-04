@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
 from ha_theme_kit.color.oklch import hex_to_rgba
+from ha_theme_kit.theme.chart_palette import ChartSettings, build_chart_colors, series_for_mode
 from ha_theme_kit.theme.definition import MODES, ThemeDefinition
+from ha_theme_kit.theme.entity_palette import EntityColorSettings, build_entity_colors
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
@@ -30,6 +32,7 @@ class BuiltTheme:
     base: dict[str, str]
     modes: dict[str, dict[str, str]]
     roles: dict[str, dict[str, str]]
+    chart_series: dict[str, list[str]]
 
     @property
     def font_stylesheet(self) -> str | None:
@@ -60,8 +63,11 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
         base.update(BACKDROP_BLUR_FILTERS)
     base.update(_resolve_all(resolver, definition.tokens.get("base", {})))
 
+    entity_settings = EntityColorSettings.from_document(definition.entity_colors)
+    chart_settings = ChartSettings.from_document(definition.charts)
     modes: dict[str, dict[str, str]] = {}
     resolved_roles: dict[str, dict[str, str]] = {}
+    chart_series: dict[str, list[str]] = {}
     for mode in MODES:
         mode_roles = {**ROLE_DEFAULTS[mode], **definition.roles.get(mode, {})}
         for role, source_role in ROLE_FALLBACKS.items():
@@ -71,6 +77,10 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
             raise ValueError(f"unknown {mode} roles {sorted(unknown_roles)}")
         resolved_roles[mode] = _resolve_all(resolver, mode_roles)
         tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}))
+        tokens |= build_entity_colors(entity_settings, resolver, mode)
+        if chart_settings:
+            chart_series[mode] = series_for_mode(chart_settings, resolver, mode)
+            tokens |= build_chart_colors(chart_series[mode])
         for role, value in resolved_roles[mode].items():
             tokens.update(dict.fromkeys(ROLE_TOKENS[role], value))
         if definition.backdrop_blur:
@@ -78,7 +88,7 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
         tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {})))
         modes[mode] = tokens
 
-    return BuiltTheme(definition, base, modes, resolved_roles)
+    return BuiltTheme(definition, base, modes, resolved_roles, chart_series)
 
 
 def _translucent_surfaces(roles: dict[str, str]) -> dict[str, str]:
