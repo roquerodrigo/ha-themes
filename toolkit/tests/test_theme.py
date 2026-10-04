@@ -13,6 +13,7 @@ from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
 from ha_theme_kit.theme.builder import FONT_STYLESHEET_TOKEN, build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
+from ha_theme_kit.theme.roles import DASHBOARD_HEADER_BACKGROUND_TOKEN
 from ha_theme_kit.theme.validation import validate_theme
 from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
 from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
@@ -209,7 +210,8 @@ def test_chrome_follows_background_unless_set() -> None:
     light = theme.modes["light"]
     assert light["sidebar-background-color"] == light["primary-background-color"]
     assert light["app-theme-color"] == light["primary-background-color"]
-    assert light["app-header-background-color"] == hex_to_rgba(
+    assert light["app-header-background-color"] == light["primary-background-color"]
+    assert light[DASHBOARD_HEADER_BACKGROUND_TOKEN] == hex_to_rgba(
         light["primary-background-color"], 0.72
     )
     assert theme.modes["dark"]["sidebar-background-color"] == "#000000"
@@ -246,6 +248,16 @@ def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
     assert theme.modes["light"]["app-theme-color"].startswith("#")
 
 
+def test_only_the_blurred_dashboard_header_gets_a_translucent_header_background() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"header_background": "#fafaf5"}}))
+    light = theme.modes["light"]
+    assert light["app-header-background-color"] == "#fafaf5"
+    assert light[DASHBOARD_HEADER_BACKGROUND_TOKEN] == "rgba(250, 250, 245, 0.72)"
+    assert theme.base["app-header-backdrop-filter"].startswith("blur(")
+    unblurred = build_theme(minimal_definition(backdrop_blur=False))
+    assert DASHBOARD_HEADER_BACKGROUND_TOKEN not in unblurred.modes["light"]
+
+
 def test_backdrop_blur_can_be_disabled() -> None:
     theme = build_theme(minimal_definition(backdrop_blur=False))
     assert "ha-card-backdrop-filter" not in theme.base
@@ -257,6 +269,7 @@ def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) ->
     assert f"--{FONT_STYLESHEET_TOKEN}" in module
     assert "fonts.googleapis.com" not in module
     assert "--ha-themes-brand-icon-color" in module
+    assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
 
 
 def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:

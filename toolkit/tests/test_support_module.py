@@ -324,3 +324,37 @@ def test_font_stylesheet_follows_the_theme_variable(page: Page, page_errors: lis
     remove_root_variable(page, "--ha-themes-font-stylesheet")
     page.wait_for_function(f"() => ({links})().length === 0")
     assert page_errors == []
+
+
+def test_only_the_dashboard_header_paints_the_translucent_header_background(
+    page: Page, page_errors: list[str]
+) -> None:
+    header_background = """(tag) => {
+      const header = window.findElement(`${tag}-header`);
+      return getComputedStyle(header).backgroundColor;
+    }"""
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--app-header-background-color", "rgb(0, 0, 255)");
+          root.setProperty("--ha-themes-dashboard-header-background", "rgba(255, 0, 0, 0.5)");
+          for (const tag of ["hui-root", "ha-header-bar"]) {
+            const host = document.createElement(tag);
+            const shadow = host.attachShadow({ mode: "open" });
+            const sheet = new CSSStyleSheet();
+            sheet.replaceSync(".header { background-color: var(--app-header-background-color); }");
+            shadow.adoptedStyleSheets = [sheet];
+            const header = document.createElement("div");
+            header.id = `${tag}-header`;
+            header.className = "header";
+            shadow.append(header);
+            document.body.append(host);
+          }
+        }"""
+    )
+    page.wait_for_function(f"() => ({header_background})('hui-root') === 'rgba(255, 0, 0, 0.5)'")
+    assert page.evaluate(header_background, "ha-header-bar") == "rgb(0, 0, 255)"
+
+    remove_root_variable(page, "--ha-themes-dashboard-header-background")
+    page.wait_for_function(f"() => ({header_background})('hui-root') === 'rgb(0, 0, 255)'")
+    assert page_errors == []

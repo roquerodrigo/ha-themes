@@ -6,6 +6,28 @@ const BRAND_ICON_COLOR_DECLARATION = new RegExp(`${BRAND_ICON_COLOR_VARIABLE}\\s
 // Generic integration icons on the brands CDN are a single flat color; real logos are not.
 const GENERIC_ICON_RGB = [0, 171, 248];
 const CHANNEL_TOLERANCE = 3;
+const DASHBOARD_HEADER_BACKGROUND =
+  "var(--ha-themes-dashboard-header-background, var(--app-header-background-color))";
+
+// Only the dashboard header pairs its background with a backdrop filter, so the translucent
+// background is painted there alone; the frontend's edit-mode rules are more specific and win.
+const dashboardHeaderStyles = new CSSStyleSheet();
+dashboardHeaderStyles.replaceSync(`
+  .header { background-color: ${DASHBOARD_HEADER_BACKGROUND}; }
+  ha-tab-group::part(scroll-button) {
+    background: linear-gradient(90deg, ${DASHBOARD_HEADER_BACKGROUND}, transparent);
+  }
+  ha-tab-group::part(scroll-button-end) {
+    background: linear-gradient(270deg, ${DASHBOARD_HEADER_BACKGROUND}, transparent);
+  }
+`);
+
+const styleDashboardHeader = (root) => {
+  const sheets = root.adoptedStyleSheets;
+  if (root.host?.localName === "hui-root" && !sheets.includes(dashboardHeaderStyles)) {
+    root.adoptedStyleSheets = [...sheets, dashboardHeaderStyles];
+  }
+};
 
 // Themes (global on <html>, or per view or card) are applied as inline custom properties.
 const declaresProjectTheme = (element) =>
@@ -302,6 +324,7 @@ const watch = (root) => {
     return;
   }
   watchedRoots.add(root);
+  styleDashboardHeader(root);
   const observer = new MutationObserver(handleMutations);
   observer.observe(root, {
     childList: true,

@@ -150,7 +150,7 @@ Components expose `backdrop-filter` hooks, all unset (`none`) by default:
 
 | Hook | Element | Background it blurs through |
 | --- | --- | --- |
-| `app-header-backdrop-filter` | Fixed top bar of dashboards (`hui-root`) and the overview | `app-header-background-color` |
+| `app-header-backdrop-filter` | Fixed top bar of dashboards (`hui-root`) and the overview | `ha-themes-dashboard-header-background` (see below) |
 | `ha-card-backdrop-filter` | Every `ha-card` | `ha-card-background` (falls back to `card-background-color`) |
 | `ha-dialog-surface-backdrop-filter` | Dialog and bottom-sheet surfaces | `ha-dialog-surface-background` |
 | `ha-dialog-scrim-backdrop-filter` | The page behind a modal (default `brightness(68%)`) | the scrim itself |
@@ -160,6 +160,14 @@ A blur is only visible through a translucent background, so each hook needs its 
 token set to a color with alpha. Settings pages scroll in a container that starts below
 the top bar, so nothing passes underneath their header; the effect shows on dashboards,
 the overview and dialogs. The sidebar and dropdown menus have no hook.
+
+Keep `app-header-background-color` opaque: only the dashboard header reads the blur, but
+about a hundred other places paint that color without one (the notification drawer,
+settings page toolbars, top app bars, tab scroll buttons, badge borders), and content behind
+them would show through unblurred. The builder writes the translucent color to
+`ha-themes-dashboard-header-background` instead, and the support module paints the
+dashboard header (and its tab scroll buttons) with it, falling back to
+`app-header-background-color` when a theme does not set it.
 
 Keep `card-background-color` opaque and make only `ha-card-background` translucent: the
 former is also used for surfaces that sit on top of other content, such as popovers, and
