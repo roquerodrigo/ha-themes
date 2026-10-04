@@ -5,8 +5,10 @@ from unittest.mock import patch
 
 import pytest
 from atomicwrites import AtomicWriter
+from homeassistant.components.frontend import DATA_THEMES, EVENT_THEMES_UPDATED
 from homeassistant.helpers import issue_registry
 from homeassistant.util.file import WriteError
+from pytest_homeassistant_custom_component.common import async_capture_events
 
 from custom_components.ha_themes.const import (
     DOMAIN,
@@ -60,12 +62,45 @@ async def test_stale_files_are_removed_and_unchanged_files_kept(
     modified_at = kept.stat().st_mtime_ns
     stale = target / "retired-theme.yaml"
     stale.write_text("Retired: {}\n")
+    theme_reloads = async_capture_events(hass, EVENT_THEMES_UPDATED)
 
     await installer.async_install()
 
+    await hass.async_block_till_done()
     assert not stale.exists()
+    assert len(theme_reloads) == 1
     assert kept.stat().st_mtime_ns == modified_at
     assert f"Removed {stale}" in caplog.text
+
+
+async def test_unchanged_files_with_loaded_themes_skip_the_reload(
+    hass: HomeAssistant, frontend: None, config_directory: Path
+) -> None:
+    installer = HaThemesThemeInstaller(hass)
+    await installer.async_install()
+    theme_reloads = async_capture_events(hass, EVENT_THEMES_UPDATED)
+
+    installed = await installer.async_install()
+
+    await hass.async_block_till_done()
+    assert theme_reloads == []
+    assert set(installed) <= installer.loaded_themes
+    assert issue(hass) is None
+
+
+async def test_unchanged_files_missing_from_the_frontend_are_reloaded(
+    hass: HomeAssistant, frontend: None, config_directory: Path
+) -> None:
+    installer = HaThemesThemeInstaller(hass)
+    installed = await installer.async_install()
+    hass.data[DATA_THEMES].pop(installed[0])
+    theme_reloads = async_capture_events(hass, EVENT_THEMES_UPDATED)
+
+    await installer.async_install()
+
+    await hass.async_block_till_done()
+    assert len(theme_reloads) == 1
+    assert installed[0] in installer.loaded_themes
 
 
 async def test_uninstall_logs_files_it_cannot_remove(
@@ -103,10 +138,13 @@ async def test_outdated_files_are_rewritten(
     installed = next(installer.target_directory.glob("*.yaml"))
     original = installed.read_text()
     installed.write_text("Outdated: {}\n")
+    theme_reloads = async_capture_events(hass, EVENT_THEMES_UPDATED)
 
     await installer.async_install()
 
+    await hass.async_block_till_done()
     assert installed.read_text() == original
+    assert len(theme_reloads) == 1
 
 
 async def test_interrupted_write_keeps_the_previous_file(

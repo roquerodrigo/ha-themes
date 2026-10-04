@@ -37,7 +37,8 @@ class HaThemesThemeInstaller:
 
     Home Assistant only loads themes from the `frontend: themes:` YAML and replaces
     anything else on every `frontend.reload_themes`, so the themes are installed as
-    files the standard `!include_dir_merge_named themes` picks up, then reloaded. A
+    files the standard `!include_dir_merge_named themes` picks up. The themes are
+    reloaded only when a file changed or the frontend does not serve them yet. A
     repair issue explains the fix when the reload fails or the configuration does not
     include that directory, and is re-checked whenever the themes are reloaded.
     """
@@ -59,10 +60,15 @@ class HaThemesThemeInstaller:
         return frozenset(themes) if themes else frozenset()
 
     async def async_install(self) -> tuple[str, ...]:
-        """Install or update the theme files and reload the frontend themes."""
-        installed = await self._hass.async_add_executor_job(self._synchronize_files)
+        """Install or update the theme files and reload the themes if needed."""
+        files_changed = await self._hass.async_add_executor_job(self._synchronize_files)
+        installed = await self._hass.async_add_executor_job(
+            self._read_packaged_theme_names
+        )
         self._installed = installed
-        reload_error = await self._async_reload_themes()
+        reload_error = None
+        if files_changed or not set(installed) <= self.loaded_themes:
+            reload_error = await self._async_reload_themes()
         self._update_issues(installed, reload_error)
         LOGGER.debug("Installed themes %s into %s", installed, self.target_directory)
         return installed
@@ -103,27 +109,37 @@ class HaThemesThemeInstaller:
         """Report a file the uninstall could not delete instead of failing it."""
         LOGGER.warning("Could not remove %s: %s", path, error)
 
-    def _synchronize_files(self) -> tuple[str, ...]:
-        """Mirror the packaged theme files and return the theme names they define."""
+    def _synchronize_files(self) -> bool:
+        """Mirror the packaged theme files and return whether any file changed."""
         self.target_directory.mkdir(parents=True, exist_ok=True)
         packaged = {source.name: source for source in PACKAGED_THEMES.glob("*.yaml")}
+        files_changed = False
         for stale in self.target_directory.glob("*.yaml"):
             if stale.name not in packaged:
                 stale.unlink()
+                files_changed = True
                 LOGGER.info(
                     "Removed %s: %s is managed by %s and only keeps its themes",
                     stale,
                     self.target_directory,
                     DOMAIN,
                 )
-        names: list[str] = []
         for name, source in sorted(packaged.items()):
             content = source.read_bytes()
             target = self.target_directory / name
             if not target.is_file() or target.read_bytes() != content:
                 write_utf8_file_atomic(str(target), content, mode="wb")
-            names.extend(str(theme) for theme in load_yaml_dict(source))
-        return tuple(names)
+                files_changed = True
+        return files_changed
+
+    @staticmethod
+    def _read_packaged_theme_names() -> tuple[str, ...]:
+        """Return the names of the themes the packaged files define."""
+        return tuple(
+            str(theme)
+            for source in sorted(PACKAGED_THEMES.glob("*.yaml"))
+            for theme in load_yaml_dict(source)
+        )
 
     async def _async_reload_themes(self) -> str | None:
         """Ask the frontend to re-read the themes and return the error, if any."""
