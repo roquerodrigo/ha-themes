@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL, DATA_THEMES
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState
 from homeassistant.helpers import issue_registry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -12,7 +13,10 @@ from custom_components.ha_themes.const import (
     ISSUE_THEMES_NOT_LOADED,
     ISSUE_THEMES_RELOAD_FAILED,
 )
-from custom_components.ha_themes.theme_installer import PACKAGED_THEMES
+from custom_components.ha_themes.theme_installer import (
+    PACKAGED_THEMES,
+    HaThemesThemeInstaller,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -153,3 +157,61 @@ async def test_unload_removes_the_issue_and_stops_watching_reloads(
 
     await reload_themes(hass)
     assert issue(hass) is None
+
+
+async def test_disabling_the_entry_removes_the_issue(
+    hass: HomeAssistant, setup_integration: MockConfigEntry, config_directory: Path
+) -> None:
+    (config_directory / "configuration.yaml").write_text("homeassistant:\n")
+    await reload_themes(hass)
+    assert issue(hass) is not None
+
+    assert await hass.config_entries.async_set_disabled_by(
+        setup_integration.entry_id, ConfigEntryDisabler.USER
+    )
+    await hass.async_block_till_done()
+
+    assert setup_integration.state is ConfigEntryState.NOT_LOADED
+    assert issue(hass) is None
+    await reload_themes(hass)
+    assert issue(hass) is None
+
+
+async def test_removal_succeeds_when_the_theme_reload_fails(
+    hass: HomeAssistant, setup_integration: MockConfigEntry, config_directory: Path
+) -> None:
+    (config_directory / "configuration.yaml").write_text(
+        "frontend:\n  themes:\n    Broken: 12\n"
+    )
+
+    assert await hass.config_entries.async_remove(setup_integration.entry_id)
+    await hass.async_block_till_done()
+
+    assert not (config_directory / "themes" / DOMAIN).exists()
+    assert issue(hass) is None
+    assert issue(hass, ISSUE_THEMES_RELOAD_FAILED) is None
+
+
+async def test_removing_an_entry_that_failed_setup_leaves_nothing_behind(
+    hass: HomeAssistant,
+    frontend: None,
+    enable_custom_integrations: None,
+    config_directory: Path,
+) -> None:
+    modules_before = set(hass.data[DATA_EXTRA_MODULE_URL].urls)
+    entry = MockConfigEntry(domain=DOMAIN, data={}, title="HA Themes")
+    entry.add_to_hass(hass)
+    with patch.object(
+        HaThemesThemeInstaller,
+        "_synchronize_files",
+        side_effect=PermissionError("read-only"),
+    ):
+        assert not await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.state is ConfigEntryState.SETUP_ERROR
+
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert set(hass.data[DATA_EXTRA_MODULE_URL].urls) == modules_before
+    assert not (config_directory / "themes" / DOMAIN).exists()
