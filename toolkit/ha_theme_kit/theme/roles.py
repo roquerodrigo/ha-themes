@@ -137,8 +137,13 @@ BACKDROP_BLUR_FILTERS: dict[str, str] = {
     "ha-dialog-scrim-backdrop-filter": "blur(6px) brightness(68%)",
 }
 
+DASHBOARD_HEADER_BACKGROUND_TOKEN = "ha-themes-dashboard-header-background"
+"""Only the dashboard header blurs, but about a hundred other places paint
+`app-header-background-color` without a blur, so that token stays opaque and the support
+module paints the dashboard header with this one instead."""
+
 TRANSLUCENT_SURFACES: dict[str, tuple[str, float]] = {
-    "app-header-background-color": ("header_background", 0.72),
+    DASHBOARD_HEADER_BACKGROUND_TOKEN: ("header_background", 0.72),
     "ha-card-background": ("surface", 0.8),
     "ha-dialog-surface-background": ("surface", 0.85),
 }
