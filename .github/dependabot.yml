@@ -30,13 +30,13 @@ updates:
           - "*"
         exclude-patterns:
           - "homeassistant"
+          - "home-assistant-frontend"
           - "pytest-homeassistant-custom-component"
     ignore:
-      # Home Assistant and its test harness are bumped together by hand: the
-      # pin tracks the ``homeassistant`` key in hacs.json, and each
-      # pytest-homeassistant-custom-component release pins one exact Home
-      # Assistant along with pytest, pytest-asyncio and pytest-cov.
+      # These pin one Home Assistant release and move together with a catalog
+      # re-capture (README: Updating to a new Home Assistant release).
       - dependency-name: "homeassistant"
+      - dependency-name: "home-assistant-frontend"
       - dependency-name: "pytest-homeassistant-custom-component"
     commit-message:
       prefix: "deps"

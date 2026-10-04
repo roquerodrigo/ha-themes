@@ -1199,7 +1199,7 @@ lint = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "home-assistant-frontend", specifier = "==20261028.2" },
+    { name = "home-assistant-frontend", specifier = "==20260930.0" },
     { name = "homeassistant", specifier = "==2026.9.4" },
     { name = "playwright", specifier = "==1.64.1" },
     { name = "pre-commit", specifier = "==4.7.0" },
@@ -1303,11 +1303,11 @@ wheels = [
 
 [[package]]
 name = "home-assistant-frontend"
-version = "20261028.2"
+version = "20260930.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/56/8a/8c2d399758406dc8f5006febef0be5f67d79ffaee45debce826842379d06/home_assistant_frontend-20261028.2.tar.gz", hash = "sha256:88a6bda02db60aacffc880350fd1d1437732588ed96bf19c7ab0597b46c93b67", size = 116557092, upload-time = "2026-10-30T23:10:28.606Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/68/57f9a6fbdee0b14e1750076dc85f21a8e15a834f8566329ddacce2c18c2e/home_assistant_frontend-20260930.0.tar.gz", hash = "sha256:1355cc0a8acbed6fb5d47f2cec2600e930735a3f1d56db7e917b02469c5ba91d", size = 110184541, upload-time = "2026-09-30T14:42:44.644Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1f/a8/c04f4fa3c3d5414832277fbd7a1a9aae7bcf78d1b6a1a7fe962e3fb6cdff/home_assistant_frontend-20261028.2-py3-none-any.whl", hash = "sha256:66adb2315d0426ee9befaccb8db47338446e0c7e3707f83e53e5e79db543715f", size = 117384041, upload-time = "2026-10-30T23:10:18.295Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/91/95cbb427e1cc2ef0b195a1af4a90935cfc85796e726d6b064ba9235b371b/home_assistant_frontend-20260930.0-py3-none-any.whl", hash = "sha256:59766b1697e155bb0adc311bd415f5f697e10c60c9e808211f861cb6199a63c8", size = 110930433, upload-time = "2026-09-30T14:42:36.321Z" },
 ]
 
 [[package]]
