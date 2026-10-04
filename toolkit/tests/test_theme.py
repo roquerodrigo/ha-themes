@@ -142,3 +142,54 @@ def test_brand_icons_follow_the_primary_role() -> None:
     theme = build_theme(minimal_definition())
     for tokens in theme.modes.values():
         assert tokens["ha-themes-brand-icon-color"] == tokens["primary-color"]
+
+
+@pytest.mark.parametrize(
+    ("roles", "message"),
+    [
+        (
+            {"dark": {"surface": "{neutral.20@0.9}"}},
+            r"minimal: dark role 'surface' .* backdrop_blur",
+        ),
+        (
+            {"light": {"header_background": "transparent"}},
+            r"minimal: light role 'header_background'",
+        ),
+    ],
+)
+def test_translucent_roles_must_be_opaque_while_blurring(roles: dict, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        build_theme(minimal_definition(roles=roles))
+    assert build_theme(minimal_definition(roles=roles, backdrop_blur=False))
+
+
+def test_chart_seeds_must_resolve_to_opaque_colors() -> None:
+    series = ["{neutral.50@0.5}", *["#4269d0"] * 7]
+    with pytest.raises(ValueError, match=r"minimal: charts.series seed 1 \('\{neutral.50@0.5\}'\)"):
+        build_theme(minimal_definition(charts={"series": series}))
+
+
+@pytest.mark.parametrize(
+    ("section", "message"),
+    [
+        (
+            {"entity_colors": {"pinned": {"red": {"light": "#ff0000"}}}},
+            r"bad.yaml: entity_colors.pinned.red must set exactly \['light', 'dark'\]",
+        ),
+        (
+            {"charts": {"lightness": {"dark": [0.6]}}},
+            r"bad.yaml: charts.lightness.dark must be \[minimum, maximum\], got \[0.6\]",
+        ),
+        (
+            {"entity_colors": {"lightness": {"dim": [0.2, 0.4]}}},
+            r"bad.yaml: entity_colors.lightness has unknown mode 'dim'",
+        ),
+    ],
+)
+def test_definition_load_names_the_file_and_path_of_malformed_sections(
+    tmp_path: Path, section: dict, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, **section}))
+    with pytest.raises(ValueError, match=message):
+        ThemeDefinition.load(source)

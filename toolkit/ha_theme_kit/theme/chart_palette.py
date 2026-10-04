@@ -9,13 +9,21 @@ alternating lighter and darker steps; past eight series, identity is no longer g
 from dataclasses import dataclass, field
 from itertools import permutations
 
-from ha_theme_kit.color.oklch import Oklch, fit_to_gamut, hex_to_oklch, oklch_to_hex, restyle
+from ha_theme_kit.color.oklch import (
+    Oklch,
+    fit_to_gamut,
+    hex_to_oklch,
+    is_opaque_hex,
+    oklch_to_hex,
+    restyle,
+)
 from ha_theme_kit.color.vision import (
     CHROMA_FLOOR,
     NORMAL_VISION_FLOOR,
     worst_adjacent_cvd_distance,
     worst_adjacent_normal_distance,
 )
+from ha_theme_kit.theme.lightness_bands import parse_lightness_bands
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 
 CATEGORICAL_SLOTS = 8
@@ -52,15 +60,21 @@ class ChartSettings:
         if len(series) != CATEGORICAL_SLOTS:
             raise ValueError(f"charts.series needs exactly {CATEGORICAL_SLOTS} colors")
         defaults = cls()
-        lightness = {mode: tuple(band) for mode, band in (document.get("lightness") or {}).items()}
+        lightness = parse_lightness_bands("charts", document.get("lightness"))
         return cls(series, defaults.chroma_floor, {**defaults.lightness, **lightness})
 
 
 def series_for_mode(settings: ChartSettings, resolver: PaletteResolver, mode: str) -> list[str]:
-    return [
-        restyle(resolver.resolve(seed), settings.lightness[mode], (settings.chroma_floor, 1.0))
-        for seed in settings.series
-    ]
+    series = []
+    for position, seed in enumerate(settings.series, 1):
+        color = resolver.resolve(seed)
+        if not is_opaque_hex(color):
+            raise ValueError(
+                f"charts.series seed {position} ({seed!r}) must resolve to an opaque hex color,"
+                f" got {color!r} in {mode}"
+            )
+        series.append(restyle(color, settings.lightness[mode], (settings.chroma_floor, 1.0)))
+    return series
 
 
 def build_chart_colors(series: list[str]) -> dict[str, str]:

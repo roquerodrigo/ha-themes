@@ -1,5 +1,8 @@
 import math
+import re
 from dataclasses import dataclass
+
+OPAQUE_HEX_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 @dataclass(frozen=True)
@@ -7,6 +10,10 @@ class Oklch:
     lightness: float
     chroma: float
     hue: float
+
+
+def is_opaque_hex(value: str) -> bool:
+    return bool(OPAQUE_HEX_COLOR.match(value))
 
 
 def hex_to_rgb(hex_color: str) -> tuple[float, float, float]:
