@@ -62,11 +62,11 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme, gives dropdown menus the theme's surface color and recolors the generic integration
-  icons. It stays dormant, observing nothing, until a project theme is applied globally or
-  to a view or card, and falls dormant again when none is left, so users on other themes are
-  not affected. It is served under a content-hash URL, so browser and service worker caches
-  never keep an outdated copy;
+  theme, gives dropdown menus the theme's surface color, outlines toasts when shadows are
+  flat and recolors the generic integration icons. It stays dormant, observing nothing,
+  until a project theme is applied globally or to a view or card, and falls dormant again
+  when none is left, so users on other themes are not affected. It is served under a
+  content-hash URL, so browser and service worker caches never keep an outdated copy;
 - requests fonts from Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) only while
   a theme that declares them is active — globally, or on a view or card. The System UI
   variants, the default theme and other themes make no font request;
@@ -84,10 +84,10 @@ Remove the integration in this order, so it can delete the files it installed:
 
 If HA Themes was removed in HACS first, Home Assistant can no longer run its cleanup: the themes
 stay selectable but load without the support module (no web fonts, Roboto on the page body,
-dropdown menus in the page color, integration icons in their default colors). To clean up
-manually, delete the leftover entry under **Settings → Devices & services**, delete the
-`themes/ha_themes/` directory and call the `frontend.reload_themes` action (or restart Home
-Assistant).
+dropdown menus in the page color, toasts without an edge, integration icons in their default
+colors). To clean up manually, delete the leftover entry under **Settings → Devices &
+services**, delete the `themes/ha_themes/` directory and call the `frontend.reload_themes`
+action (or restart Home Assistant).
 
 ## Documentation
 

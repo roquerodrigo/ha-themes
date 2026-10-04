@@ -134,6 +134,16 @@ FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
 ) | {"md-sys-color-shadow": "transparent"}
 """A transparent zero shadow instead of `none` stays valid inside comma-separated shadow lists."""
 
+TOAST_EDGE_TOKEN = "ha-themes-toast-box-shadow"
+"""The toast reads the shared `wa-shadow-l` directly, so the support module paints its edge
+with this token instead."""
+
+OVERLAY_EDGE: dict[str, str] = dict.fromkeys(
+    ("ha-tooltip-box-shadow", TOAST_EDGE_TOKEN), "0 0 0 1px var(--outline-color)"
+)
+"""Tooltips and toasts float over the page with only a shadow to separate them, so flat
+elevation gives them the 1px outline that menus and cards already have."""
+
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
 

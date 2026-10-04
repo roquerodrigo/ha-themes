@@ -9,6 +9,7 @@ from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
     FLAT_ELEVATION,
+    OVERLAY_EDGE,
     ROLE_DEFAULTS,
     ROLE_FALLBACKS,
     ROLE_TOKENS,
@@ -68,7 +69,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
             raise ValueError(f"unknown typography role {role!r}")
         base[TYPOGRAPHY_TOKENS[role]] = str(value)
     if not definition.shadows:
-        base.update(FLAT_ELEVATION)
+        base.update(FLAT_ELEVATION | OVERLAY_EDGE)
     if definition.backdrop_blur:
         base.update(BACKDROP_BLUR_FILTERS)
     base.update(_resolve_all(resolver, definition.tokens.get("base", {}), "tokens.base"))

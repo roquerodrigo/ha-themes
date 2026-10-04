@@ -386,3 +386,29 @@ def test_dropdown_menus_take_the_theme_menu_background(page: Page, page_errors: 
     remove_root_variable(page, "--ha-themes-menu-background")
     page.wait_for_function(f"() => ({menu_background})() === 'rgb(0, 0, 255)'")
     assert page_errors == []
+
+
+def test_toasts_take_the_theme_edge(page: Page, page_errors: list[str]) -> None:
+    toast_shadow = "() => getComputedStyle(window.findElement('toast')).boxShadow"
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--wa-shadow-l", "rgb(0, 0, 255) 0px 16px 32px 0px");
+          root.setProperty("--ha-themes-toast-box-shadow", "rgb(255, 0, 0) 0px 0px 0px 1px");
+          const host = document.createElement("ha-toast");
+          const shadow = host.attachShadow({ mode: "open" });
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(".toast { box-shadow: var(--wa-shadow-l); }");
+          shadow.adoptedStyleSheets = [sheet];
+          const toast = document.createElement("div");
+          toast.id = "toast";
+          toast.className = "toast";
+          shadow.append(toast);
+          document.body.append(host);
+        }"""
+    )
+    page.wait_for_function(f"() => ({toast_shadow})() === 'rgb(255, 0, 0) 0px 0px 0px 1px'")
+
+    remove_root_variable(page, "--ha-themes-toast-box-shadow")
+    page.wait_for_function(f"() => ({toast_shadow})() === 'rgb(0, 0, 255) 0px 16px 32px 0px'")
+    assert page_errors == []
