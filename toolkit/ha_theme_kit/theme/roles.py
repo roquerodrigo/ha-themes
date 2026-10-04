@@ -101,7 +101,6 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "warning": "{orange.40}",
         "success": "{green.40}",
         "info": "{primary.40}",
-        "state_icon": "{primary.30}",
         "scrollbar": "{neutral.70}",
         "shadow": "rgba(0, 0, 0, 0.16)",
         "input_fill": "{neutral.95}",
@@ -133,7 +132,6 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "warning": "{orange.60}",
         "success": "{green.60}",
         "info": "{primary.60}",
-        "state_icon": "{primary.60}",
         "scrollbar": "{neutral.60}",
         "shadow": "rgba(0, 0, 0, 0.48)",
         "input_fill": "{neutral.90@0.05}",
@@ -152,12 +150,13 @@ ROLE_FALLBACKS: dict[str, str] = {
     "sidebar_background": "background",
     "header_background": "background",
     "brand_icon": "primary",
+    "state_icon": "primary",
     "menu_background": "surface",
     "code_editor_background": "surface",
 }
 """Roles that follow another role unless a theme sets them: chrome blends into the page,
-generic integration icons take the primary color, and menus and the code editor are raised like
-cards."""
+generic integration icons and entity icons without a state color take the primary color, and
+menus and the code editor are raised like cards."""
 
 PROJECT_TOKEN_PREFIX = "ha-themes-"
 """Variables read by the support module rather than the frontend."""
@@ -265,6 +264,8 @@ CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text_on_primary_light", "primary_light", 4.5),
     ("primary", "background", 3.0),
     ("primary", "surface", 3.0),
+    ("state_icon", "background", 3.0),
+    ("state_icon", "surface", 3.0),
     ("error", "background", 4.5),
     ("error", "surface", 4.5),
     ("warning", "background", 4.5),
@@ -285,4 +286,5 @@ CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
 """Text pairs need 4.5:1 and graphical ones 3:1. The status colors and secondary text are drawn
 as text (log levels, error messages, captions). `primary` also colors links, but it is the brand
 fill of buttons, badges and switches, so the builder never moves it and it is held to the 3:1 of
-a graphical part; buttons draw their text in the normal primary on-color, checked at 4.5:1."""
+a graphical part, as is `state_icon`, the default color of entity icons; buttons draw their text
+in the normal primary on-color, checked at 4.5:1."""
