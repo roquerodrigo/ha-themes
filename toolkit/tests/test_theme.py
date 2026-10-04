@@ -7,6 +7,7 @@ from annotatedyaml import parse_yaml
 from homeassistant.helpers.json import json_bytes
 from homeassistant.util.json import json_loads
 
+from ha_theme_kit.cli import THEME_SOURCES
 from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
 from ha_theme_kit.theme.builder import build_theme
@@ -191,7 +192,7 @@ def test_validation_warns_about_base_tokens_with_dark_defaults() -> None:
     assert report.mode_dependent_base_tokens == ["ha-card-border-radius"]
 
 
-@pytest.mark.parametrize("source", sorted(Path("themes-src").glob("*.yaml")), ids=lambda p: p.stem)
+@pytest.mark.parametrize("source", sorted(THEME_SOURCES.glob("*.yaml")), ids=lambda p: p.stem)
 def test_shipped_themes_validate_against_catalog(source: Path) -> None:
     catalog = TokenCatalog.load()
     for variant in theme_family(ThemeDefinition.load(source)):

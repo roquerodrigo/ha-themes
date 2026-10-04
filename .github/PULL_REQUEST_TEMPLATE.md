@@ -14,6 +14,7 @@
 
 - [ ] `uv run ruff format --check .`, `uv run ruff check .` and `uv run mypy` pass
 - [ ] `pytest` passes with the 90 % coverage gate
+- [ ] `scripts/ha-themes build --strict` ran and its output is committed (if themes or the support module changed)
 - [ ] All translation locales updated (if user-facing strings changed)
 
 ## Checklist
