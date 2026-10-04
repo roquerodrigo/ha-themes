@@ -206,6 +206,8 @@ def test_shipped_themes_validate_against_catalog(source: Path) -> None:
         assert all(chart.passes for chart in report.charts)
         assert report.status_fills is not None
         assert report.status_fills.passes
+        assert report.form_separation is not None
+        assert report.form_separation.passes
 
 
 def test_chrome_follows_background_unless_set() -> None:

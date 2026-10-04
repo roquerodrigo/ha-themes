@@ -118,3 +118,22 @@ def contrast_ratio(foreground: str, background: str) -> float:
         (relative_luminance(foreground), relative_luminance(background)), reverse=True
     )
     return (lighter + 0.05) / (darker + 0.05)
+
+
+def mix(first: str, second: str, share: float) -> str:
+    """Blend two colors in OKLab, taking `share` of the second."""
+    first_axes, second_axes = _oklab_axes(first), _oklab_axes(second)
+    lightness, axis_a, axis_b = (
+        start + (end - start) * share for start, end in zip(first_axes, second_axes, strict=True)
+    )
+    hue = math.degrees(math.atan2(axis_b, axis_a)) % 360
+    return oklch_to_hex(fit_to_gamut(Oklch(lightness, math.hypot(axis_a, axis_b), hue)))
+
+
+def _oklab_axes(hex_color: str) -> tuple[float, float, float]:
+    color = hex_to_oklch(hex_color)
+    return (
+        color.lightness,
+        color.chroma * math.cos(math.radians(color.hue)),
+        color.chroma * math.sin(math.radians(color.hue)),
+    )

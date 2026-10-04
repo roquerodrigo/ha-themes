@@ -167,6 +167,17 @@ section and value named.
 
 Roles marked — are only written when set; otherwise the frontend's derived default applies.
 
+Form fields (`ha-color-form-background`, `-hover`, `-disabled`), the quiet and normal neutral
+fills and `ha-color-surface-low` point at fixed neutral steps that suit the frontend's own
+page and surface. When a mode's `background` or `surface` sits elsewhere (more than OKLab
+ΔE 2 from the frontend's), the builder re-derives the tokens drawn on that role: it keeps the
+frontend's OKLCH lightness offset from the role and takes the color at that lightness from the
+theme's `neutral` scale. Fields then stay a visible box on a raised dark surface, and hover
+fills stay above what they cover. In dark mode, where the frontend paints disabled fields like
+enabled ones, disabled fields sit halfway between the surface and enabled fields. When the
+surface is re-derived and the theme does not set `input_fill`, it follows the new form
+background. Raw `tokens` still override all of these.
+
 `card-background-color` follows `background`, not `surface`. Despite its name, it is a
 page-plane color by design: the frontend paints it on elements that sit directly on the
 page — data tables and their headers, the logbook's floating date — so a surface tone would
@@ -235,7 +246,11 @@ Assistant would keep only one of them. It then reports, per theme:
 - the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
   be darker than the dark `background`, and the three statuses must stay at least OKLab
   ΔE 5 apart at each emphasis. Light mode is exempt, since the frontend's own quiet fills
-  there are near-white tints by design.
+  there are near-white tints by design;
+- dark-mode form separation: the form background must reach 1.2:1 against `surface`, enabled
+  and disabled fields must stay at least OKLab ΔE 2 from the surface and from each other, the
+  quiet resting and active fills and `ha-color-surface-low` may not be darker than
+  `background`, and the quiet, normal and form hover fills may not be darker than `surface`.
 
 `--strict` turns any failure into a non-zero exit code.
 

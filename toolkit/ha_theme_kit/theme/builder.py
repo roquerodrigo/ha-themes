@@ -5,6 +5,7 @@ from ha_theme_kit.theme.chart_palette import ChartSettings, build_chart_colors, 
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.entity_palette import EntityColorSettings, build_entity_colors
 from ha_theme_kit.theme.modes import MODES
+from ha_theme_kit.theme.neutral_layers import FORM_BACKGROUND, layer_neutral_fills
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
@@ -88,6 +89,10 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
             raise ValueError(f"unknown {mode} roles {sorted(unknown_roles)}")
         resolved_roles[mode] = _resolve_all(resolver, mode_roles, f"roles.{mode}")
         tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}), f"upstream fixes.{mode}")
+        neutral_fills = layer_neutral_fills(mode, resolved_roles[mode], resolver.scales["neutral"])
+        tokens |= neutral_fills
+        if FORM_BACKGROUND in neutral_fills and "input_fill" not in definition.roles.get(mode, {}):
+            resolved_roles[mode]["input_fill"] = neutral_fills[FORM_BACKGROUND]
         tokens |= build_entity_colors(entity_settings, resolver, mode)
         if chart_settings:
             chart_series[mode] = series_for_mode(chart_settings, resolver, mode)
