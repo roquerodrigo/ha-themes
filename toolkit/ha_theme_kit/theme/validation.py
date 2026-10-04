@@ -17,6 +17,7 @@ from ha_theme_kit.theme.mode_colors import ModeColors
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 from ha_theme_kit.theme.tinted_on_colors import measure_tinted_pairs
+from ha_theme_kit.theme.toast_colors import TOAST_BACKGROUND_TOKEN, measure_toast_pairs
 from ha_theme_kit.theme.token_readers import unread_role_tokens
 from ha_theme_kit.theme.track_contrast import TRACK_ROLE, measure_track_pairs
 
@@ -83,6 +84,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
     contrast.extend(_check_loud_fills(theme, catalog))
     contrast.extend(_check_tinted_on_colors(theme, catalog))
     contrast.extend(_check_tracks(theme, catalog))
+    contrast.extend(_check_toasts(theme, catalog))
     charts = [
         check_categorical(series, mode, _opaque_surface(theme, mode, catalog))
         for mode, series in theme.chart_series.items()
@@ -138,6 +140,16 @@ def _check_tracks(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResu
         ContrastResult(pair.mode, TRACK_ROLE, pair.backdrop_role, pair.ratio, pair.minimum)
         for mode in theme.roles
         for pair in measure_track_pairs(ModeColors.of_theme(theme, mode, catalog))
+    ]
+
+
+def _check_toasts(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
+    return [
+        ContrastResult(
+            pair.mode, pair.on_color_token, TOAST_BACKGROUND_TOKEN, pair.ratio, pair.minimum
+        )
+        for mode in theme.modes
+        for pair in measure_toast_pairs(ModeColors.of_theme(theme, mode, catalog))
     ]
 
 

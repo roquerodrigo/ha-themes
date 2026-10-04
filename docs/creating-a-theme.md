@@ -143,6 +143,13 @@ family, away from the fills, to the nearest step that meets every floor, and lea
 fills alone. A light brand orange whose `40` is paler than the frontend's therefore gets its
 warning text from `30`. Disabled text is exempt.
 
+Toasts are painted in `ha-color-neutral-10` in both modes, with the loud neutral on-color for the
+message and the normal primary on-color for plain action buttons, both tuned for other
+backdrops. Where either misses the same floor on the toast, the builder writes
+`ha-themes-toast-text-color` (white or `{neutral.05}`, whichever reads) or
+`ha-themes-toast-action-color` (the nearest primary step that reads), and the support module
+paints the toast with them. A theme can set either under `tokens`.
+
 ### References
 
 Anywhere a color is expected you can write `{family.step}` or `{family.step@alpha}`:
@@ -174,7 +181,7 @@ section and value named.
 | `text_on_primary_light` | `text-light-primary-color` (avatar initials, person badges, Assist debug chat) | `{neutral.05}` | `{neutral.95}` |
 | `accent` | `accent-color` | `{orange.60}` | `{orange.60}` |
 | `divider` | `divider-color`, `outline-color` | `{neutral.05@0.12}` | `{neutral.90@0.12}` |
-| `error` / `warning` / `success` / `info` | `*-color` | `red.50` / `orange.60` / `green.50` / `primary.50` | `red.60` / `orange.60` / `green.60` / `primary.60` |
+| `error` / `warning` / `success` / `info` | `*-color` (also drawn as text: log levels, error messages) | `red.40` / `orange.40` / `green.40` / `primary.40` | `red.70` / `orange.60` / `green.60` / `primary.60` |
 | `state_icon` | `state-icon-color` | `{primary.30}` | `{primary.60}` |
 | `scrollbar` | `scrollbar-thumb-color`, and through it `slider-track-color` | `{neutral.70}` | `{neutral.60}` |
 | `shadow` | `shadow-color` | `rgba(0, 0, 0, 0.16)` | `rgba(0, 0, 0, 0.48)` |
@@ -200,7 +207,11 @@ Every token a role writes has a reader: the build fails on a role token that the
 reads (catalog `consumers` of 0) or, for `ha-themes-*` tokens, that the support module never
 reads. The frontend's default theme declares several tokens nothing reads —
 `ha-color-text-link`, `ha-color-text-disabled`, `darker-primary-color`, `outline-hover-color` —
-so there is no `link` role: links are drawn in `primary-color`, the `primary` role.
+so there is no `link` role: links are drawn in `primary-color`, the `primary` role. Since
+`primary` is also the brand fill of buttons, badges and switches, the builder never moves it and
+validation holds it to the 3:1 of a graphical part; check its link contrast by eye. Anthropic's
+clay reaches 3.85–4.05:1 in light mode (stock 3.12–3.26:1) and 4.24–4.86:1 in dark mode (stock
+5.0–5.8:1), where links on cards are therefore slightly fainter than stock.
 
 Form fields (`ha-color-form-background`, `-hover`, `-disabled`), the quiet and normal neutral
 fills and `ha-color-surface-low` point at fixed neutral steps that suit the frontend's own
@@ -289,9 +300,13 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
 Assistant would keep only one of them. It then reports, per theme:
 
 - tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
-- WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1),
-  on-primary text on `primary`, `primary_hover` and `accent` (4.5:1), `text_on_primary_light`
-  on `primary_light` (4.5:1), and primary and error on surface (3:1);
+- WCAG contrast for text and secondary text on background and surface (4.5:1), error,
+  warning, success and info on background and surface (4.5:1, since the frontend draws them as
+  text), on-primary text on `primary`, `primary_hover` and `accent` (4.5:1),
+  `text_on_primary_light` on `primary_light` (4.5:1), and primary on background and surface
+  (3:1);
+- the toast's message and action colors on its `ha-color-neutral-10` background, in both modes
+  (4.5:1, or the frontend's own ratio where that is lower);
 - the on-color of every loud fill (primary, danger, warning, success and neutral) on its
   resting, hover and active fill, in both modes (4.5:1), including fills a theme sets
   through `tokens`;

@@ -34,9 +34,23 @@ dropdownMenuStyles.replaceSync(`
   }
 `);
 
+// The toast reuses the loud neutral and normal primary on-colors, which a theme tunes for other
+// backdrops, so its message and actions take colors set for the toast itself. The slotted action
+// buttons inherit from .actions; the toast keeps the page's brand text under another name, since
+// a custom property cannot fall back to its own inherited value.
 const toastStyles = new CSSStyleSheet();
 toastStyles.replaceSync(`
-  .toast { box-shadow: var(--ha-themes-toast-box-shadow, var(--wa-shadow-l)); }
+  .toast {
+    box-shadow: var(--ha-themes-toast-box-shadow, var(--wa-shadow-l));
+    --ha-themes-page-brand-on-normal: var(--wa-color-brand-on-normal);
+  }
+  .toast,
+  .actions { color: var(--ha-themes-toast-text-color, var(--ha-color-on-neutral-loud)); }
+  .actions {
+    --wa-color-brand-on-normal: var(
+      --ha-themes-toast-action-color, var(--ha-themes-page-brand-on-normal)
+    );
+  }
 `);
 
 // The energy totals table paints the page-toned card background inside its own card, so
