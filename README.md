@@ -35,8 +35,8 @@ them in full. Anthropic System UI fits exactly what the default theme fits; see
 
 Every theme has light and dark modes and follows the
 [house conventions](docs/creating-a-theme.md#house-conventions): sidebar and header in the
-page background, no shadows, backdrop blur on the header, cards and dialogs, a harmonized
-entity palette, chart series validated for color-vision deficiencies, generic integration
+page background, no shadows, backdrop blur on the header, cards and dialogs, outlined form
+fields, a harmonized entity palette, chart series validated for color-vision deficiencies, generic integration
 icons in the primary color, and a system-ui variant.
 
 | Palette, light | Palette, dark |
@@ -68,9 +68,9 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme, outlines toasts when shadows are flat and keeps their text readable, recolors the
-  generic integration icons and moves the fixed icon tiles of Settings, System and About to
-  the theme's entity colors. The themes keep `card-background-color` in the page tone, where
+  theme, outlines toasts when shadows are flat and keeps their text readable, outlines the
+  form fields, recolors the generic integration icons and moves the fixed icon tiles of
+  Settings, System and About to the theme's entity colors. The themes keep `card-background-color` in the page tone, where
   the frontend mostly paints it; the module lifts the few raised elements that read it
   anyway — dropdown menus to the surface color, the integration entry lists to the card
   tone — and keeps the energy totals card one tone. It stays dormant, observing nothing,
@@ -156,8 +156,9 @@ the copy mirrored at the last start.
 5. Review what is kept by hand against the frontend: `UPSTREAM_FIXES` in
    `toolkit/ha_theme_kit/theme/roles.py` (drop fixes the frontend no longer needs),
    `FRONTEND_SERIES` in `chart_palette.py`, `FRONTEND_NAMED_HUES` in `entity_palette.py`,
-   `FRONTEND_LAYERING` in `neutral_layers.py`, `ICON_TILE_ENTITY_COLORS` in the support module
-   source and the version header and known-issues table of `docs/theming-guide.md`. Run
+   `FRONTEND_LAYERING` in `neutral_layers.py`, `ICON_TILE_ENTITY_COLORS` and the stock
+   radii and selectors of the form field stylesheets in the support module source, and the
+   version header and known-issues table of `docs/theming-guide.md`. Run
    `scripts/lint`: tests fail while these disagree with the new catalog.
 6. Regenerate previews and compare.
 
