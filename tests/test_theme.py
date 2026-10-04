@@ -127,4 +127,4 @@ def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
 def test_backdrop_blur_can_be_disabled() -> None:
     theme = build_theme(minimal_definition(backdrop_blur=False))
     assert "ha-card-backdrop-filter" not in theme.base
-    assert "ha-card-background" not in theme.modes["dark"]
+    assert theme.modes["dark"]["ha-card-background"].startswith("#")

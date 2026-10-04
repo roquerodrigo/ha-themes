@@ -2,11 +2,21 @@
 
 Semantic `ha-color-*` tokens already derive from the core palette, so the roles below
 cover what the palette cannot reach: application tokens the frontend hard-codes per mode.
+
+`card-background-color` belongs to the page plane: the frontend paints it on elements that
+sit directly on the page (the logbook's floating date, data tables, headers). Raised
+surfaces have their own hooks — `ha-card-background`, the Material and Web Awesome
+surfaces — so cards, menus and dialogs keep the surface tone.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
-    "background": ("primary-background-color", "clear-background-color"),
-    "surface": ("card-background-color", "ha-color-surface-default"),
+    "background": ("primary-background-color", "clear-background-color", "card-background-color"),
+    "surface": (
+        "ha-card-background",
+        "ha-color-surface-default",
+        "mdc-theme-surface",
+        "wa-color-surface-default",
+    ),
     "surface_variant": ("secondary-background-color",),
     "text": ("primary-text-color", "ha-color-text-primary"),
     "text_secondary": ("secondary-text-color", "ha-color-text-secondary"),

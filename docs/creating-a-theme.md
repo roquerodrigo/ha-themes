@@ -118,8 +118,8 @@ link: "{primary.30}"           # → #9c4a2e
 
 | Role | Tokens | Light default | Dark default |
 | --- | --- | --- | --- |
-| `background` | `primary-background-color`, `clear-background-color` | `{neutral.95}` | `{neutral.05}` |
-| `surface` | `card-background-color`, `ha-color-surface-default` | `#ffffff` | `{neutral.10}` |
+| `background` | `primary-background-color`, `clear-background-color`, `card-background-color` | `{neutral.95}` | `{neutral.05}` |
+| `surface` | `ha-card-background`, `ha-color-surface-default`, `mdc-theme-surface`, `wa-color-surface-default` | `#ffffff` | `{neutral.10}` |
 | `surface_variant` | `secondary-background-color` | `{neutral.90}` | `{neutral.20}` |
 | `text` | `primary-text-color`, `ha-color-text-primary` | `{neutral.05}` | `{neutral.90}` |
 | `text_secondary` | `secondary-text-color`, `ha-color-text-secondary` | `{neutral.40}` | `{neutral.60}` |
@@ -142,6 +142,12 @@ link: "{primary.30}"           # → #9c4a2e
 | `state_active` | `state-active-color` | — | — |
 
 Roles marked — are only written when set; otherwise the frontend's derived default applies.
+
+`card-background-color` follows `background`, not `surface`: despite its name, the frontend
+paints it on elements that sit directly on the page — the logbook's floating date, data
+tables, table headers — so a different tone shows up as a stripe. Raised elements read
+their own hooks: cards `ha-card-background`, menus and lists `mdc-theme-surface`, Web
+Awesome components `wa-color-surface-default`, dialogs `ha-dialog-surface-background`.
 
 ### Entity colors
 
