@@ -23,12 +23,19 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `backdrop_blur: false`.
 - **Outlined form fields.** Text inputs, text areas, selects, pickers, the labels field and
   time inputs drop their fill and trade the Material bottom line for a 1px outline in
-  `ha-color-border-neutral-quiet` with `ha-border-radius-md` corners, drawn by the support
+  `ha-color-border-neutral-quiet` with the theme's corner radius, drawn by the support
   module (see [the guide](theming-guide.md#form-fields)), so they show the page, card or
   dialog behind them. The outline steps to `ha-color-border-neutral-normal` on hover instead
   of the darker hover fill, turns the primary color on focus and the danger color on an
   invalid value, as the bottom line did, and fades on a disabled field. Buttons, chips,
   switches and checkboxes are untouched. A theme opts out with `field_outline: false`.
+- **One small corner radius.** Every step of the frontend's radius scale (`sm` through
+  `6xl` and `pill`) and every component hook that bridges it — cards, dialogs and bottom
+  sheets, buttons, badges, chips, tile icons, tooltips, menus, toasts, fields — take the
+  same `corner_radius` (`8px`), so the corner no longer grows with the size of the element.
+  Circles (`ha-border-radius-circle`: avatars, round icon buttons, radio buttons, switch
+  thumbs) stay round (see [the guide](theming-guide.md#corner-radius)). A theme sets another
+  length, or keeps the frontend's radii with `corner_radius: false`.
 - **A harmonized entity palette.** The frontend's named colors — which every entity state
   color references — keep their hue and meaning but are restyled per mode: chroma capped to
   the theme's mood and lightness rescaled into a band that reads on that mode's surfaces.
@@ -70,6 +77,7 @@ description: One paragraph.
 shadows: false                 # optional, default false
 backdrop_blur: true            # optional, default true
 field_outline: true            # optional, default true
+corner_radius: 8px             # optional, default 8px; a px, rem or em length, or false
 
 palette:                       # required: primary, neutral, red, orange, green
   primary: "#d97757"           # a seed: generates steps 05…95 with the frontend's algorithm

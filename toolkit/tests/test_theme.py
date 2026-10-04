@@ -20,6 +20,9 @@ from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     CONTRAST_PAIRS,
+    CORNER_RADIUS_BRIDGES,
+    CORNER_RADIUS_SCALE,
+    CORNER_RADIUS_TOKEN,
     DASHBOARD_HEADER_BACKGROUND_TOKEN,
     FIELD_OUTLINE,
     ICON_TILE_HARMONY,
@@ -295,6 +298,70 @@ def test_field_outline_flag_defaults_to_on_and_loads_from_the_source(tmp_path: P
         yaml.safe_dump({"name": "Flags", "palette": MINIMAL_PALETTE, "field_outline": False})
     )
     assert not ThemeDefinition.load(source).field_outline
+
+
+SHAPE_TOKENS = {"--ha-border-radius-circle", "--ha-border-radius-square"}
+
+
+def test_every_radius_of_the_scale_and_its_bridges_takes_the_corner_radius() -> None:
+    catalog = TokenCatalog.load()
+    scale = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.group == "border-radius" and entry.name not in SHAPE_TOKENS
+    }
+    web_awesome = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.layer == "webawesome" and "radius" in entry.name
+    }
+    base = build_theme(minimal_definition(corner_radius="6px")).base
+    radius_tokens = {*scale, *web_awesome, *CORNER_RADIUS_SCALE, *CORNER_RADIUS_BRIDGES}
+    assert {token: base.get(token) for token in radius_tokens} == dict.fromkeys(
+        radius_tokens, "6px"
+    )
+    assert base[CORNER_RADIUS_TOKEN] == "6px"
+    assert base["ha-themes-field-border-radius"] == "var(--ha-border-radius-md)"
+
+
+def test_circles_and_squares_keep_their_shape() -> None:
+    base = build_theme(minimal_definition()).base
+    assert not {name.removeprefix("--") for name in SHAPE_TOKENS} & set(base)
+    assert "md-sys-shape-corner-full" not in base
+
+
+def test_corner_radius_defaults_to_eight_pixels_and_false_keeps_the_frontend_radii(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "radius.yaml"
+    source.write_text(yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE}))
+    assert ThemeDefinition.load(source).corner_radius == "8px"
+    assert build_theme(minimal_definition()).base["ha-border-radius-pill"] == "8px"
+    source.write_text(
+        yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE, "corner_radius": False})
+    )
+    assert ThemeDefinition.load(source).corner_radius is None
+    stock = build_theme(minimal_definition(corner_radius=None)).base
+    assert not {*CORNER_RADIUS_SCALE, *CORNER_RADIUS_BRIDGES, CORNER_RADIUS_TOKEN} & set(stock)
+
+
+@pytest.mark.parametrize(("value", "loaded"), [("12px", "12px"), ("0.5rem", "0.5rem"), (0, "0")])
+def test_corner_radius_accepts_lengths(tmp_path: Path, value: object, loaded: str) -> None:
+    source = tmp_path / "radius.yaml"
+    source.write_text(
+        yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE, "corner_radius": value})
+    )
+    assert ThemeDefinition.load(source).corner_radius == loaded
+
+
+@pytest.mark.parametrize("value", [8, "8", "-4px", "50%", "large", True, "8px 4px"])
+def test_corner_radius_rejects_anything_but_a_length(tmp_path: Path, value: object) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(
+        yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, "corner_radius": value})
+    )
+    with pytest.raises(ValueError, match=r"bad.yaml: corner_radius must be a length"):
+        ThemeDefinition.load(source)
 
 
 def test_system_ui_variant_drops_web_fonts() -> None:

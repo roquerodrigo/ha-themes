@@ -200,7 +200,8 @@ border. No theme variable reaches any of it.
 The support module adopts a stylesheet into those components that outlines the field, hides
 the line and clears the fill while a theme sets the switch `ha-themes-field-outline` to `1`.
 The outline takes `ha-themes-field-border-color` and `ha-themes-field-border-radius` (the
-builder sets `ha-color-border-neutral-quiet` and `ha-border-radius-md`), steps to
+builder sets `ha-color-border-neutral-quiet` and `ha-border-radius-md`, which the
+[corner radius](#corner-radius) sets), steps to
 `ha-color-border-neutral-normal` on hover, turns `primary-color` on focus and
 `ha-color-border-danger-normal` on an invalid value, and fades to half on a disabled input or
 text area; disabled selects already dim as a whole. The time input outlines the whole strip
@@ -215,6 +216,31 @@ then shows the page, card or dialog behind the field, and field text sits on the
 `background` and `surface` the contrast checks measure it against. Fields in the `outlined` appearance (the search fields) keep their own
 outline. Without the switch every rule resolves to the stock look, so other themes are
 unaffected; a theme opts out with `field_outline: false`.
+
+## Corner radius
+
+The frontend rounds by size: `ha-border-radius-sm` (4px) for small controls up to `-6xl`
+(36px) for large ones, and `ha-border-radius-pill` (9999px) for buttons, badges, tile icons and
+progress bars. Many components read a hook or a library variable first (`ha-card-border-radius`,
+`ha-dialog-border-radius`, `ha-button-border-radius`, `wa-panel-border-radius`,
+`mdc-shape-small`, `md-sys-shape-corner-small` …) whose fallback is a literal or a fixed step,
+so the scale alone does not reach them.
+
+A theme's `corner_radius` (default `8px`) replaces every step of the scale, the pill, and each
+of those hooks with one value, so a card, a dialog, a button, a badge and a field share the same
+corner whatever their size. The builder also sets `ha-themes-corner-radius`, which the support
+module gives the input chips (`ha-input-chip`), since they lock a 16px pill on their own host.
+`ha-border-radius-circle` (50%), `ha-border-radius-square` (0) and
+`md-sys-shape-corner-full` are shapes rather than sizes and stay, so avatars, round icon
+buttons, radio buttons and switch thumbs remain circles. The frontend's derived radii stay
+positive: the inner card edges subtract 1–2px, the control switch subtracts its 6px padding
+from `ha-border-radius-6xl`, and the Web Awesome checkbox takes the smaller of 37.5 % of its
+size and `wa-border-radius-s`.
+
+Some radii are literals in component styles that no variable reaches, and keep their stock
+shape: the switch tracks (pill), and a few 10px corners that a parent sets on its children —
+the filter chips and the search field of the data table toolbars, one `ha-control-select`.
+`corner_radius: false` keeps the frontend's radii.
 
 ## Backdrop blur
 

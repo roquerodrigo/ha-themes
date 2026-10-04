@@ -61,3 +61,52 @@ views:
               - sensor.outside_humidity
           - type: gauge
             entity: sensor.outside_humidity
+  - title: Controls
+    path: controls
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: person.theme_lab
+      - type: entity
+        entity: sensor.outside_temperature
+      - type: entity
+        entity: light.bed_light
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Buttons
+            badges:
+              - type: entity
+                entity: sensor.outside_humidity
+          - type: button
+            entity: switch.decorative_lights
+          - type: button
+            entity: switch.ac
+          - type: tile
+            entity: select.speed
+            features:
+              - type: select-options
+          - type: tile
+            entity: fan.living_room_fan
+            features:
+              - type: fan-speed
+          - type: tile
+            entity: climate.hvac
+            features:
+              - type: climate-hvac-modes
+      - type: grid
+        cards:
+          - type: heading
+            heading: Rows
+          - type: entities
+            entities:
+              - switch.decorative_lights
+              - select.speed
+              - light.ceiling_lights
+          - type: tile
+            entity: light.ceiling_lights
+            vertical: true
+            features:
+              - type: light-brightness
