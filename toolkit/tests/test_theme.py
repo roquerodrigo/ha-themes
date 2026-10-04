@@ -319,6 +319,36 @@ def test_brand_icons_follow_the_primary_role() -> None:
         assert tokens["ha-themes-brand-icon-color"] == tokens["primary-color"]
 
 
+def test_loud_primary_fills_follow_the_primary_roles() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={"dark": {"text_on_primary": "#141413", "primary_hover": "#ffffff"}}
+        )
+    )
+    for tokens in theme.modes.values():
+        assert tokens["ha-color-fill-primary-loud-resting"] == tokens["primary-color"]
+        assert tokens["ha-color-fill-primary-loud-active"] == tokens["primary-color"]
+        assert tokens["ha-color-on-primary-loud"] == tokens["text-primary-color"]
+    assert theme.modes["dark"]["ha-color-on-primary-loud"] == "#141413"
+    assert theme.modes["dark"]["ha-color-fill-primary-loud-hover"] == "#ffffff"
+
+
+def test_validation_checks_on_primary_text_on_every_primary_fill() -> None:
+    theme = build_theme(
+        minimal_definition(roles={"light": {"primary": "#c6613f", "accent": "#d97757"}})
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.background_role)
+        for result in report.contrast
+        if result.foreground_role == "text_on_primary" and not result.passes
+    }
+    assert {("light", "primary"), ("light", "accent")} <= failing
+    assert not report.ok
+
+
 @pytest.mark.parametrize(
     ("roles", "message"),
     [
