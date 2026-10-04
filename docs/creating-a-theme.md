@@ -13,7 +13,9 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `header_background` follow the `background` role unless a theme sets them; the 1px
   dividers keep the regions apart.
 - **No shadows.** Elevation tokens are flattened (cards, dialogs, menus, tooltips, the
-  Material and Web Awesome components). A theme opts back in with `shadows: true`.
+  Material and Web Awesome components). Tooltips and toasts, which only had their shadow to
+  set them apart from the page, get a 1px outline in `outline-color` instead (the toast
+  through the support module). A theme opts back in with `shadows: true`.
 - **Backdrop blur.** The dashboard header, cards, dialogs and bottom sheets get a
   translucent background (their role color with alpha) plus a `backdrop-filter` blur, and
   the modal scrim blurs the page behind it. Every other header (settings pages, the
