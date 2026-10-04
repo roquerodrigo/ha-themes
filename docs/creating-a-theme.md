@@ -117,6 +117,11 @@ divider: "{neutral.05@0.12}"   # → rgba(20, 20, 19, 0.12)
 link: "{primary.30}"           # → #9c4a2e
 ```
 
+Family names are lowercase letters joined by hyphens (`light-blue`), steps are the two-digit
+steps of the scale (`05` … `95`) and alpha is a number from 0 to 1. Any other text in braces —
+`{primary.5}`, `{neutral.05@12%}`, an unknown family or step — fails the build with the theme,
+section and value named.
+
 ### Roles
 
 | Role | Tokens | Light default | Dark default |

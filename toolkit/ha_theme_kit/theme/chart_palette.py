@@ -67,7 +67,7 @@ class ChartSettings:
 def series_for_mode(settings: ChartSettings, resolver: PaletteResolver, mode: str) -> list[str]:
     series = []
     for position, seed in enumerate(settings.series, 1):
-        color = resolver.resolve(seed)
+        color = resolver.resolve(seed, f"charts.series seed {position} in {mode}")
         if not is_opaque_hex(color):
             raise ValueError(
                 f"charts.series seed {position} ({seed!r}) must resolve to an opaque hex color,"

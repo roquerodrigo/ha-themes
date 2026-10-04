@@ -4,7 +4,12 @@ from ha_theme_kit.color.oklch import hex_to_rgba, is_opaque_hex
 from ha_theme_kit.color.palette import PALETTE_STEPS, generate_tonal_scale
 
 REQUIRED_FAMILIES = ("primary", "neutral", "red", "orange", "green")
-REFERENCE = re.compile(r"\{(?P<family>[a-z]+)\.(?P<step>\d{2})(?:@(?P<alpha>[0-9.]+))?\}")
+FAMILY_NAME = re.compile(r"[a-z]+(?:-[a-z]+)*")
+BRACED_TEXT = re.compile(r"\{[^{}]*\}")
+REFERENCE = re.compile(
+    rf"\{{(?P<family>{FAMILY_NAME.pattern})\.(?P<step>\d{{2}})(?:@(?P<alpha>\d*\.?\d+))?\}}"
+)
+REFERENCE_SYNTAX = "{family.step} or {family.step@alpha}"
 
 
 class PaletteResolver:
@@ -14,6 +19,13 @@ class PaletteResolver:
         missing = [family for family in REQUIRED_FAMILIES if family not in palette]
         if missing:
             raise ValueError(f"palette is missing families {missing}")
+        invalid_names = sorted(
+            str(family) for family in palette if not FAMILY_NAME.fullmatch(str(family))
+        )
+        if invalid_names:
+            raise ValueError(
+                f"palette family names {invalid_names} must be lowercase letters joined by hyphens"
+            )
         self.scales = {family: self._expand(family, spec) for family, spec in palette.items()}
 
     @staticmethod
@@ -46,16 +58,35 @@ class PaletteResolver:
             for step in PALETTE_STEPS
         }
 
-    def resolve(self, value: str) -> str:
-        return REFERENCE.sub(self._replace_reference, value)
+    def resolve(self, value: str, location: str) -> str:
+        try:
+            resolved = BRACED_TEXT.sub(self._replace_reference, value)
+            if "{" in resolved or "}" in resolved:
+                raise ValueError(f"unbalanced braces, expected {REFERENCE_SYNTAX}")
+        except ValueError as error:
+            raise ValueError(f"{location} {value!r}: {error}") from error
+        return resolved
 
-    def _replace_reference(self, match: re.Match[str]) -> str:
+    def _replace_reference(self, braced: re.Match[str]) -> str:
+        reference = braced.group(0)
+        match = REFERENCE.fullmatch(reference)
+        if match is None:
+            raise ValueError(
+                f"malformed palette reference {reference}, expected {REFERENCE_SYNTAX}"
+            )
         family, step, alpha = match.group("family", "step", "alpha")
         if family not in self.scales:
-            raise ValueError(f"unknown palette family in reference {match.group(0)}")
+            raise ValueError(f"unknown palette family in reference {reference}")
+        if step not in self.scales[family]:
+            raise ValueError(
+                f"unknown palette step in reference {reference},"
+                f" expected one of {list(PALETTE_STEPS)}"
+            )
         color = self.scales[family][step]
         if alpha is None:
             return color
+        if float(alpha) > 1:
+            raise ValueError(f"alpha in reference {reference} must be between 0 and 1")
         return hex_to_rgba(color, alpha)
 
 

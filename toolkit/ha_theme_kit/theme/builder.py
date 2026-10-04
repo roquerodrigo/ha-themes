@@ -69,7 +69,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         base.update(FLAT_ELEVATION)
     if definition.backdrop_blur:
         base.update(BACKDROP_BLUR_FILTERS)
-    base.update(_resolve_all(resolver, definition.tokens.get("base", {})))
+    base.update(_resolve_all(resolver, definition.tokens.get("base", {}), "tokens.base"))
 
     entity_settings = EntityColorSettings.from_document(definition.entity_colors)
     chart_settings = ChartSettings.from_document(definition.charts)
@@ -83,8 +83,8 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         unknown_roles = set(mode_roles) - set(ROLE_TOKENS)
         if unknown_roles:
             raise ValueError(f"unknown {mode} roles {sorted(unknown_roles)}")
-        resolved_roles[mode] = _resolve_all(resolver, mode_roles)
-        tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}))
+        resolved_roles[mode] = _resolve_all(resolver, mode_roles, f"roles.{mode}")
+        tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}), f"upstream fixes.{mode}")
         tokens |= build_entity_colors(entity_settings, resolver, mode)
         if chart_settings:
             chart_series[mode] = series_for_mode(chart_settings, resolver, mode)
@@ -93,7 +93,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
             tokens.update(dict.fromkeys(ROLE_TOKENS[role], value))
         if definition.backdrop_blur:
             tokens.update(_translucent_surfaces(resolved_roles[mode], mode))
-        tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {})))
+        tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {}), f"tokens.{mode}"))
         modes[mode] = tokens
 
     return BuiltTheme(definition, base, modes, resolved_roles, chart_series)
@@ -114,5 +114,5 @@ def _translucent_surfaces(roles: dict[str, str], mode: str) -> dict[str, str]:
     return surfaces
 
 
-def _resolve_all(resolver: PaletteResolver, values: dict[str, str]) -> dict[str, str]:
-    return {key: resolver.resolve(str(value)) for key, value in values.items()}
+def _resolve_all(resolver: PaletteResolver, values: dict[str, str], section: str) -> dict[str, str]:
+    return {key: resolver.resolve(str(value), f"{section}.{key}") for key, value in values.items()}
