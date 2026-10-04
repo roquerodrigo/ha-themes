@@ -689,3 +689,26 @@ def test_a_translucent_page_background_cannot_be_evaluated() -> None:
 
     assert results["background"] is None
     assert results["surface"] is not None
+
+
+def test_status_colors_and_secondary_text_are_held_to_text_contrast() -> None:
+    text_pairs = {
+        (foreground, background): minimum for foreground, background, minimum in CONTRAST_PAIRS
+    }
+
+    for status in ("error", "warning", "success", "info", "text_secondary"):
+        for backdrop in ("background", "surface"):
+            assert text_pairs[status, backdrop] == 4.5
+
+
+def test_a_pale_warning_fails_as_text_on_the_page() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"warning": "{orange.60}"}}))
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.foreground_role, result.background_role)
+        for result in report.contrast
+        if not result.passes
+    }
+    assert ("light", "warning", "background") in failing
+    assert ("light", "warning", "surface") in failing

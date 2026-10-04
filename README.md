@@ -68,13 +68,13 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme, outlines toasts when shadows are flat, recolors the generic integration icons and
-  moves the fixed icon tiles of Settings, System and About to the theme's entity colors.
-  The themes keep `card-background-color` in the page tone, where the frontend mostly paints
-  it; the module lifts the few raised elements that read it anyway — dropdown menus to the
-  surface color, the integration entry lists to the card tone — and keeps the energy totals
-  card one tone. It stays dormant, observing nothing, until a project theme is applied
-  globally or to a view or card, and falls dormant again
+  theme, outlines toasts when shadows are flat and keeps their text readable, recolors the
+  generic integration icons and moves the fixed icon tiles of Settings, System and About to
+  the theme's entity colors. The themes keep `card-background-color` in the page tone, where
+  the frontend mostly paints it; the module lifts the few raised elements that read it
+  anyway — dropdown menus to the surface color, the integration entry lists to the card
+  tone — and keeps the energy totals card one tone. It stays dormant, observing nothing,
+  until a project theme is applied globally or to a view or card, and falls dormant again
   when none is left, so users on other themes are not affected. It is served under a
   content-hash URL, so browser and service worker caches never keep an outdated copy;
 - requests fonts from Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) only while

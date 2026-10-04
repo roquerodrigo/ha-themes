@@ -61,7 +61,7 @@ roles:
     primary_hover: "{primary.50}"
     accent: "{primary.50}"
     error: "{red.50}"
-    warning: "{orange.50}"
+    warning: "{orange.40}"
     success: "{green.40}"
     info: "{blue.40}"
     state_icon: "{blue.40}"
