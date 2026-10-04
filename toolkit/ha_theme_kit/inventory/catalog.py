@@ -27,6 +27,7 @@ class TokenEntry:
     reduced_motion: str | None = None
     consumers: int = 0
     fallbacks: list[str] = field(default_factory=list)
+    host_values: list[str] = field(default_factory=list)
 
     @property
     def is_derived(self) -> bool:
@@ -105,6 +106,7 @@ def build_catalog(runtime: RuntimeCapture, scan: BundleScan, frontend_version: s
                 name=name, layer=classification.layer, group=classification.group
             )
             entry.fallbacks = sorted(token_usage.fallbacks)
+            entry.host_values = sorted(token_usage.host_values)
         entry.consumers = len(token_usage.chunks)
     return TokenCatalog(
         frontend_version=frontend_version,
