@@ -151,14 +151,20 @@ TYPOGRAPHY_BRIDGE: dict[str, str] = {
 }
 """Material components fall back to a literal Roboto instead of the HA body font."""
 
+FORM_CONTROL_PADDING_FIX = {"wa-form-control-padding-inline": "var(--ha-space-3)"}
+"""The frontend's dark styles glue the next stylesheet onto this value. Home Assistant keeps
+that inline value after switching back to light, so both modes need it."""
+
 UPSTREAM_FIXES: dict[str, dict[str, str]] = {
+    "light": FORM_CONTROL_PADDING_FIX,
     "dark": {
         "ha-color-fill-neutral-quiet-active": "{neutral.05}",
         "ha-color-surface-lower-inverted": "{neutral.90}",
         "ha-color-border-primary-normal": "{primary.50}",
+        **FORM_CONTROL_PADDING_FIX,
     },
 }
-"""Dark defaults that reference undeclared tokens in frontend 20260826.7 (see docs)."""
+"""Broken frontend defaults in frontend 20260826.7 (see docs/theming-guide.md)."""
 
 CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text", "background", 4.5),
