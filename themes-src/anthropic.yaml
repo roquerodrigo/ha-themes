@@ -48,6 +48,7 @@ typography:
   body: "Poppins, Arial, sans-serif"
   heading: "Poppins, Arial, sans-serif"
   longform: "Lora, Georgia, serif"
+  size_adjust: "0.528"
   stylesheet: "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap"
 
 roles:

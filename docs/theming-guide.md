@@ -109,6 +109,31 @@ already exist and watches new ones. Once no element declares a project variable 
 restores the icons, removes the font stylesheets, disconnects its observers and goes dormant
 again.
 
+### Wide fonts
+
+A theme font is rarely as narrow as Roboto, and the frontend sizes its labels, tiles and
+table columns for Roboto. Poppins sets the same text about 21 % wider, so labels that fit
+in the default theme can end in an ellipsis. `typography.size_adjust` compensates: it is
+carried in `ha-themes-font-size-adjust`, and the body binding applies it as
+`font-size-adjust`, which every element inherits, shadow roots included. The font is then
+scaled so that its x-height is that ratio of the font size. The Anthropic theme sets
+`0.528`, the x-height of Roboto, so lowercase text is exactly as tall as in the default
+theme (Poppins is drawn at about 96 % of its natural size) and line heights do not change.
+Like the body font, it applies while a project theme is the global theme, not under a view
+or card theme.
+
+`ha-font-size-scale` and letter-spacing are weaker tools for this. Many labels use literal
+`rem` or `px` sizes that ignore the scale, and Material components set their own
+letter-spacing, so neither reaches the data tables. Measured over `/lovelace/0`, `/theme-lab/components`,
+`/config/entities` and `/config/dashboard` at 1400 px and 390 px wide, the default theme
+truncates 18 labels and Poppins without adjustment 23. A scale of 0.95 brings that to 21,
+a body letter-spacing of -0.02em to 21, and `size_adjust: "0.528"` to 20, without making
+lowercase text any smaller than in the default theme. Two labels stay cut at 390 px: a
+description in the settings list, and "4 updates available" on the overview, which stays
+cut even with Poppins drawn at 92 % of its size, below which text gets too small. People who keep dense dashboards, use a phone most of the
+time or need every label in full should pick the System UI variant, which truncates
+exactly what the default theme does.
+
 ## Entity and chart colors
 
 - **Entity colors resolve through a chain.** For each stateful domain the frontend tries

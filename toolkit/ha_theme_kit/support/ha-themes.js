@@ -81,7 +81,9 @@ const syncBodyFontBinding = () => {
   } else if (!binding) {
     const style = document.createElement("style");
     style.dataset.haThemes = "";
-    style.textContent = "body { font-family: var(--ha-font-family-body); }";
+    style.textContent =
+      "body { font-family: var(--ha-font-family-body); " +
+      "font-size-adjust: var(--ha-themes-font-size-adjust, none); }";
     document.head.append(style);
   }
 };
