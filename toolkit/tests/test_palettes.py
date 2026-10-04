@@ -1,3 +1,5 @@
+from itertools import combinations
+
 import pytest
 
 from ha_theme_kit.color.oklch import hex_to_oklch
@@ -73,6 +75,19 @@ def test_entity_colors_respect_the_mode_band_unless_pinned(mode: str) -> None:
     assert tokens["blue-color"] == "#6a9bcc"
     assert tokens["energy-grid-consumption-color"] == tokens["blue-color"]
     assert tokens["weather-icon-sun-color"] == tokens["amber-color"]
+
+
+@pytest.mark.parametrize("mode", ["light", "dark"])
+def test_entity_colors_keep_the_frontend_lightness_order(mode: str) -> None:
+    tokens = build_entity_colors(EntityColorSettings(), PaletteResolver(PALETTE), mode)
+    frontend = {name: hex_to_oklch(color).lightness for name, color in FRONTEND_NAMED_HUES.items()}
+    restyled = {name: hex_to_oklch(tokens[f"{name}-color"]).lightness for name in frontend}
+
+    for darker, lighter in combinations(frontend, 2):
+        if frontend[lighter] - frontend[darker] > 0.01:
+            assert restyled[lighter] > restyled[darker]
+        elif frontend[darker] - frontend[lighter] > 0.01:
+            assert restyled[darker] > restyled[lighter]
 
 
 def test_chart_colors_fill_every_frontend_slot_with_hex() -> None:

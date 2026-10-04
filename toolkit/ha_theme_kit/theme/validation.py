@@ -5,6 +5,7 @@ from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
+from ha_theme_kit.theme.entity_separation import EntitySeparationReport, check_entity_separation
 from ha_theme_kit.theme.form_separation import FormSeparationReport, check_form_separation
 from ha_theme_kit.theme.loud_fills import (
     LOUD_FILL_STATES,
@@ -44,6 +45,7 @@ class ValidationReport:
     mode_dependent_base_tokens: list[str]
     status_fills: StatusFillReport | None = None
     form_separation: FormSeparationReport | None = None
+    entity_separation: EntitySeparationReport | None = None
 
     @property
     def ok(self) -> bool:
@@ -54,6 +56,7 @@ class ValidationReport:
             and all(report.passes for report in self.charts)
             and (self.status_fills is None or self.status_fills.passes)
             and (self.form_separation is None or self.form_separation.passes)
+            and (self.entity_separation is None or self.entity_separation.passes)
         )
 
 
@@ -94,6 +97,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         mode_dependent,
         check_status_fills(theme, catalog),
         check_form_separation(theme, catalog),
+        check_entity_separation(theme),
     )
 
 

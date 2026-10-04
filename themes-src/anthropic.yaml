@@ -81,8 +81,12 @@ roles:
 
 entity_colors:
   chroma_cap: 0.11
+  lightness:
+    dark: [0.62, 0.90]
   pinned:
-    deep-orange: "{primary.50}"
+    deep-orange:
+      light: "{primary.50}"
+      dark: "{primary.40}"
     red:
       light: "{red.50}"
       dark: "{red.60}"
