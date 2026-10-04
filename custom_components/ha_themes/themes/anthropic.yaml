@@ -225,6 +225,10 @@
       ha-themes-dashboard-header-background: "rgba(250, 249, 245, 0.72)"
       ha-dialog-surface-background: "rgba(255, 255, 255, 0.9)"
       app-theme-color: "#faf9f5"
+      ha-color-on-warning-normal: "#7c5010"
+      ha-color-on-warning-quiet: "#a26200"
+      ha-color-on-success-normal: "#46562e"
+      ha-color-on-success-quiet: "#55683b"
     dark:
       ha-color-fill-neutral-quiet-active: "#2a2928"
       ha-color-surface-lower-inverted: "#e8e6dc"
@@ -379,6 +383,9 @@
       ha-themes-dashboard-header-background: "rgba(38, 38, 36, 0.72)"
       ha-dialog-surface-background: "rgba(48, 48, 46, 0.9)"
       app-theme-color: "#262624"
+      ha-color-on-danger-normal: "#eb988d"
+      ha-color-on-success-normal: "#b0bf9e"
+      ha-color-on-neutral-normal: "#d1cfc5"
 "Anthropic System UI":
   ha-color-primary-05: "#21120c"
   ha-color-primary-10: "#331a10"
@@ -603,6 +610,10 @@
       ha-themes-dashboard-header-background: "rgba(250, 249, 245, 0.72)"
       ha-dialog-surface-background: "rgba(255, 255, 255, 0.9)"
       app-theme-color: "#faf9f5"
+      ha-color-on-warning-normal: "#7c5010"
+      ha-color-on-warning-quiet: "#a26200"
+      ha-color-on-success-normal: "#46562e"
+      ha-color-on-success-quiet: "#55683b"
     dark:
       ha-color-fill-neutral-quiet-active: "#2a2928"
       ha-color-surface-lower-inverted: "#e8e6dc"
@@ -757,3 +768,6 @@
       ha-themes-dashboard-header-background: "rgba(38, 38, 36, 0.72)"
       ha-dialog-surface-background: "rgba(48, 48, 46, 0.9)"
       app-theme-color: "#262624"
+      ha-color-on-danger-normal: "#eb988d"
+      ha-color-on-success-normal: "#b0bf9e"
+      ha-color-on-neutral-normal: "#d1cfc5"
