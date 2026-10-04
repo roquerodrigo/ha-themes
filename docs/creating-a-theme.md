@@ -154,6 +154,7 @@ section and value named.
 | `input_fill` | `input-fill-color` | `{neutral.95}` | `{neutral.90@0.05}` |
 | `code_background` | `markdown-code-background-color` | `{neutral.95}` | `{neutral.05}` |
 | `brand_icon` | `ha-themes-brand-icon-color` (read by the support module) | `primary` | `primary` |
+| `menu_background` | `ha-themes-menu-background` (read by the support module) | `surface` | `surface` |
 | `sidebar_background` / `header_background` | `sidebar-background-color` / `app-header-background-color` | `background` | `background` |
 | `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-*`, `app-header-text-color` | — | — |
 | `state_active` | `state-active-color` | — | — |
@@ -163,8 +164,12 @@ Roles marked — are only written when set; otherwise the frontend's derived def
 `card-background-color` follows `background`, not `surface`: despite its name, the frontend
 paints it on elements that sit directly on the page — the logbook's floating date, data
 tables, table headers — so a different tone shows up as a stripe. Raised elements read
-their own hooks: cards `ha-card-background`, menus and lists `mdc-theme-surface`, Web
-Awesome components `wa-color-surface-default`, dialogs `ha-dialog-surface-background`.
+their own hooks: cards `ha-card-background`, pickers and popovers `wa-color-surface-default`,
+dialogs `ha-dialog-surface-background`. Dropdown menus (overflow menus, sort and group menus,
+selects) take `card-background-color` on their own element, where no theme variable can
+override it, so the support module paints them with the `menu_background` role instead. It
+follows `surface`, which keeps menus raised above the page and level with the dialogs they
+open from; their 1px border separates them without a shadow.
 
 ### Entity colors
 
