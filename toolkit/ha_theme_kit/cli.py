@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from ha_theme_kit.inventory.catalog import TokenCatalog
 
 if TYPE_CHECKING:
+    from ha_theme_kit.theme.entity_separation import EntitySeparationReport
     from ha_theme_kit.theme.form_separation import FormSeparationReport
     from ha_theme_kit.theme.status_fills import StatusFillReport
 
@@ -135,10 +136,11 @@ def command_build(arguments: argparse.Namespace) -> int:
                 )
             _print_status_fills(report.status_fills, arguments.verbose)
             _print_form_separation(report.form_separation, arguments.verbose)
+            _print_entity_separation(report.entity_separation)
             if report.ok:
                 print(
-                    "    ✓ all tokens known, all contrast, chart, status fill and form"
-                    " separation checks pass"
+                    "    ✓ all tokens known, all contrast, chart, status fill, form and entity"
+                    " color separation checks pass"
                 )
             failed = failed or not report.ok
     if failed and arguments.strict:
@@ -193,6 +195,18 @@ def _print_form_separation(report: FormSeparationReport | None, verbose: bool) -
         )
     if verbose and report.passes:
         print(f"    ✓ {report.mode:5} form background on surface {report.form_contrast}:1")
+
+
+def _print_entity_separation(report: EntitySeparationReport | None) -> None:
+    from ha_theme_kit.theme.entity_separation import DISTANCE_FLOOR
+
+    if report is None:
+        return
+    for pair in report.close_pairs:
+        print(
+            f"    ✗ {pair.mode:5} entity colors {pair.first} and {pair.second} are"
+            f" ΔE {pair.distance} apart (min {DISTANCE_FLOOR})"
+        )
 
 
 def command_preview(arguments: argparse.Namespace) -> int:

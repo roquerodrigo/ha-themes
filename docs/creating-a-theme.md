@@ -23,7 +23,7 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `backdrop_blur: false`.
 - **A harmonized entity palette.** The frontend's named colors — which every entity state
   color references — keep their hue and meaning but are restyled per mode: chroma capped to
-  the theme's mood and lightness clamped into a band that reads on that mode's surfaces.
+  the theme's mood and lightness rescaled into a band that reads on that mode's surfaces.
   Energy and weather-icon colors follow them.
 - **Generic integration icons in the primary color.** The flat blue icons of core
   integrations without a logo follow the theme's `primary` role (see
@@ -239,9 +239,20 @@ keep the page tone. Because they and the sticky table headers sit on top of othe
 Entity icons, tiles, timelines and the thermostat read `state-*` colors, which point at the
 frontend's named colors (`--amber-color` for lights on, `--green-color` for locked, …). The
 builder restyles each of the eighteen chromatic named colors in OKLCH: the hue stays, the
-chroma is capped at `chroma_cap`, and the lightness is clamped into the mode's band, so the
-same palette reads on light and dark surfaces. `light-grey`, `grey`, `dark-grey` and
-`disabled` come from the neutral scale. `pinned` replaces any of them outright.
+chroma is capped at `chroma_cap`, and the frontend's lightness range is rescaled into the
+mode's band, so the same palette reads on light and dark surfaces and neighbouring hues keep
+their lightness order instead of piling up on the band's edge. `light-grey`, `grey`,
+`dark-grey` and `disabled` come from the neutral scale. `pinned` replaces any of them
+outright.
+
+Neighbouring hues that the frontend uses for competing states must stay at least OKLab ΔE 5
+apart in each mode, just under the frontend's own closest pair (blue and light-blue, 5.1):
+pink, red, deep-orange and orange (alarm, heat, arming); orange, amber, yellow and lime
+(climate dry and heat-cool, sunny and lightning); purple, deep-purple and indigo; indigo,
+blue, light-blue and cyan (cool and fan only, rainy and pouring); teal, green and
+light-green (battery and non-fossil energy). Blue and light-blue rarely survive a chroma cap
+on their own, so pin one of them to a palette step, as the example above does; a pin that
+lands on a neighbour (red and the primary-tinted deep-orange) needs another step instead.
 
 The same colors drive the energy dashboard (`energy-*`: grid in blue, return in purple,
 solar in orange, non-fossil in green, battery in teal and pink, gas in red, water in cyan)
@@ -291,7 +302,8 @@ Assistant would keep only one of them. It then reports, per theme:
 - dark-mode form separation: the form background must reach 1.2:1 against `surface`, enabled
   and disabled fields must stay at least OKLab ΔE 2 from the surface and from each other, the
   quiet resting and active fills and `ha-color-surface-low` may not be darker than
-  `background`, and the quiet, normal and form hover fills may not be darker than `surface`.
+  `background`, and the quiet, normal and form hover fills may not be darker than `surface`;
+- the entity color groups above, per mode (OKLab ΔE 5 between competing neighbours).
 
 `--strict` turns any failure into a non-zero exit code.
 

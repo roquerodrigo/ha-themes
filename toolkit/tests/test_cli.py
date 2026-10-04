@@ -7,6 +7,7 @@ import yaml
 from ha_theme_kit import cli
 from ha_theme_kit.theme import validation, writer
 from ha_theme_kit.theme.chart_palette import suggest_series_orders
+from ha_theme_kit.theme.entity_separation import EntitySeparationPair, EntitySeparationReport
 from ha_theme_kit.theme.form_separation import FormSeparationReport
 from ha_theme_kit.theme.validation import ValidationReport
 
@@ -79,6 +80,16 @@ def test_build_accepts_renamed_copies(theme_sources: Path) -> None:
     (theme_sources / "copy.yaml").write_text(yaml.safe_dump(document))
 
     cli._reject_duplicate_theme_names()
+
+
+def test_entity_separation_failures_are_printed(capsys: pytest.CaptureFixture[str]) -> None:
+    report = EntitySeparationReport([EntitySeparationPair("dark", "purple", "deep-purple", 0.6)])
+
+    cli._print_entity_separation(report)
+    cli._print_entity_separation(None)
+
+    output = capsys.readouterr().out
+    assert "dark  entity colors purple and deep-purple are ΔE 0.6 apart (min 5.0)" in output
 
 
 def test_form_separation_failures_are_printed(capsys: pytest.CaptureFixture[str]) -> None:
