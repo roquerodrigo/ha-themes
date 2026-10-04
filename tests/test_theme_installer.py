@@ -48,7 +48,10 @@ async def test_missing_themes_include_raises_a_repair_issue(
 
 
 async def test_stale_files_are_removed_and_unchanged_files_kept(
-    hass: HomeAssistant, frontend: None, config_directory: Path
+    hass: HomeAssistant,
+    frontend: None,
+    config_directory: Path,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     installer = HaThemesThemeInstaller(hass)
     await installer.async_install()
@@ -62,6 +65,34 @@ async def test_stale_files_are_removed_and_unchanged_files_kept(
 
     assert not stale.exists()
     assert kept.stat().st_mtime_ns == modified_at
+    assert f"Removed {stale}" in caplog.text
+
+
+async def test_uninstall_logs_files_it_cannot_remove(
+    hass: HomeAssistant,
+    frontend: None,
+    config_directory: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    installer = HaThemesThemeInstaller(hass)
+    await installer.async_install()
+    failure = PermissionError("read-only")
+
+    with patch("os.unlink", side_effect=failure):
+        await installer.async_uninstall()
+
+    assert "Could not remove" in caplog.text
+    assert "read-only" in caplog.text
+
+
+async def test_uninstall_without_installed_files_is_a_no_op(
+    hass: HomeAssistant, frontend: None, config_directory: Path
+) -> None:
+    installer = HaThemesThemeInstaller(hass)
+
+    await installer.async_uninstall()
+
+    assert not installer.target_directory.exists()
 
 
 async def test_outdated_files_are_rewritten(
