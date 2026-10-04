@@ -193,3 +193,54 @@ def test_definition_load_names_the_file_and_path_of_malformed_sections(
     source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, **section}))
     with pytest.raises(ValueError, match=message):
         ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize(
+    ("lightness", "message"),
+    [
+        ({"light": [0.8, 0.2]}, r"entity_colors.lightness.light must satisfy 0 <= minimum"),
+        ({"dark": [0.5, 1.2]}, r"entity_colors.lightness.dark must satisfy .* got \[0.5, 1.2\]"),
+    ],
+)
+def test_lightness_bands_must_be_ordered_and_in_range(
+    tmp_path: Path, lightness: dict, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    document = {
+        "name": "Bad",
+        "palette": MINIMAL_PALETTE,
+        "entity_colors": {"lightness": lightness},
+    }
+    source.write_text(yaml.safe_dump(document))
+    with pytest.raises(ValueError, match=message):
+        ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize("key", ["shadows", "backdrop_blur"])
+def test_flags_reject_quoted_booleans(tmp_path: Path, key: str) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, key: "false"}))
+    with pytest.raises(ValueError, match=rf"bad.yaml: {key} must be true or false, got 'false'"):
+        ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize(
+    ("primary", "message"),
+    [
+        ({"seed": "#d97757", "40": "not-a-color"}, r"palette.primary.40 must be an opaque hex"),
+        (
+            {"seed": "#d97757", "100": "#ffffff"},
+            r"palette family 'primary' has unknown steps \['100'\]",
+        ),
+        ({"seed": "rgba(0, 0, 0, 0.5)"}, r"palette.primary.seed must be an opaque hex"),
+        (None, r"palette.primary must be an opaque hex color, got None"),
+    ],
+)
+def test_palette_steps_must_be_known_opaque_colors(
+    tmp_path: Path, primary: object, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    palette = {**MINIMAL_PALETTE, "primary": primary}
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": palette}))
+    with pytest.raises(ValueError, match=rf"bad.yaml: {message}"):
+        ThemeDefinition.load(source)
