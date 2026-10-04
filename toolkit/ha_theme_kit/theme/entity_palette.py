@@ -119,13 +119,20 @@ def build_entity_colors(
         name: restyle(default, settings.lightness[mode], (0.0, settings.chroma_cap))
         for name, default in FRONTEND_NAMED_HUES.items()
     }
-    colors |= {name: resolver.resolve(value) for name, value in NEUTRAL_NAMES[mode].items()}
+    colors |= {
+        name: resolver.resolve(value, f"entity neutrals.{mode}.{name}")
+        for name, value in NEUTRAL_NAMES[mode].items()
+    }
     for name, value in settings.pinned.items():
-        colors[name] = resolver.resolve(value[mode] if isinstance(value, dict) else value)
+        colors[name] = resolver.resolve(
+            value[mode] if isinstance(value, dict) else value,
+            f"entity_colors.pinned.{name} in {mode}",
+        )
     tokens = {f"{name}-color": color for name, color in colors.items()}
     tokens |= {token: colors[name] for token, name in ENERGY_COLORS.items()}
     tokens |= {token: colors[name] for token, name in WEATHER_ICON_COLORS.items()}
     tokens |= {
-        token: resolver.resolve(value) for token, value in WEATHER_ICON_NEUTRALS[mode].items()
+        token: resolver.resolve(value, f"weather icon neutrals.{mode}.{token}")
+        for token, value in WEATHER_ICON_NEUTRALS[mode].items()
     }
     return tokens
