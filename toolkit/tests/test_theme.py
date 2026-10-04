@@ -14,7 +14,7 @@ from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
 from ha_theme_kit.theme.builder import FONT_STYLESHEET_TOKEN, build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
-from ha_theme_kit.theme.roles import DASHBOARD_HEADER_BACKGROUND_TOKEN
+from ha_theme_kit.theme.roles import DASHBOARD_HEADER_BACKGROUND_TOKEN, TOAST_EDGE_TOKEN
 from ha_theme_kit.theme.validation import validate_theme
 from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
 from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
@@ -223,6 +223,13 @@ def test_shadows_are_flat_unless_enabled() -> None:
     assert "ha-card-box-shadow" not in build_theme(minimal_definition(shadows=True)).base
 
 
+def test_flat_overlays_keep_an_outline_unless_shadows_are_enabled() -> None:
+    flat = build_theme(minimal_definition()).base
+    for key in ("ha-tooltip-box-shadow", TOAST_EDGE_TOKEN):
+        assert flat[key] == "0 0 0 1px var(--outline-color)"
+        assert key not in build_theme(minimal_definition(shadows=True)).base
+
+
 def test_system_ui_variant_drops_web_fonts() -> None:
     definition = minimal_definition(
         typography={"body": "Poppins", "code": "Fira Code", "stylesheet": "https://fonts"}
@@ -283,6 +290,7 @@ def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) ->
     assert "--ha-themes-brand-icon-color" in module
     assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
     assert "--ha-themes-menu-background" in module
+    assert f"--{TOAST_EDGE_TOKEN}" in module
 
 
 def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:

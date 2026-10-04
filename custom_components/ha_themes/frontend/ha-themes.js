@@ -34,9 +34,15 @@ dropdownMenuStyles.replaceSync(`
   }
 `);
 
+const toastStyles = new CSSStyleSheet();
+toastStyles.replaceSync(`
+  .toast { box-shadow: var(--ha-themes-toast-box-shadow, var(--wa-shadow-l)); }
+`);
+
 const hostStyles = new Map([
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", dropdownMenuStyles],
+  ["ha-toast", toastStyles],
 ]);
 
 const styleHost = (root) => {
