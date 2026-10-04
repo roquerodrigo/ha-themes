@@ -149,7 +149,7 @@ Anywhere a color is expected you can write `{family.step}` or `{family.step@alph
 
 ```yaml
 divider: "{neutral.05@0.12}"   # → rgba(20, 20, 19, 0.12)
-link: "{primary.30}"           # → #9c4a2e
+state_icon: "{primary.30}"     # → #9c4a2e
 ```
 
 Family names are lowercase letters joined by hyphens (`light-blue`), steps are the two-digit
@@ -166,16 +166,14 @@ section and value named.
 | `surface_variant` | `secondary-background-color` | `{neutral.90}` | `{neutral.20}` |
 | `text` | `primary-text-color`, `ha-color-text-primary` | `{neutral.05}` | `{neutral.90}` |
 | `text_secondary` | `secondary-text-color`, `ha-color-text-secondary` | `{neutral.40}` | `{neutral.60}` |
-| `text_disabled` | `disabled-text-color`, `ha-color-text-disabled` | `{neutral.70}` | `{neutral.40}` |
+| `text_disabled` | `disabled-text-color` | `{neutral.70}` | `{neutral.40}` |
 | `text_on_primary` | `text-primary-color`, `ha-color-on-primary-loud` | `#ffffff` | `#ffffff` |
 | `primary` | `primary-color`, `ha-color-fill-primary-loud-resting`, `-active` | `{primary.40}` | `{primary.50}` |
 | `primary_hover` | `ha-color-fill-primary-loud-hover` | `{primary.30}` | `{primary.60}` |
-| `primary_light` / `primary_dark` / `primary_darker` | `light-/dark-/darker-primary-color` | `80` / `30` / `20` | `30` / `60` / `70` |
+| `primary_light` / `primary_dark` | `light-/dark-primary-color` | `80` / `30` | `30` / `60` |
 | `text_on_primary_light` | `text-light-primary-color` (avatar initials, person badges, Assist debug chat) | `{neutral.05}` | `{neutral.95}` |
 | `accent` | `accent-color` | `{orange.60}` | `{orange.60}` |
-| `link` | `ha-color-text-link` | `{primary.40}` | `{primary.60}` |
 | `divider` | `divider-color`, `outline-color` | `{neutral.05@0.12}` | `{neutral.90@0.12}` |
-| `outline_hover` | `outline-hover-color` | `{neutral.05@0.24}` | `{neutral.90@0.24}` |
 | `error` / `warning` / `success` / `info` | `*-color` | `red.50` / `orange.60` / `green.50` / `primary.50` | `red.60` / `orange.60` / `green.60` / `primary.60` |
 | `state_icon` | `state-icon-color` | `{primary.30}` | `{primary.60}` |
 | `scrollbar` | `scrollbar-thumb-color`, and through it `slider-track-color` | `{neutral.70}` | `{neutral.60}` |
@@ -186,17 +184,23 @@ section and value named.
 | `menu_background` | `ha-themes-menu-background` (read by the support module) | `surface` | `surface` |
 | `code_editor_background` | `code-editor-background-color` (the code editor, its completion popover and full-screen mode) | `surface` | `surface` |
 | `syntax_comment` | `codemirror-comment` | `{neutral.50}` | `{neutral.60}` |
-| `syntax_keyword` | `codemirror-keyword`, `-attribute`, `-tag` | `{primary.30}` | `{primary.60}` |
+| `syntax_keyword` | `codemirror-keyword` | `{primary.30}` | `{primary.60}` |
 | `syntax_property` | `codemirror-property` (YAML keys, template names) | `{neutral.20}` | `{neutral.80}` |
-| `syntax_string` | `codemirror-string`, `-string-2`, `-string2` | `{green.40}` | `{green.60}` |
+| `syntax_string` | `codemirror-string`, `-string2` | `{green.40}` | `{green.60}` |
 | `syntax_number` | `codemirror-number`, `-atom` (numbers, booleans, `null`) | `{orange.30}` | `{orange.60}` |
-| `syntax_variable` | `codemirror-variable`, `-variable-2`, `-variable-3`, `-qualifier`, `-type`, `-builtin`, `-meta` | `{neutral.20}` | `{neutral.80}` |
+| `syntax_variable` | `codemirror-variable`, `-variable-2`, `-qualifier`, `-meta` | `{neutral.20}` | `{neutral.80}` |
 | `syntax_punctuation` | `codemirror-def`, `-operator` (brackets, delimiters, colons, operators) | `{neutral.40}` | `{neutral.70}` |
 | `sidebar_background` / `header_background` | `sidebar-background-color` / `app-header-background-color` | `background` | `background` |
-| `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-*`, `app-header-text-color` | — | — |
+| `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-text-color` / `sidebar-selected-icon-color` (the selected item's icon and label) / `app-header-text-color` | — | — |
 | `state_active` | `state-active-color` | — | — |
 
 Roles marked — are only written when set; otherwise the frontend's derived default applies.
+
+Every token a role writes has a reader: the build fails on a role token that the frontend never
+reads (catalog `consumers` of 0) or, for `ha-themes-*` tokens, that the support module never
+reads. The frontend's default theme declares several tokens nothing reads —
+`ha-color-text-link`, `ha-color-text-disabled`, `darker-primary-color`, `outline-hover-color` —
+so there is no `link` role: links are drawn in `primary-color`, the `primary` role.
 
 Form fields (`ha-color-form-background`, `-hover`, `-disabled`), the quiet and normal neutral
 fills and `ha-color-surface-low` point at fixed neutral steps that suit the frontend's own

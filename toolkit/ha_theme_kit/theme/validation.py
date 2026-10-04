@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
@@ -18,6 +18,7 @@ from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOK
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 from ha_theme_kit.theme.tinted_on_colors import measure_tinted_pairs
 from ha_theme_kit.theme.token_colors import resolve_token_color
+from ha_theme_kit.theme.token_readers import unread_role_tokens
 from ha_theme_kit.theme.track_contrast import TRACK_ROLE, measure_track_pairs
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -46,11 +47,14 @@ class ValidationReport:
     status_fills: StatusFillReport | None = None
     form_separation: FormSeparationReport | None = None
     entity_separation: EntitySeparationReport | None = None
+    unread_role_tokens: list[str] = field(default_factory=list)
+    """Tokens a role writes that neither the frontend nor the support module reads."""
 
     @property
     def ok(self) -> bool:
         return (
             not self.unknown_tokens
+            and not self.unread_role_tokens
             and not self.shadowed_base_tokens
             and all(result.passes for result in self.contrast)
             and all(report.passes for report in self.charts)
@@ -98,6 +102,9 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         check_status_fills(theme, catalog),
         check_form_separation(theme, catalog),
         check_entity_separation(theme),
+        unread_role_tokens(
+            set().union(*(mode_roles.keys() for mode_roles in theme.roles.values())), catalog
+        ),
     )
 
 

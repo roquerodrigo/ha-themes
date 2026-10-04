@@ -21,8 +21,10 @@ from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     DASHBOARD_HEADER_BACKGROUND_TOKEN,
     ICON_TILE_HARMONY,
+    ROLE_TOKENS,
     TOAST_EDGE_TOKEN,
 )
+from ha_theme_kit.theme.token_readers import has_reader, unread_role_tokens
 from ha_theme_kit.theme.validation import validate_theme
 from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
 from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
@@ -159,6 +161,32 @@ def test_validation_flags_tokens_missing_from_catalog() -> None:
     assert validate_theme(theme, catalog).unknown_tokens == ["not-a-real-token"]
 
 
+def test_every_role_token_has_a_reader() -> None:
+    assert unread_role_tokens(ROLE_TOKENS, TokenCatalog.load()) == []
+
+
+def test_validation_flags_role_tokens_nobody_reads() -> None:
+    theme = build_theme(minimal_definition())
+    catalog = TokenCatalog.load()
+    unread = replace(catalog.find("disabled-text-color"), consumers=0)
+    catalog = replace(catalog, tokens=catalog.tokens | {unread.name: unread})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.unread_role_tokens == ["disabled-text-color"]
+    assert not report.ok
+
+
+def test_dynamic_families_and_support_module_variables_count_as_readers() -> None:
+    catalog = TokenCatalog("test", "test", "today", {}, {"--state-": 1})
+    support_source = "color: var(--ha-themes-menu-background);"
+
+    assert has_reader("state-light-active-color", catalog, support_source)
+    assert has_reader("ha-themes-menu-background", catalog, support_source)
+    assert not has_reader("ha-themes-menu-background-color", catalog, support_source)
+    assert not has_reader("primary-color", catalog, support_source)
+
+
 def test_validation_flags_base_tokens_that_modes_override_or_theme_per_mode() -> None:
     theme = build_theme(
         minimal_definition(
@@ -208,6 +236,7 @@ def test_shipped_themes_validate_against_catalog(source: Path) -> None:
     for variant in theme_family(ThemeDefinition.load(source)):
         report = validate_theme(build_theme(variant), catalog)
         assert report.unknown_tokens == []
+        assert report.unread_role_tokens == []
         assert report.shadowed_base_tokens == []
         assert report.mode_dependent_base_tokens == []
         assert all(result.passes for result in report.contrast)
@@ -360,7 +389,9 @@ def test_syntax_roles_replace_every_frontend_codemirror_color() -> None:
     frontend_syntax_tokens = {
         entry.name.removeprefix("--")
         for entry in catalog.tokens.values()
-        if entry.name.startswith("--codemirror-") and (entry.dark or entry.fallbacks)
+        if entry.name.startswith("--codemirror-")
+        and entry.consumers
+        and (entry.dark or entry.fallbacks)
     }
     theme = build_theme(minimal_definition())
     for tokens in theme.modes.values():
