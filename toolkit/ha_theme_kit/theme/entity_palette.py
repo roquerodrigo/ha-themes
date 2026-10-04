@@ -32,7 +32,7 @@ FRONTEND_NAMED_HUES = {
     "brown": "#795548",
     "blue-grey": "#607d8b",
 }
-"""Light defaults of frontend 20260826.7; a test keeps them in sync with the catalog."""
+"""Light defaults of the captured frontend; a test keeps them in sync with the catalog."""
 
 NEUTRAL_NAMES = {
     "light": {

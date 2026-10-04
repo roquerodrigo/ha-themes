@@ -48,8 +48,8 @@ the last tested theme selected and dark mode on automatic.
 Pinned in four places that must move together: `homeassistant`,
 `home-assistant-frontend` and `pytest-homeassistant-custom-component` (whose
 `requires_dist` must list the same `homeassistant`) in `pyproject.toml`, and
-`homeassistant` in `hacs.json`. Then re-capture the catalog (README → Updating to a new
-Home Assistant release).
+`homeassistant` in `hacs.json`. Then re-capture the catalog and review the frontend copies
+kept by hand (README → Updating to a new Home Assistant release).
 
 ## Conventions not obvious from the code
 

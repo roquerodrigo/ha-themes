@@ -164,7 +164,7 @@ UPSTREAM_FIXES: dict[str, dict[str, str]] = {
         **FORM_CONTROL_PADDING_FIX,
     },
 }
-"""Broken frontend defaults in frontend 20260826.7 (see docs/theming-guide.md)."""
+"""Broken defaults of the captured frontend (see docs/theming-guide.md)."""
 
 CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text", "background", 4.5),
