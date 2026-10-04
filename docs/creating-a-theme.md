@@ -171,7 +171,9 @@ dialogs `ha-dialog-surface-background`. Dropdown menus (overflow menus, sort and
 selects) take `card-background-color` on their own element, where no theme variable can
 override it, so the support module paints them with the `menu_background` role instead. It
 follows `surface`, which keeps menus raised above the page and level with the dialogs they
-open from; their 1px border separates them without a shadow.
+open from; their 1px border separates them without a shadow. The energy dashboard's totals
+card is the one data table nested inside a card; the support module clears its background so
+the card shows through in a single tone.
 
 ### Entity colors
 

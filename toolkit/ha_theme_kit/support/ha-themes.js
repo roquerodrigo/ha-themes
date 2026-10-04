@@ -39,10 +39,19 @@ toastStyles.replaceSync(`
   .toast { box-shadow: var(--ha-themes-toast-box-shadow, var(--wa-shadow-l)); }
 `);
 
+// The energy totals table paints the page-toned card background inside its own card, so
+// letting the card show through keeps the card one tone.
+const energySourcesTableStyles = new CSSStyleSheet();
+energySourcesTableStyles.replaceSync(`
+  .mdc-data-table,
+  .mdc-data-table__header-cell { background-color: transparent; }
+`);
+
 const hostStyles = new Map([
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", dropdownMenuStyles],
   ["ha-toast", toastStyles],
+  ["hui-energy-sources-table-card", energySourcesTableStyles],
 ]);
 
 const styleHost = (root) => {
