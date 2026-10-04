@@ -312,6 +312,14 @@ Assistant would keep only one of them. It then reports, per theme:
   `background`, and the quiet, normal and form hover fills may not be darker than `surface`;
 - the entity color groups above, per mode (OKLab ΔE 5 between competing neighbours).
 
+Every check reads colors the way the browser paints them: short hex (`#fff`), hex with alpha,
+`rgb()`/`rgba()` and `var()` references (with their fallbacks, through the theme and the
+frontend's defaults) all resolve. A translucent color, such as a `{family.step@alpha}`
+reference, is composited over what it sits on: the surface over the page, everything else
+over the surface. A value that never reaches such a color (a named color like `white`,
+`hsl()`, an undeclared variable, a translucent page) is reported as not evaluable and fails
+the check instead of being skipped.
+
 `--strict` turns any failure into a non-zero exit code.
 
 ## Shipping a theme

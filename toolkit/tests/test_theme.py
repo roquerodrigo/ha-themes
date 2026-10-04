@@ -19,6 +19,7 @@ from ha_theme_kit.theme.builder import (
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
+    CONTRAST_PAIRS,
     DASHBOARD_HEADER_BACKGROUND_TOKEN,
     ICON_TILE_HARMONY,
     ROLE_TOKENS,
@@ -598,3 +599,93 @@ def test_palette_steps_must_be_known_opaque_colors(
     source.write_text(yaml.safe_dump({"name": "Bad", "palette": palette}))
     with pytest.raises(ValueError, match=rf"bad.yaml: {message}"):
         ThemeDefinition.load(source)
+
+
+def light_text_results(roles: dict[str, str]) -> dict[str, float | None]:
+    theme = build_theme(minimal_definition(roles={"light": roles}, backdrop_blur=False))
+    report = validate_theme(theme, TokenCatalog.load())
+    assert not report.ok
+    return {
+        result.background_role: result.ratio
+        for result in report.contrast
+        if result.mode == "light" and result.foreground_role == "text"
+    }
+
+
+def test_every_contrast_pair_is_measured_for_each_mode() -> None:
+    report = validate_theme(build_theme(minimal_definition()), TokenCatalog.load())
+
+    role_pairs = {
+        (result.mode, result.foreground_role, result.background_role) for result in report.contrast
+    }
+    assert {
+        (mode, foreground, background)
+        for mode in ("light", "dark")
+        for foreground, background, _ in CONTRAST_PAIRS
+    } <= role_pairs
+
+
+def test_short_hex_white_text_on_white_fails() -> None:
+    results = light_text_results({"text": "#fff", "background": "#fff", "surface": "#fff"})
+
+    assert results["background"] == 1.0
+    assert results["surface"] == 1.0
+
+
+def test_translucent_text_is_composited_over_its_background() -> None:
+    results = light_text_results({"text": "rgba(255, 255, 255, 0.9)", "background": "#ffffff"})
+
+    assert results["background"] == 1.0
+
+
+def test_palette_references_with_alpha_are_composited() -> None:
+    results = light_text_results({"text": "{neutral.95@0.9}", "surface": "#ffffff"})
+
+    assert results["surface"] is not None
+    assert results["surface"] < 1.2
+
+
+def test_translucent_surface_is_composited_over_the_page() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={
+                "light": {
+                    "text": "#000000",
+                    "background": "#ffffff",
+                    "surface": "rgba(0, 0, 0, 0.5)",
+                }
+            },
+            backdrop_blur=False,
+        )
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    surface_ratios = {
+        result.foreground_role: result.ratio
+        for result in report.contrast
+        if result.mode == "light" and result.background_role == "surface"
+    }
+    assert surface_ratios["text"] == 5.32
+
+
+def test_variable_references_resolve_through_the_palette_tokens() -> None:
+    results = light_text_results(
+        {"text": "var(--ha-color-neutral-95)", "surface": "var(--ha-color-neutral-95)"}
+    )
+
+    assert results["surface"] == 1.0
+
+
+@pytest.mark.parametrize("text", ["white", "var(--not-declared)", "hsl(0 0% 100%)"])
+def test_pairs_that_cannot_be_evaluated_fail(text: str) -> None:
+    results = light_text_results({"text": text})
+
+    assert set(results.values()) == {None}
+
+
+def test_a_translucent_page_background_cannot_be_evaluated() -> None:
+    results = light_text_results({"background": "rgba(255, 255, 255, 0.5)"})
+
+    assert results["background"] is None
+    assert results["surface"] is not None

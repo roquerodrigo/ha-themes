@@ -8,11 +8,13 @@ those neighbours together, so every pair inside a group must keep the separation
 frontend's own palette has.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 
 from ha_theme_kit.color.vision import color_distance
+from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
+from ha_theme_kit.theme.mode_colors import ModeColors
 
 COMPETING_GROUPS = (
     ("pink", "red", "deep-orange", "orange"),
@@ -36,25 +38,28 @@ class EntitySeparationPair:
 @dataclass(frozen=True)
 class EntitySeparationReport:
     close_pairs: list[EntitySeparationPair]
+    unresolved: list[tuple[str, str]] = field(default_factory=list)
+    """Mode and name of each named color the theme sets that does not resolve to a color."""
 
     @property
     def passes(self) -> bool:
-        return not self.close_pairs
+        return not self.close_pairs and not self.unresolved
 
 
-def check_entity_separation(theme: BuiltTheme) -> EntitySeparationReport:
+def check_entity_separation(theme: BuiltTheme, catalog: TokenCatalog) -> EntitySeparationReport:
     close_pairs = []
-    for mode, mode_tokens in theme.modes.items():
-        colors = named_colors(theme.base | mode_tokens)
+    unresolved = []
+    for mode in theme.modes:
+        colors = named_colors(ModeColors.of_theme(theme, mode, catalog))
+        unresolved.extend((mode, name) for name, color in colors.items() if color is None)
         close_pairs.extend(
             EntitySeparationPair(mode, first, second, distance)
             for first, second in competing_pairs()
-            if first in colors
-            and second in colors
-            and (distance := round(color_distance(colors[first], colors[second]), 1))
-            < DISTANCE_FLOOR
+            if (first_color := colors.get(first)) is not None
+            and (second_color := colors.get(second)) is not None
+            and (distance := round(color_distance(first_color, second_color), 1)) < DISTANCE_FLOOR
         )
-    return EntitySeparationReport(close_pairs)
+    return EntitySeparationReport(close_pairs, unresolved)
 
 
 def competing_pairs() -> list[tuple[str, str]]:
@@ -63,10 +68,13 @@ def competing_pairs() -> list[tuple[str, str]]:
     )
 
 
-def named_colors(tokens: dict[str, str]) -> dict[str, str]:
-    names = {name for group in COMPETING_GROUPS for name in group}
-    return {
-        name: color
+def named_colors(colors: ModeColors) -> dict[str, str | None]:
+    """The competing named colors the theme sets, as painted on the surface; None where one
+    does not resolve."""
+    names = sorted({name for group in COMPETING_GROUPS for name in group})
+    painted = {
+        name: colors.opaque_token(f"{name}-color")
         for name in names
-        if (color := tokens.get(f"{name}-color")) is not None and color.startswith("#")
+        if f"{name}-color" in colors.tokens
     }
+    return {name: None if color is None else color.to_hex() for name, color in painted.items()}

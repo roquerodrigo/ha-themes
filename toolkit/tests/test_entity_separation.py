@@ -62,7 +62,7 @@ def test_restyle_keeps_neighbours_apart_that_share_a_band_edge(mode: str) -> Non
 
 
 def test_blue_and_light_blue_need_a_pin_once_chroma_is_capped() -> None:
-    report = check_entity_separation(build_theme(theme_with({})))
+    report = check_entity_separation(build_theme(theme_with({})), TokenCatalog.load())
 
     assert {(pair.first, pair.second) for pair in report.close_pairs} == {("blue", "light-blue")}
 
@@ -71,7 +71,7 @@ def test_pinning_two_competing_hues_together_fails_in_both_modes() -> None:
     theme = build_theme(
         theme_with({"pinned": {"red": "{primary.50}", "deep-orange": "{primary.50}"}})
     )
-    report = check_entity_separation(theme)
+    report = check_entity_separation(theme, TokenCatalog.load())
     pinned_pairs = [pair for pair in report.close_pairs if pair.first == "red"]
 
     assert pinned_pairs == [
@@ -84,4 +84,6 @@ def test_pinning_two_competing_hues_together_fails_in_both_modes() -> None:
 
 @pytest.mark.parametrize("source", sorted(THEME_SOURCES.glob("*.yaml")), ids=lambda path: path.stem)
 def test_shipped_themes_keep_competing_hues_apart(source: Path) -> None:
-    assert check_entity_separation(build_theme(ThemeDefinition.load(source))).passes
+    assert check_entity_separation(
+        build_theme(ThemeDefinition.load(source)), TokenCatalog.load()
+    ).passes

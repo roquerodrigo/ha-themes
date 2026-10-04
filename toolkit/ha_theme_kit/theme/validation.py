@@ -1,7 +1,6 @@
-import re
 from dataclasses import dataclass, field
 
-from ha_theme_kit.color.oklch import contrast_ratio
+from ha_theme_kit.color.css_color import contrast_on
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
@@ -14,14 +13,12 @@ from ha_theme_kit.theme.loud_fills import (
     fill_token,
     on_color_token,
 )
+from ha_theme_kit.theme.mode_colors import ModeColors
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 from ha_theme_kit.theme.tinted_on_colors import measure_tinted_pairs
-from ha_theme_kit.theme.token_colors import resolve_token_color
 from ha_theme_kit.theme.token_readers import unread_role_tokens
 from ha_theme_kit.theme.track_contrast import TRACK_ROLE, measure_track_pairs
-
-HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
 @dataclass(frozen=True)
@@ -29,12 +26,13 @@ class ContrastResult:
     mode: str
     foreground_role: str
     background_role: str
-    ratio: float
+    ratio: float | None
+    """None when either side does not resolve to a color the check can measure."""
     minimum: float
 
     @property
     def passes(self) -> bool:
-        return self.ratio >= self.minimum
+        return self.ratio is not None and self.ratio >= self.minimum
 
 
 @dataclass(frozen=True)
@@ -70,26 +68,23 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         for key in theme.all_token_keys()
         if catalog.find(key) is None and not key.startswith(PROJECT_TOKEN_PREFIX)
     )
-    contrast = []
-    for mode, roles in theme.roles.items():
-        for foreground, background, minimum in CONTRAST_PAIRS:
-            foreground_color, background_color = roles.get(foreground), roles.get(background)
-            if not (_is_hex(foreground_color) and _is_hex(background_color)):
-                continue
-            contrast.append(
-                ContrastResult(
-                    mode,
-                    foreground,
-                    background,
-                    round(contrast_ratio(foreground_color, background_color), 2),
-                    minimum,
-                )
-            )
+    contrast = [
+        ContrastResult(
+            mode,
+            foreground,
+            background,
+            contrast_on(colors.role(foreground), colors.opaque_role(background)),
+            minimum,
+        )
+        for mode in theme.roles
+        for colors in (ModeColors.of_theme(theme, mode, catalog),)
+        for foreground, background, minimum in CONTRAST_PAIRS
+    ]
     contrast.extend(_check_loud_fills(theme, catalog))
     contrast.extend(_check_tinted_on_colors(theme, catalog))
     contrast.extend(_check_tracks(theme, catalog))
     charts = [
-        check_categorical(series, mode, theme.roles[mode]["surface"])
+        check_categorical(series, mode, _opaque_surface(theme, mode, catalog))
         for mode, series in theme.chart_series.items()
     ]
     shadowed, mode_dependent = _check_base_overrides(theme, catalog)
@@ -101,7 +96,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         mode_dependent,
         check_status_fills(theme, catalog),
         check_form_separation(theme, catalog),
-        check_entity_separation(theme),
+        check_entity_separation(theme, catalog),
         unread_role_tokens(
             set().union(*(mode_roles.keys() for mode_roles in theme.roles.values())), catalog
         ),
@@ -110,25 +105,22 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
 
 def _check_loud_fills(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
     """Every loud fill state against its on-color, as the frontend resolves them per mode."""
-    results = []
-    for mode, mode_tokens in theme.modes.items():
-        tokens = theme.base | mode_tokens
-        for status in ("primary", *LOUD_FILL_STATUSES):
-            on_color = resolve_token_color(on_color_token(status), tokens, catalog, mode)
-            for state in LOUD_FILL_STATES:
-                fill = resolve_token_color(fill_token(status, state), tokens, catalog, mode)
-                if on_color is None or fill is None:
-                    continue
-                results.append(
-                    ContrastResult(
-                        mode,
-                        on_color_token(status),
-                        fill_token(status, state),
-                        round(contrast_ratio(on_color, fill), 2),
-                        ON_COLOR_CONTRAST_FLOOR,
-                    )
-                )
-    return results
+    return [
+        ContrastResult(
+            mode,
+            on_color_token(status),
+            fill_token(status, state),
+            contrast_on(
+                colors.token(on_color_token(status)),
+                colors.opaque_token(fill_token(status, state)),
+            ),
+            ON_COLOR_CONTRAST_FLOOR,
+        )
+        for mode in theme.modes
+        for colors in (ModeColors.of_theme(theme, mode, catalog),)
+        for status in ("primary", *LOUD_FILL_STATUSES)
+        for state in LOUD_FILL_STATES
+    ]
 
 
 def _check_tinted_on_colors(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
@@ -136,16 +128,16 @@ def _check_tinted_on_colors(theme: BuiltTheme, catalog: TokenCatalog) -> list[Co
         ContrastResult(
             pair.mode, pair.on_color_token, pair.backdrop_token, pair.ratio, pair.minimum
         )
-        for mode, mode_tokens in theme.modes.items()
-        for pair in measure_tinted_pairs(mode, theme.base | mode_tokens, catalog)
+        for mode in theme.modes
+        for pair in measure_tinted_pairs(ModeColors.of_theme(theme, mode, catalog))
     ]
 
 
 def _check_tracks(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
     return [
         ContrastResult(pair.mode, TRACK_ROLE, pair.backdrop_role, pair.ratio, pair.minimum)
-        for mode, roles in theme.roles.items()
-        for pair in measure_track_pairs(mode, roles, catalog)
+        for mode in theme.roles
+        for pair in measure_track_pairs(ModeColors.of_theme(theme, mode, catalog))
     ]
 
 
@@ -166,5 +158,6 @@ def _check_base_overrides(theme: BuiltTheme, catalog: TokenCatalog) -> tuple[lis
     return shadowed, mode_dependent
 
 
-def _is_hex(value: str | None) -> bool:
-    return bool(value and HEX_COLOR.match(value))
+def _opaque_surface(theme: BuiltTheme, mode: str, catalog: TokenCatalog) -> str | None:
+    surface = ModeColors.of_theme(theme, mode, catalog).opaque_role("surface")
+    return None if surface is None else surface.to_hex()

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 THEME_SOURCES = PROJECT_ROOT / "themes-src"
+UNRESOLVED = "does not resolve to a color the checks can measure"
 
 
 def command_catalog(_arguments: argparse.Namespace) -> int:
@@ -111,7 +112,12 @@ def command_build(arguments: argparse.Namespace) -> int:
                     " set it per mode unless that is intended"
                 )
             for result in report.contrast:
-                if arguments.verbose or not result.passes:
+                if result.ratio is None:
+                    print(
+                        f"    ✗ {result.mode:5} {result.foreground_role} on"
+                        f" {result.background_role}: not evaluable, a side {UNRESOLVED}"
+                    )
+                elif arguments.verbose or not result.passes:
                     mark = "✓" if result.passes else "✗"
                     print(
                         f"    {mark} {result.mode:5} {result.foreground_role} on"
@@ -163,6 +169,8 @@ def _print_status_fills(report: StatusFillReport | None, verbose: bool) -> None:
 
     if report is None:
         return
+    for name in report.unresolved:
+        print(f"    ✗ {report.mode:5} {name} {UNRESOLVED}")
     for token in report.darker_than_background:
         print(
             f"    ✗ {report.mode:5} {token} {report.fills[token]} is darker than the"
@@ -182,6 +190,8 @@ def _print_form_separation(report: FormSeparationReport | None, verbose: bool) -
 
     if report is None:
         return
+    for name in report.unresolved:
+        print(f"    ✗ {report.mode:5} {name} {UNRESOLVED}")
     if report.form_contrast is not None and report.form_contrast < FORM_CONTRAST_FLOOR:
         print(
             f"    ✗ {report.mode:5} form background on surface {report.form_contrast}:1"
@@ -206,6 +216,8 @@ def _print_entity_separation(report: EntitySeparationReport | None) -> None:
 
     if report is None:
         return
+    for mode, name in report.unresolved:
+        print(f"    ✗ {mode:5} entity color {name} {UNRESOLVED}")
     for pair in report.close_pairs:
         print(
             f"    ✗ {pair.mode:5} entity colors {pair.first} and {pair.second} are"
