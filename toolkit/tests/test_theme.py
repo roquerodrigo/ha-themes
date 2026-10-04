@@ -259,6 +259,15 @@ def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) ->
     assert "--ha-themes-brand-icon-color" in module
 
 
+def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
+    module = write_support_module(tmp_path / "ha-themes.js").read_text()
+    prefix = "ha-themes-"
+    assert f'PROJECT_VARIABLE_PREFIX = "--{prefix}"' in module
+    assert FONT_STYLESHEET_TOKEN.startswith(prefix)
+    for tokens in build_theme(minimal_definition()).modes.values():
+        assert any(key.startswith(prefix) for key in tokens)
+
+
 def test_brand_icons_follow_the_primary_role() -> None:
     theme = build_theme(minimal_definition())
     for tokens in theme.modes.values():

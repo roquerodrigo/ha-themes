@@ -1,3 +1,4 @@
+const PROJECT_VARIABLE_PREFIX = "--ha-themes-";
 const FONT_STYLESHEET_VARIABLE = "--ha-themes-font-stylesheet";
 const BRAND_PATH = "/api/brands/";
 const BRAND_ICON_COLOR_VARIABLE = "--ha-themes-brand-icon-color";
@@ -6,18 +7,21 @@ const BRAND_ICON_COLOR_DECLARATION = new RegExp(`${BRAND_ICON_COLOR_VARIABLE}\\s
 const GENERIC_ICON_RGB = [0, 171, 248];
 const CHANNEL_TOLERANCE = 3;
 
-const appendOnce = (selector, create) => {
-  if (!document.head.querySelector(selector)) {
-    document.head.append(create());
+// Themes (global on <html>, or per view or card) are applied as inline custom properties.
+const declaresProjectTheme = (element) =>
+  element.getAttribute("style")?.includes(PROJECT_VARIABLE_PREFIX) ?? false;
+
+const syncBodyFontBinding = () => {
+  const binding = document.head.querySelector("style[data-ha-themes]");
+  if (!declaresProjectTheme(document.documentElement)) {
+    binding?.remove();
+  } else if (!binding) {
+    const style = document.createElement("style");
+    style.dataset.haThemes = "";
+    style.textContent = "body { font-family: var(--ha-font-family-body); }";
+    document.head.append(style);
   }
 };
-
-appendOnce("style[data-ha-themes]", () => {
-  const style = document.createElement("style");
-  style.dataset.haThemes = "";
-  style.textContent = "body { font-family: var(--ha-font-family-body); }";
-  return style;
-});
 
 const declaredFontStylesheet = (element) =>
   element.style
@@ -62,6 +66,9 @@ const scheduleFontStylesheetSync = () => {
 };
 
 const trackFontStylesheet = (element) => {
+  if (!declaresProjectTheme(element) && !fontStylesheetDeclarers.has(element)) {
+    return;
+  }
   if (declaredFontStylesheet(element)) {
     fontStylesheetDeclarers.add(element);
     scheduleFontStylesheetSync();
@@ -200,7 +207,7 @@ const applyTo = async (element) => {
   }
   const color = brandIconColor(element);
   const replacement = color ? await recoloredUrl(source, color) : null;
-  if (originalSource(element) !== source) {
+  if (originalSource(element) !== source || (replacement && brandIconColor(element) !== color)) {
     return;
   }
   if (element instanceof HTMLImageElement) {
@@ -226,7 +233,7 @@ const isBrandElement = (element) =>
 
 const scan = (root) => {
   for (const element of root.querySelectorAll("*")) {
-    trackFontStylesheet(element);
+    trackDeclarer(element);
     if (isBrandElement(element)) {
       applyTo(element);
     }
@@ -247,61 +254,170 @@ const rescan = (element) => {
   }
 };
 
-// Themes (global, per view or per card) are applied as inline custom properties on an element.
 const changesBrandIconColor = (mutation) =>
   mutation.attributeName === "style" &&
   declaredBrandIconColor(mutation.oldValue) !==
     declaredBrandIconColor(mutation.target.getAttribute("style"));
 
-const watchedRoots = new WeakSet();
+const handleMutations = (mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type === "attributes") {
+      if (mutation.attributeName === "style") {
+        trackDeclarer(mutation.target);
+        if (mutation.oldValue?.includes(PROJECT_VARIABLE_PREFIX)) {
+          scheduleActivitySync();
+        }
+      }
+      if (changesBrandIconColor(mutation)) {
+        rescan(mutation.target);
+      }
+      if (isBrandElement(mutation.target)) {
+        applyTo(mutation.target);
+      }
+      continue;
+    }
+    if (mutation.removedNodes.length) {
+      scheduleActivitySync();
+      if (fontStylesheetDeclarers.size) {
+        scheduleFontStylesheetSync();
+      }
+    }
+    for (const node of mutation.addedNodes) {
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        continue;
+      }
+      trackDeclarer(node);
+      if (isBrandElement(node)) {
+        applyTo(node);
+      }
+      scan(node);
+    }
+  }
+};
+
+const observers = new Set();
+let watchedRoots = new WeakSet();
 const watch = (root) => {
   if (watchedRoots.has(root)) {
     return;
   }
   watchedRoots.add(root);
-  new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === "attributes") {
-        if (mutation.attributeName === "style") {
-          trackFontStylesheet(mutation.target);
-        }
-        if (changesBrandIconColor(mutation)) {
-          rescan(mutation.target);
-        }
-        if (isBrandElement(mutation.target)) {
-          applyTo(mutation.target);
-        }
-        continue;
-      }
-      if (mutation.removedNodes.length && fontStylesheetDeclarers.size) {
-        scheduleFontStylesheetSync();
-      }
-      for (const node of mutation.addedNodes) {
-        if (node.nodeType !== Node.ELEMENT_NODE) {
-          continue;
-        }
-        trackFontStylesheet(node);
-        if (isBrandElement(node)) {
-          applyTo(node);
-        }
-        scan(node);
-      }
-    }
-  }).observe(root, {
+  const observer = new MutationObserver(handleMutations);
+  observer.observe(root, {
     childList: true,
     subtree: true,
     attributes: true,
     attributeFilter: ["src", "style"],
     attributeOldValue: true,
   });
+  observers.add(observer);
   scan(root);
 };
 
-const nativeAttachShadow = Element.prototype.attachShadow;
-Element.prototype.attachShadow = function attachShadow(...options) {
-  const root = nativeAttachShadow.apply(this, options);
-  queueMicrotask(() => watch(root));
-  return root;
+// The module stays dormant, without patching attachShadow or observing any root, until a
+// project theme declares one of its variables somewhere on the page.
+let active = false;
+// A project variable was set on an element no scan has found yet (for example one not yet
+// connected), so the module must not fall dormant before that element shows up.
+let unlocatedDeclaration = false;
+// Weak references keep declarers that the frontend detaches and reattaches (cached views)
+// without keeping them alive.
+const declarerReferences = new Set();
+const trackedDeclarers = new WeakSet();
+
+const trackDeclarer = (element) => {
+  if (declaresProjectTheme(element)) {
+    unlocatedDeclaration = false;
+    if (!trackedDeclarers.has(element)) {
+      trackedDeclarers.add(element);
+      declarerReferences.add(new WeakRef(element));
+    }
+  }
+  trackFontStylesheet(element);
 };
 
-watch(document);
+const projectThemeInUse = () => {
+  if (unlocatedDeclaration || declaresProjectTheme(document.documentElement)) {
+    return true;
+  }
+  for (const reference of declarerReferences) {
+    const element = reference.deref();
+    if (element && declaresProjectTheme(element)) {
+      return true;
+    }
+    declarerReferences.delete(reference);
+    if (element) {
+      trackedDeclarers.delete(element);
+    }
+  }
+  return false;
+};
+
+let attachShadowPatched = false;
+const patchAttachShadow = () => {
+  if (attachShadowPatched) {
+    return;
+  }
+  attachShadowPatched = true;
+  // Never restored: another module may have wrapped it since, so it only idles while dormant.
+  const nativeAttachShadow = Element.prototype.attachShadow;
+  Element.prototype.attachShadow = function attachShadow(...options) {
+    const root = nativeAttachShadow.apply(this, options);
+    if (active) {
+      queueMicrotask(() => active && watch(root));
+    }
+    return root;
+  };
+};
+
+const activate = () => {
+  active = true;
+  patchAttachShadow();
+  watch(document);
+};
+
+const deactivate = () => {
+  for (const observer of observers) {
+    handleMutations(observer.takeRecords());
+    observer.disconnect();
+  }
+  observers.clear();
+  watchedRoots = new WeakSet();
+  active = false;
+  syncFontStylesheets();
+};
+
+let activitySyncPending = false;
+const syncActivity = () => {
+  activitySyncPending = false;
+  syncBodyFontBinding();
+  const inUse = projectThemeInUse();
+  if (inUse && !active) {
+    activate();
+  } else if (!inUse && active) {
+    deactivate();
+  }
+};
+
+const scheduleActivitySync = () => {
+  if (!activitySyncPending) {
+    activitySyncPending = true;
+    queueMicrotask(syncActivity);
+  }
+};
+
+// The frontend applies every theme through style.setProperty, which is the only signal
+// cheap enough to watch while dormant.
+const nativeSetProperty = CSSStyleDeclaration.prototype.setProperty;
+CSSStyleDeclaration.prototype.setProperty = function setProperty(name, value, ...rest) {
+  const result = nativeSetProperty.call(this, name, value, ...rest);
+  if (typeof name === "string" && name.startsWith(PROJECT_VARIABLE_PREFIX)) {
+    if (!active && value) {
+      unlocatedDeclaration = true;
+    }
+    scheduleActivitySync();
+  }
+  return result;
+};
+
+syncActivity();
