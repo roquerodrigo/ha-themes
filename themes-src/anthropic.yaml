@@ -76,7 +76,6 @@ roles:
     accent: "{primary.50}"
     info: "{blue.60}"
     state_icon: "{blue.60}"
-    scrollbar: "{neutral.30}"
 
 entity_colors:
   chroma_cap: 0.11

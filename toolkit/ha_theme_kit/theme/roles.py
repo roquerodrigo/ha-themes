@@ -116,7 +116,7 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "success": "{green.60}",
         "info": "{primary.60}",
         "state_icon": "{primary.60}",
-        "scrollbar": "{neutral.40}",
+        "scrollbar": "{neutral.60}",
         "shadow": "rgba(0, 0, 0, 0.48)",
         "input_fill": "{neutral.90@0.05}",
         "code_background": "{neutral.05}",
