@@ -5,6 +5,7 @@ from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
+from ha_theme_kit.theme.form_separation import FormSeparationReport, check_form_separation
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 
@@ -32,6 +33,7 @@ class ValidationReport:
     shadowed_base_tokens: list[str]
     mode_dependent_base_tokens: list[str]
     status_fills: StatusFillReport | None = None
+    form_separation: FormSeparationReport | None = None
 
     @property
     def ok(self) -> bool:
@@ -41,6 +43,7 @@ class ValidationReport:
             and all(result.passes for result in self.contrast)
             and all(report.passes for report in self.charts)
             and (self.status_fills is None or self.status_fills.passes)
+            and (self.form_separation is None or self.form_separation.passes)
         )
 
 
@@ -71,7 +74,13 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
     ]
     shadowed, mode_dependent = _check_base_overrides(theme, catalog)
     return ValidationReport(
-        unknown, contrast, charts, shadowed, mode_dependent, check_status_fills(theme, catalog)
+        unknown,
+        contrast,
+        charts,
+        shadowed,
+        mode_dependent,
+        check_status_fills(theme, catalog),
+        check_form_separation(theme, catalog),
     )
 
 

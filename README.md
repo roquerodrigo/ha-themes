@@ -146,7 +146,8 @@ start; after `ha-themes build`, restart it (or reload the integration) to see a 
 4. Run `scripts/ha-themes build --strict` — unknown tokens point at themes that need updating.
 5. Review what is kept by hand against the frontend: `UPSTREAM_FIXES` in
    `toolkit/ha_theme_kit/theme/roles.py` (drop fixes the frontend no longer needs),
-   `FRONTEND_SERIES` in `chart_palette.py` and `FRONTEND_NAMED_HUES` in `entity_palette.py`,
+   `FRONTEND_SERIES` in `chart_palette.py`, `FRONTEND_NAMED_HUES` in `entity_palette.py`
+   and `FRONTEND_LAYERING` in `neutral_layers.py`,
    and the version header and known-issues table of `docs/theming-guide.md`. Run
    `scripts/lint`: tests fail while these disagree with the new catalog.
 6. Regenerate previews and compare.

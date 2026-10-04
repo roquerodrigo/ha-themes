@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from ha_theme_kit.inventory.catalog import TokenCatalog
 
 if TYPE_CHECKING:
+    from ha_theme_kit.theme.form_separation import FormSeparationReport
     from ha_theme_kit.theme.status_fills import StatusFillReport
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -133,8 +134,12 @@ def command_build(arguments: argparse.Namespace) -> int:
                     )
                 )
             _print_status_fills(report.status_fills, arguments.verbose)
+            _print_form_separation(report.form_separation, arguments.verbose)
             if report.ok:
-                print("    ✓ all tokens known, all contrast, chart and status fill checks pass")
+                print(
+                    "    ✓ all tokens known, all contrast, chart, status fill and form"
+                    " separation checks pass"
+                )
             failed = failed or not report.ok
     if failed and arguments.strict:
         print("validation failed: nothing written", file=sys.stderr)
@@ -164,6 +169,30 @@ def _print_status_fills(report: StatusFillReport | None, verbose: bool) -> None:
         )
     if verbose and report.passes:
         print(f"    ✓ {report.mode:5} status fills: {', '.join(report.fills.values())}")
+
+
+def _print_form_separation(report: FormSeparationReport | None, verbose: bool) -> None:
+    from ha_theme_kit.theme.form_separation import DISTANCE_FLOOR, FORM_CONTRAST_FLOOR
+
+    if report is None:
+        return
+    if report.form_contrast is not None and report.form_contrast < FORM_CONTRAST_FLOOR:
+        print(
+            f"    ✗ {report.mode:5} form background on surface {report.form_contrast}:1"
+            f" (min {FORM_CONTRAST_FLOOR})"
+        )
+    for first, second, distance in report.close_pairs:
+        print(
+            f"    ✗ {report.mode:5} {first} and {second} are ΔE {distance} apart"
+            f" (min {DISTANCE_FLOOR})"
+        )
+    for token, base in report.darker_fills:
+        print(
+            f"    ✗ {report.mode:5} {token} {report.colors[token]} is darker than the {base}"
+            f" {report.colors[base]}"
+        )
+    if verbose and report.passes:
+        print(f"    ✓ {report.mode:5} form background on surface {report.form_contrast}:1")
 
 
 def command_preview(arguments: argparse.Namespace) -> int:
