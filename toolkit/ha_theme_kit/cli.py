@@ -1,8 +1,12 @@
 import argparse
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ha_theme_kit.inventory.catalog import TokenCatalog
+
+if TYPE_CHECKING:
+    from ha_theme_kit.theme.status_fills import StatusFillReport
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 THEME_SOURCES = PROJECT_ROOT / "themes-src"
@@ -128,8 +132,9 @@ def command_build(arguments: argparse.Namespace) -> int:
                         else ""
                     )
                 )
+            _print_status_fills(report.status_fills, arguments.verbose)
             if report.ok:
-                print("    ✓ all tokens known, all contrast and chart checks pass")
+                print("    ✓ all tokens known, all contrast, chart and status fill checks pass")
             failed = failed or not report.ok
     if failed and arguments.strict:
         print("validation failed: nothing written", file=sys.stderr)
@@ -140,6 +145,25 @@ def command_build(arguments: argparse.Namespace) -> int:
     module = write_support_module()
     print(f"wrote {module.relative_to(PROJECT_ROOT)}")
     return 0
+
+
+def _print_status_fills(report: StatusFillReport | None, verbose: bool) -> None:
+    from ha_theme_kit.theme.status_fills import DISTANCE_FLOOR
+
+    if report is None:
+        return
+    for token in report.darker_than_background:
+        print(
+            f"    ✗ {report.mode:5} {token} {report.fills[token]} is darker than the"
+            f" background {report.background}"
+        )
+    for pair in report.close_pairs:
+        print(
+            f"    ✗ {report.mode:5} {pair.tone} {pair.first} and {pair.second} fills are"
+            f" ΔE {pair.distance} apart (min {DISTANCE_FLOOR})"
+        )
+    if verbose and report.passes:
+        print(f"    ✓ {report.mode:5} status fills: {', '.join(report.fills.values())}")
 
 
 def command_preview(arguments: argparse.Namespace) -> int:

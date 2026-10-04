@@ -6,6 +6,7 @@ from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
+from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
@@ -30,6 +31,7 @@ class ValidationReport:
     charts: list[CategoricalReport]
     shadowed_base_tokens: list[str]
     mode_dependent_base_tokens: list[str]
+    status_fills: StatusFillReport | None = None
 
     @property
     def ok(self) -> bool:
@@ -38,6 +40,7 @@ class ValidationReport:
             and not self.shadowed_base_tokens
             and all(result.passes for result in self.contrast)
             and all(report.passes for report in self.charts)
+            and (self.status_fills is None or self.status_fills.passes)
         )
 
 
@@ -67,7 +70,9 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         for mode, series in theme.chart_series.items()
     ]
     shadowed, mode_dependent = _check_base_overrides(theme, catalog)
-    return ValidationReport(unknown, contrast, charts, shadowed, mode_dependent)
+    return ValidationReport(
+        unknown, contrast, charts, shadowed, mode_dependent, check_status_fills(theme, catalog)
+    )
 
 
 def _check_base_overrides(theme: BuiltTheme, catalog: TokenCatalog) -> tuple[list[str], list[str]]:

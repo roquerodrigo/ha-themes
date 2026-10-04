@@ -204,6 +204,8 @@ def test_shipped_themes_validate_against_catalog(source: Path) -> None:
         assert report.mode_dependent_base_tokens == []
         assert all(result.passes for result in report.contrast)
         assert all(chart.passes for chart in report.charts)
+        assert report.status_fills is not None
+        assert report.status_fills.passes
 
 
 def test_chrome_follows_background_unless_set() -> None:
