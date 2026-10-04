@@ -412,3 +412,37 @@ def test_toasts_take_the_theme_edge(page: Page, page_errors: list[str]) -> None:
     remove_root_variable(page, "--ha-themes-toast-box-shadow")
     page.wait_for_function(f"() => ({toast_shadow})() === 'rgb(0, 0, 255) 0px 16px 32px 0px'")
     assert page_errors == []
+
+
+def test_energy_totals_table_lets_its_card_show_through(page: Page, page_errors: list[str]) -> None:
+    table_backgrounds = """() => ['table', 'header'].map(
+      (id) => getComputedStyle(window.findElement(id)).backgroundColor
+    )"""
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty("--card-background-color", "rgb(0, 0, 255)");
+          const host = document.createElement("hui-energy-sources-table-card");
+          const shadow = host.attachShadow({ mode: "open" });
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(`
+            .mdc-data-table, .mdc-data-table__header-cell {
+              background-color: var(--card-background-color);
+            }
+          `);
+          shadow.adoptedStyleSheets = [sheet];
+          const table = document.createElement("div");
+          table.id = "table";
+          table.className = "mdc-data-table";
+          const header = document.createElement("div");
+          header.id = "header";
+          header.className = "mdc-data-table__header-cell";
+          table.append(header);
+          shadow.append(table);
+          document.body.append(host);
+        }"""
+    )
+    page.wait_for_function(
+        f"() => ({table_backgrounds})().every((color) => color === 'rgba(0, 0, 0, 0)')"
+    )
+    assert page_errors == []

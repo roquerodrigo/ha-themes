@@ -8,7 +8,8 @@ sit directly on the page (the logbook's floating date, data tables, headers). Ca
 dialogs have their own hooks (`ha-card-background`, `ha-dialog-surface-background`) and keep
 the surface tone. Dropdown menus derive their surface from `card-background-color` on their
 own host, out of a theme's reach, so the support module repaints them with
-`ha-themes-menu-background`.
+`ha-themes-menu-background`, and clears the background of the energy totals table, the one
+data table nested inside a card.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
