@@ -68,7 +68,8 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme, outlines toasts when shadows are flat and recolors the generic integration icons.
+  theme, outlines toasts when shadows are flat, recolors the generic integration icons and
+  moves the fixed icon tiles of Settings, System and About to the theme's entity colors.
   The themes keep `card-background-color` in the page tone, where the frontend mostly paints
   it; the module lifts the few raised elements that read it anyway — dropdown menus to the
   surface color, the integration entry lists to the card tone — and keeps the energy totals
@@ -152,9 +153,9 @@ start; after `ha-themes build`, restart it (or reload the integration) to see a 
 4. Run `scripts/ha-themes build --strict` — unknown tokens point at themes that need updating.
 5. Review what is kept by hand against the frontend: `UPSTREAM_FIXES` in
    `toolkit/ha_theme_kit/theme/roles.py` (drop fixes the frontend no longer needs),
-   `FRONTEND_SERIES` in `chart_palette.py`, `FRONTEND_NAMED_HUES` in `entity_palette.py`
-   and `FRONTEND_LAYERING` in `neutral_layers.py`,
-   and the version header and known-issues table of `docs/theming-guide.md`. Run
+   `FRONTEND_SERIES` in `chart_palette.py`, `FRONTEND_NAMED_HUES` in `entity_palette.py`,
+   `FRONTEND_LAYERING` in `neutral_layers.py`, `ICON_TILE_ENTITY_COLORS` in the support module
+   source and the version header and known-issues table of `docs/theming-guide.md`. Run
    `scripts/lint`: tests fail while these disagree with the new catalog.
 6. Regenerate previews and compare.
 

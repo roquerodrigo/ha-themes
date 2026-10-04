@@ -508,3 +508,53 @@ def test_integration_entry_lists_take_the_card_tone(page: Page, page_errors: lis
         f"() => ({list_backgrounds})().join() === 'rgb(0, 255, 0),rgb(0, 0, 255)'"
     )
     assert page_errors == []
+
+
+def test_icon_tiles_take_the_entity_color_of_their_hue(page: Page, page_errors: list[str]) -> None:
+    tile_backgrounds = """() => ['property-tile', 'attribute-tile', 'unknown-tile'].map(
+      (id) => getComputedStyle(window.findElement(id)).backgroundColor
+    )"""
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--indigo-color", "#4d5ea2");
+          root.setProperty("--amber-color", "#eec876");
+          root.setProperty("--ha-themes-icon-tile-palette-share", "100%");
+          root.setProperty("--ha-themes-icon-tile-max-lightness", "0.6");
+          const navigation = document.createElement("ha-config-navigation-list");
+          const navigationShadow = navigation.attachShadow({ mode: "open" });
+          const propertyTile = document.createElement("div");
+          propertyTile.id = "property-tile";
+          propertyTile.style = "background-color: #0D47A1";
+          const unknownTile = document.createElement("div");
+          unknownTile.id = "unknown-tile";
+          unknownTile.style = "background-color: #123456";
+          navigationShadow.append(propertyTile, unknownTile);
+          const info = document.createElement("ha-config-info");
+          const infoShadow = info.attachShadow({ mode: "open" });
+          const attributeTile = document.createElement("div");
+          attributeTile.id = "attribute-tile";
+          attributeTile.setAttribute("style", "background-color: #F1C447;;");
+          infoShadow.append(attributeTile);
+          document.body.append(navigation, info);
+        }"""
+    )
+    page.wait_for_function(f"() => ({tile_backgrounds})()[0].startsWith('oklch')")
+    property_tile, attribute_tile, unknown_tile = page.evaluate(tile_backgrounds)
+    assert property_tile.startswith("oklch(0.5")
+    assert attribute_tile.startswith("oklch(0.6 ")
+    assert unknown_tile == "rgb(18, 52, 86)"
+
+    for name in ("--ha-themes-icon-tile-palette-share", "--ha-themes-icon-tile-max-lightness"):
+        remove_root_variable(page, name)
+    stock = page.evaluate(
+        """() => ['property-tile', 'attribute-tile'].map((id) => {
+          const context = document.createElement("canvas").getContext("2d");
+          context.fillStyle = getComputedStyle(window.findElement(id)).backgroundColor;
+          context.fillRect(0, 0, 1, 1);
+          return [...context.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+        })"""
+    )
+    assert stock == [[13, 71, 161], [241, 196, 71]]
+    assert page_errors == []

@@ -200,6 +200,14 @@ OVERLAY_EDGE: dict[str, str] = dict.fromkeys(
 """Tooltips and toasts float over the page with only a shadow to separate them, so flat
 elevation gives them the 1px outline that menus and cards already have."""
 
+ICON_TILE_HARMONY: dict[str, str] = {
+    "ha-themes-icon-tile-palette-share": "100%",
+    "ha-themes-icon-tile-max-lightness": "0.6",
+}
+"""Settings, System, About and the search dialog draw their icon tiles in literal colors. The
+support module moves each tile to the entity color of the same hue by this share, and caps its
+OKLCH lightness so the white glyph keeps about 4:1 in both modes."""
+
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
 
