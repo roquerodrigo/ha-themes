@@ -54,7 +54,73 @@ configEntryListStyles.replaceSync(`
   ha-md-list { --md-sys-color-surface: var(--ha-card-background, var(--card-background-color)); }
 `);
 
+// Settings, System, About and the search dialog draw their icon tiles with literal inline colors,
+// so each known literal is matched by value and moved toward the entity color of the same hue.
+// A literal missing here keeps its stock color; without the theme's share and lightness cap the
+// rules reproduce the literal, so other themes are unaffected.
+const ICON_TILE_ENTITY_COLORS = {
+  "#0082FC": "blue",
+  "#00838F": "teal",
+  "#0D47A1": "indigo",
+  "#153163": "indigo",
+  "#2458B3": "indigo",
+  "#24A5CB": "cyan",
+  "#2D338F": "indigo",
+  "#301A8E": "indigo",
+  "#301ABE": "indigo",
+  "#3263C3": "indigo",
+  "#3B808E": "teal",
+  "#4084CD": "blue",
+  "#4A5963": "blue-grey",
+  "#4D2EA4": "deep-purple",
+  "#4EAA66": "green",
+  "#518C43": "green",
+  "#5A87FA": "blue",
+  "#5C995C": "green",
+  "#607D8B": "blue-grey",
+  "#616161": "grey",
+  "#653249": "pink",
+  "#660066": "purple",
+  "#7A5AA6": "purple",
+  "#8B69E3": "purple",
+  "#8E24AA": "purple",
+  "#9C27B0": "purple",
+  "#9E4DD1": "purple",
+  "#B1345C": "pink",
+  "#B1B134": "lime",
+  "#C65326": "deep-orange",
+  "#E4002C": "red",
+  "#E48629": "orange",
+  "#E74011": "deep-orange",
+  "#ED7744": "deep-orange",
+  "#F1C447": "amber",
+};
+
+// A property binding serializes the literal as rgb(), an attribute binding keeps it as written.
+const serializedRgb = (hex) =>
+  `rgb(${[1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16)).join(", ")})`;
+
+const iconTileRule = ([hex, entityColor]) => `
+  [style*="${hex}" i], [style*="${serializedRgb(hex)}"] {
+    background-color: oklch(
+      from color-mix(
+        in oklab, ${hex}, var(--${entityColor}-color) var(--ha-themes-icon-tile-palette-share, 0%)
+      )
+      min(l, var(--ha-themes-icon-tile-max-lightness, 1)) c h
+    ) !important;
+  }`;
+
+const iconTileStyles = new CSSStyleSheet();
+iconTileStyles.replaceSync(`
+  @supports (color: oklch(from red l c h)) {
+    ${Object.entries(ICON_TILE_ENTITY_COLORS).map(iconTileRule).join("")}
+  }
+`);
+
 const hostStyles = new Map([
+  ["ha-config-navigation-list", iconTileStyles],
+  ["ha-config-info", iconTileStyles],
+  ["ha-picker-combo-box", iconTileStyles],
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", dropdownMenuStyles],
   ["ha-toast", toastStyles],

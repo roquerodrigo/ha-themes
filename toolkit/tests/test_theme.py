@@ -18,7 +18,11 @@ from ha_theme_kit.theme.builder import (
 )
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
-from ha_theme_kit.theme.roles import DASHBOARD_HEADER_BACKGROUND_TOKEN, TOAST_EDGE_TOKEN
+from ha_theme_kit.theme.roles import (
+    DASHBOARD_HEADER_BACKGROUND_TOKEN,
+    ICON_TILE_HARMONY,
+    TOAST_EDGE_TOKEN,
+)
 from ha_theme_kit.theme.validation import validate_theme
 from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
 from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
@@ -231,6 +235,11 @@ def test_shadows_are_flat_unless_enabled() -> None:
     assert "ha-card-box-shadow" not in build_theme(minimal_definition(shadows=True)).base
 
 
+def test_every_theme_harmonizes_icon_tiles() -> None:
+    base = build_theme(minimal_definition()).base
+    assert {token: base[token] for token in ICON_TILE_HARMONY} == ICON_TILE_HARMONY
+
+
 def test_flat_overlays_keep_an_outline_unless_shadows_are_enabled() -> None:
     flat = build_theme(minimal_definition()).base
     for key in ("ha-tooltip-box-shadow", TOAST_EDGE_TOKEN):
@@ -318,6 +327,8 @@ def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) ->
     assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
     assert "--ha-themes-menu-background" in module
     assert f"--{TOAST_EDGE_TOKEN}" in module
+    for token in ICON_TILE_HARMONY:
+        assert f"--{token}" in module
 
 
 def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
