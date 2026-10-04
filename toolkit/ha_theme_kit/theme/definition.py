@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -7,6 +8,9 @@ from ha_theme_kit.theme.chart_palette import ChartSettings
 from ha_theme_kit.theme.entity_palette import EntityColorSettings
 from ha_theme_kit.theme.modes import MODES
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
+
+DEFAULT_CORNER_RADIUS = "8px"
+CORNER_RADIUS_PATTERN = re.compile(r"0|(\d+(\.\d+)?|\.\d+)(px|rem|em)")
 
 
 @dataclass(frozen=True)
@@ -23,6 +27,7 @@ class ThemeDefinition:
     shadows: bool = False
     backdrop_blur: bool = True
     field_outline: bool = True
+    corner_radius: str | None = DEFAULT_CORNER_RADIUS
 
     @classmethod
     def load(cls, path: Path) -> ThemeDefinition:
@@ -39,6 +44,7 @@ class ThemeDefinition:
             "shadows",
             "backdrop_blur",
             "field_outline",
+            "corner_radius",
         }
         if unknown_sections:
             raise ValueError(f"{path.name}: unknown sections {sorted(unknown_sections)}")
@@ -65,6 +71,7 @@ class ThemeDefinition:
             shadows=_require_bool(path, document, "shadows", default=False),
             backdrop_blur=_require_bool(path, document, "backdrop_blur", default=True),
             field_outline=_require_bool(path, document, "field_outline", default=True),
+            corner_radius=_corner_radius(path, document),
         )
 
 
@@ -73,3 +80,17 @@ def _require_bool(path: Path, document: dict, key: str, *, default: bool) -> boo
     if not isinstance(value, bool):
         raise ValueError(f"{path.name}: {key} must be true or false, got {value!r}")
     return value
+
+
+def _corner_radius(path: Path, document: dict) -> str | None:
+    value = document.get("corner_radius", DEFAULT_CORNER_RADIUS)
+    if value is False:
+        return None
+    if value == 0:
+        return "0"
+    if isinstance(value, str) and CORNER_RADIUS_PATTERN.fullmatch(value):
+        return value
+    raise ValueError(
+        f"{path.name}: corner_radius must be a length in px, rem or em (or false to keep the"
+        f" frontend's radii), got {value!r}"
+    )

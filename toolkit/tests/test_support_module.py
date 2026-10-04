@@ -436,6 +436,32 @@ def test_toasts_take_the_theme_edge(page: Page, page_errors: list[str]) -> None:
     assert page_errors == []
 
 
+def test_input_chips_take_the_theme_corner_radius(page: Page, page_errors: list[str]) -> None:
+    chip_radius = "() => getComputedStyle(window.findElement('chip')).borderTopLeftRadius"
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty("--ha-themes-corner-radius", "8px");
+          const host = document.createElement("ha-input-chip");
+          const shadow = host.attachShadow({ mode: "open" });
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(
+            ":host { --md-input-chip-container-shape: 16px; }"
+            + " #chip { border-radius: var(--md-input-chip-container-shape); }"
+          );
+          shadow.adoptedStyleSheets = [sheet];
+          const chip = document.createElement("div");
+          chip.id = "chip";
+          shadow.append(chip);
+          document.body.append(host);
+        }"""
+    )
+    page.wait_for_function(f"() => ({chip_radius})() === '8px'")
+
+    remove_root_variable(page, "--ha-themes-corner-radius")
+    page.wait_for_function(f"() => ({chip_radius})() === '16px'")
+    assert page_errors == []
+
+
 def test_energy_totals_table_lets_its_card_show_through(page: Page, page_errors: list[str]) -> None:
     table_backgrounds = """() => ['table', 'header'].map(
       (id) => getComputedStyle(window.findElement(id)).backgroundColor

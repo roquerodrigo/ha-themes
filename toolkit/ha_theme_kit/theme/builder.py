@@ -10,6 +10,9 @@ from ha_theme_kit.theme.neutral_layers import FORM_BACKGROUND, layer_neutral_fil
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
+    CORNER_RADIUS_BRIDGES,
+    CORNER_RADIUS_SCALE,
+    CORNER_RADIUS_TOKEN,
     FIELD_OUTLINE,
     FLAT_ELEVATION,
     ICON_TILE_HARMONY,
@@ -85,6 +88,8 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         base.update(BACKDROP_BLUR_FILTERS)
     if definition.field_outline:
         base.update(FIELD_OUTLINE)
+    if definition.corner_radius is not None:
+        base.update(_corner_radii(definition.corner_radius))
     base.update(_resolve_all(resolver, definition.tokens.get("base", {}), "tokens.base"))
 
     entity_settings = EntityColorSettings.from_document(definition.entity_colors)
@@ -138,6 +143,12 @@ def _x_height_ratio(value: str) -> str:
             f"typography size_adjust must be an x-height ratio between 0 and 1, got {value!r}"
         )
     return value
+
+
+def _corner_radii(radius: str) -> dict[str, str]:
+    return dict.fromkeys(
+        (*CORNER_RADIUS_SCALE, *CORNER_RADIUS_BRIDGES, CORNER_RADIUS_TOKEN), radius
+    )
 
 
 def _translucent_surfaces(roles: dict[str, str], mode: str) -> dict[str, str]:

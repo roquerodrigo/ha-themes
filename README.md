@@ -36,7 +36,7 @@ them in full. Anthropic System UI fits exactly what the default theme fits; see
 Every theme has light and dark modes and follows the
 [house conventions](docs/creating-a-theme.md#house-conventions): sidebar and header in the
 page background, no shadows, backdrop blur on the header, cards and dialogs, outlined form
-fields without a fill, a harmonized entity palette, chart series validated for color-vision deficiencies, generic integration
+fields without a fill, one small corner radius for every element, a harmonized entity palette, chart series validated for color-vision deficiencies, generic integration
 icons in the primary color, and a system-ui variant.
 
 | Palette, light | Palette, dark |
@@ -69,7 +69,7 @@ The integration:
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
   theme, outlines toasts when shadows are flat and keeps their text readable, outlines the
-  form fields and clears their fill, recolors the generic integration icons and moves the fixed icon tiles of
+  form fields and clears their fill, gives the input chips the theme's corner radius, recolors the generic integration icons and moves the fixed icon tiles of
   Settings, System and About to the theme's entity colors. The themes keep `card-background-color` in the page tone, where
   the frontend mostly paints it; the module lifts the few raised elements that read it
   anyway — dropdown menus to the surface color, the integration entry lists to the card
