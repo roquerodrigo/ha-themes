@@ -6,8 +6,16 @@ from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
 from ha_theme_kit.theme.form_separation import FormSeparationReport, check_form_separation
+from ha_theme_kit.theme.loud_fills import (
+    LOUD_FILL_STATES,
+    LOUD_FILL_STATUSES,
+    ON_COLOR_CONTRAST_FLOOR,
+    fill_token,
+    on_color_token,
+)
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
+from ha_theme_kit.theme.token_colors import resolve_token_color
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
@@ -68,6 +76,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
                     minimum,
                 )
             )
+    contrast.extend(_check_loud_fills(theme, catalog))
     charts = [
         check_categorical(series, mode, theme.roles[mode]["surface"])
         for mode, series in theme.chart_series.items()
@@ -82,6 +91,29 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
         check_status_fills(theme, catalog),
         check_form_separation(theme, catalog),
     )
+
+
+def _check_loud_fills(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
+    """Every loud fill state against its on-color, as the frontend resolves them per mode."""
+    results = []
+    for mode, mode_tokens in theme.modes.items():
+        tokens = theme.base | mode_tokens
+        for status in ("primary", *LOUD_FILL_STATUSES):
+            on_color = resolve_token_color(on_color_token(status), tokens, catalog, mode)
+            for state in LOUD_FILL_STATES:
+                fill = resolve_token_color(fill_token(status, state), tokens, catalog, mode)
+                if on_color is None or fill is None:
+                    continue
+                results.append(
+                    ContrastResult(
+                        mode,
+                        on_color_token(status),
+                        fill_token(status, state),
+                        round(contrast_ratio(on_color, fill), 2),
+                        ON_COLOR_CONTRAST_FLOOR,
+                    )
+                )
+    return results
 
 
 def _check_base_overrides(theme: BuiltTheme, catalog: TokenCatalog) -> tuple[list[str], list[str]]:

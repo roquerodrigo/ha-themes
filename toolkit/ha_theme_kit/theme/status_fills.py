@@ -54,7 +54,8 @@ def check_status_fills(theme: BuiltTheme, catalog: TokenCatalog) -> StatusFillRe
         fill_token(status, tone): color
         for tone in FILL_TONES
         for status in STATUSES
-        if (color := resolve_token_color(fill_token(status, tone), tokens, catalog)) is not None
+        if (color := resolve_token_color(fill_token(status, tone), tokens, catalog, CHECKED_MODE))
+        is not None
     }
     background_lightness = hex_to_oklch(background).lightness
     darker = [

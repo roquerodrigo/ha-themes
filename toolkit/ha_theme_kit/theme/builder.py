@@ -4,6 +4,7 @@ from ha_theme_kit.color.oklch import hex_to_rgba, is_opaque_hex
 from ha_theme_kit.theme.chart_palette import ChartSettings, build_chart_colors, series_for_mode
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.entity_palette import EntityColorSettings, build_entity_colors
+from ha_theme_kit.theme.loud_fills import build_loud_fills
 from ha_theme_kit.theme.modes import MODES
 from ha_theme_kit.theme.neutral_layers import FORM_BACKGROUND, layer_neutral_fills
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
@@ -91,6 +92,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
         tokens = _resolve_all(resolver, UPSTREAM_FIXES.get(mode, {}), f"upstream fixes.{mode}")
         neutral_fills = layer_neutral_fills(mode, resolved_roles[mode], resolver.scales["neutral"])
         tokens |= neutral_fills
+        tokens |= build_loud_fills(mode, resolver.scales)
         if FORM_BACKGROUND in neutral_fills and "input_fill" not in definition.roles.get(mode, {}):
             resolved_roles[mode]["input_fill"] = neutral_fills[FORM_BACKGROUND]
         tokens |= build_entity_colors(entity_settings, resolver, mode)
