@@ -446,3 +446,43 @@ def test_energy_totals_table_lets_its_card_show_through(page: Page, page_errors:
         f"() => ({table_backgrounds})().every((color) => color === 'rgba(0, 0, 0, 0)')"
     )
     assert page_errors == []
+
+
+def test_integration_entry_lists_take_the_card_tone(page: Page, page_errors: list[str]) -> None:
+    list_backgrounds = """() => ['entry-list', 'page-list'].map(
+      (id) => getComputedStyle(window.findElement(id)).backgroundColor
+    )"""
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--card-background-color", "rgb(0, 0, 255)");
+          root.setProperty("--ha-card-background", "rgb(0, 255, 0)");
+          const listSheet = new CSSStyleSheet();
+          listSheet.replaceSync(`
+            :host { display: block; --md-sys-color-surface: var(--card-background-color); }
+            div { background: var(--md-sys-color-surface); }
+          `);
+          const createList = (id) => {
+            const list = document.createElement("ha-md-list");
+            const shadow = list.attachShadow({ mode: "open" });
+            shadow.adoptedStyleSheets = [listSheet];
+            const surface = document.createElement("div");
+            surface.id = id;
+            shadow.append(surface);
+            return list;
+          };
+          for (const [hostName, listId] of [
+            ["ha-config-entry-row", "entry-list"],
+            ["ha-config-integration-page", "page-list"],
+          ]) {
+            const host = document.createElement(hostName);
+            host.attachShadow({ mode: "open" }).append(createList(listId));
+            document.body.append(host);
+          }
+        }"""
+    )
+    page.wait_for_function(
+        f"() => ({list_backgrounds})().join() === 'rgb(0, 255, 0),rgb(0, 0, 255)'"
+    )
+    assert page_errors == []
