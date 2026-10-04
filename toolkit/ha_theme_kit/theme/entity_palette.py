@@ -2,12 +2,15 @@
 
 Each hue keeps the meaning Home Assistant gives it (amber for lights on, green for locked,
 red for alarms) and is restyled per mode: chroma capped to the theme's mood, lightness
-clamped into a band that reads on that mode's surfaces.
+rescaled into a band that reads on that mode's surfaces. Rescaling the frontend's whole
+lightness range, rather than clamping each color, keeps neighbouring hues (purple and
+deep-purple, yellow and lime) as far apart in lightness as the band allows instead of
+collapsing them onto its edge.
 """
 
 from dataclasses import dataclass, field
 
-from ha_theme_kit.color.oklch import restyle
+from ha_theme_kit.color.oklch import Oklch, fit_to_gamut, hex_to_oklch, oklch_to_hex
 from ha_theme_kit.theme.lightness_bands import parse_lightness_bands
 from ha_theme_kit.theme.modes import MODES
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
@@ -33,6 +36,11 @@ FRONTEND_NAMED_HUES = {
     "blue-grey": "#607d8b",
 }
 """Light defaults of the captured frontend; a test keeps them in sync with the catalog."""
+
+FRONTEND_LIGHTNESS_RANGE = (
+    min(hex_to_oklch(color).lightness for color in FRONTEND_NAMED_HUES.values()),
+    max(hex_to_oklch(color).lightness for color in FRONTEND_NAMED_HUES.values()),
+)
 
 NEUTRAL_NAMES = {
     "light": {
@@ -116,7 +124,7 @@ def build_entity_colors(
     settings: EntityColorSettings, resolver: PaletteResolver, mode: str
 ) -> dict[str, str]:
     colors = {
-        name: restyle(default, settings.lightness[mode], (0.0, settings.chroma_cap))
+        name: restyle_named_hue(default, settings.lightness[mode], settings.chroma_cap)
         for name, default in FRONTEND_NAMED_HUES.items()
     }
     colors |= {
@@ -136,3 +144,13 @@ def build_entity_colors(
         for token, value in WEATHER_ICON_NEUTRALS[mode].items()
     }
     return tokens
+
+
+def restyle_named_hue(color: str, band: tuple[float, float], chroma_cap: float) -> str:
+    frontend = hex_to_oklch(color)
+    darkest, lightest = FRONTEND_LIGHTNESS_RANGE
+    share = (frontend.lightness - darkest) / (lightest - darkest)
+    lightness = band[0] + share * (band[1] - band[0])
+    return oklch_to_hex(
+        fit_to_gamut(Oklch(lightness, min(frontend.chroma, chroma_cap), frontend.hue))
+    )
