@@ -177,9 +177,8 @@ dashboard header (and its tab scroll buttons) with it, falling back to
 `app-header-background-color` when a theme does not set it.
 
 Keep `card-background-color` opaque and make only `ha-card-background` translucent.
-`card-background-color` is the page plane, but sticky table headers and a few overlays
-(pickers opened as a bottom sheet, the code editor's completion popover) still paint it over
-other content; [Creating a theme](creating-a-theme.md#roles) lists its consumers and how the
+`card-background-color` is the page plane, but sticky table headers and pickers opened as a
+bottom sheet still paint it over other content; [Creating a theme](creating-a-theme.md#roles) lists its consumers and how the
 support module raises the dropdown menus and lists among them. `app-theme-color` (the
 browser's theme color) should stay an opaque hex value.
 

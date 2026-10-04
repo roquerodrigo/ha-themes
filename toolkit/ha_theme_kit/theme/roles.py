@@ -16,6 +16,13 @@ data table nested inside a card, is cleared so the card shows through.
 `text-primary-color`, also drawn on `accent-color`) and the loud fills of buttons and FABs,
 so every filled primary element in a mode shows the same text color. `primary_light` is a
 fill too: avatars, person badges and the Assist debug chat draw `text_on_primary_light` on it.
+
+The code editor reads `code-editor-background-color` for itself, its completion popover and its
+full-screen mode, falling back to `card-background-color`, the page plane. `code_editor_background`
+follows `surface` instead, so all three read as raised like menus and the editor stays level with
+the card it sits in. The `syntax_*` roles replace the frontend's off-palette CodeMirror colors
+(Material Palenight in dark mode, CodeMirror's literals in light mode) and are validated against
+that background: comments at 3:1, everything else at 4.5:1.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
@@ -62,6 +69,22 @@ ROLE_TOKENS: dict[str, tuple[str, ...]] = {
     "header_text": ("app-header-text-color",),
     "brand_icon": ("ha-themes-brand-icon-color",),
     "menu_background": ("ha-themes-menu-background",),
+    "code_editor_background": ("code-editor-background-color",),
+    "syntax_comment": ("codemirror-comment",),
+    "syntax_keyword": ("codemirror-keyword", "codemirror-attribute", "codemirror-tag"),
+    "syntax_property": ("codemirror-property",),
+    "syntax_string": ("codemirror-string", "codemirror-string-2", "codemirror-string2"),
+    "syntax_number": ("codemirror-number", "codemirror-atom"),
+    "syntax_variable": (
+        "codemirror-variable",
+        "codemirror-variable-2",
+        "codemirror-variable-3",
+        "codemirror-qualifier",
+        "codemirror-type",
+        "codemirror-builtin",
+        "codemirror-meta",
+    ),
+    "syntax_punctuation": ("codemirror-def", "codemirror-operator"),
 }
 
 ROLE_DEFAULTS: dict[str, dict[str, str]] = {
@@ -92,6 +115,13 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "shadow": "rgba(0, 0, 0, 0.16)",
         "input_fill": "{neutral.95}",
         "code_background": "{neutral.95}",
+        "syntax_comment": "{neutral.50}",
+        "syntax_keyword": "{primary.30}",
+        "syntax_property": "{neutral.20}",
+        "syntax_string": "{green.40}",
+        "syntax_number": "{orange.30}",
+        "syntax_variable": "{neutral.20}",
+        "syntax_punctuation": "{neutral.40}",
     },
     "dark": {
         "background": "{neutral.05}",
@@ -120,6 +150,13 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "shadow": "rgba(0, 0, 0, 0.48)",
         "input_fill": "{neutral.90@0.05}",
         "code_background": "{neutral.05}",
+        "syntax_comment": "{neutral.60}",
+        "syntax_keyword": "{primary.60}",
+        "syntax_property": "{neutral.80}",
+        "syntax_string": "{green.60}",
+        "syntax_number": "{orange.60}",
+        "syntax_variable": "{neutral.80}",
+        "syntax_punctuation": "{neutral.70}",
     },
 }
 
@@ -128,9 +165,11 @@ ROLE_FALLBACKS: dict[str, str] = {
     "header_background": "background",
     "brand_icon": "primary",
     "menu_background": "surface",
+    "code_editor_background": "surface",
 }
 """Roles that follow another role unless a theme sets them: chrome blends into the page,
-generic integration icons take the primary color, and menus are raised like cards."""
+generic integration icons take the primary color, and menus and the code editor are raised like
+cards."""
 
 PROJECT_TOKEN_PREFIX = "ha-themes-"
 """Variables read by the support module rather than the frontend."""
@@ -221,4 +260,12 @@ CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("link", "surface", 4.5),
     ("primary", "surface", 3.0),
     ("error", "surface", 3.0),
+    ("text", "code_editor_background", 4.5),
+    ("syntax_comment", "code_editor_background", 3.0),
+    ("syntax_keyword", "code_editor_background", 4.5),
+    ("syntax_property", "code_editor_background", 4.5),
+    ("syntax_string", "code_editor_background", 4.5),
+    ("syntax_number", "code_editor_background", 4.5),
+    ("syntax_variable", "code_editor_background", 4.5),
+    ("syntax_punctuation", "code_editor_background", 4.5),
 )
