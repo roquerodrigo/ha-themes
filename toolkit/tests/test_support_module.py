@@ -560,6 +560,10 @@ def test_icon_tiles_take_the_entity_color_of_their_hue(page: Page, page_errors: 
     assert page_errors == []
 
 
+STOCK_FILL = "200 200 200 255"
+STOCK_HOVER_FILL = "150 150 150 255"
+CLEAR_FILL = "0 0 0 0"
+
 FIELD_VARIABLES = {
     "--ha-themes-field-outline": "1",
     "--ha-themes-field-border-color": "rgb(255, 0, 0)",
@@ -572,6 +576,10 @@ ADD_FIELDS = """() => {
   root.setProperty("--ha-color-border-danger-normal", "rgb(0, 128, 0)");
   root.setProperty("--ha-border-radius-sm", "4px");
   root.setProperty("--ha-border-radius-square", "0px");
+  root.setProperty("--ha-color-form-background", "rgb(200, 200, 200)");
+  root.setProperty("--ha-color-form-background-hover", "rgb(150, 150, 150)");
+  root.setProperty("--ha-color-border-neutral-normal", "rgb(255, 165, 0)");
+  root.setProperty("--secondary-text-color", "rgb(100, 100, 100)");
   const stockSheet = (css) => {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(css);
@@ -596,18 +604,24 @@ ADD_FIELDS = """() => {
     document.body.append(host);
     return host;
   };
-  const sharedCss = ".input::part(base) { border: none; border-radius: 4px 4px 0 0; }";
+  const sharedCss = `.input::part(base) {
+    background-color: var(--ha-color-form-background); border: none; border-radius: 4px 4px 0 0;
+  }`;
   addControl("ha-input", "wa-input", "input", `${sharedCss}
-    :host([appearance=material]) ::part(base)::after { content: ""; display: block; height: 1px; }`
+    :host([appearance=material]) ::part(base)::after { content: ""; display: block; height: 1px; }
+    wa-input::part(base):hover { background-color: var(--ha-color-form-background-hover); }`
   ).setAttribute("appearance", "material");
   addControl("ha-textarea", "wa-textarea", "textarea", `${sharedCss}
-    wa-textarea::part(base)::after { content: ""; display: block; height: 1px; }`);
+    wa-textarea::part(base)::after { content: ""; display: block; height: 1px; }
+    wa-textarea:hover::part(base) { background-color: var(--ha-color-form-background-hover); }`);
   const picker = document.createElement("ha-picker-field");
   const pickerShadow = picker.attachShadow({ mode: "open" });
   pickerShadow.adoptedStyleSheets = [stockSheet(`
     ha-combo-box-item {
-      display: block; border-radius: 4px; border-end-start-radius: 0; border-end-end-radius: 0;
+      display: block; height: 20px; background-color: var(--ha-color-form-background);
+      border-radius: 4px; border-end-start-radius: 0; border-end-end-radius: 0;
     }
+    ha-combo-box-item:hover { background-color: var(--ha-color-form-background-hover); }
     ha-combo-box-item::after { content: ""; display: block; height: 1px; }`)];
   const item = document.createElement("ha-combo-box-item");
   item.id = "picker";
@@ -619,7 +633,15 @@ ADD_FIELDS = """() => {
 FIELD_STYLES = """(id) => {
   const element = window.findElement(id);
   const style = getComputedStyle(element);
+  const rgba = (color) => {
+    const context = new OffscreenCanvas(1, 1).getContext("2d");
+    context.fillStyle = color || "transparent";
+    context.fillRect(0, 0, 1, 1);
+    return Array.from(context.getImageData(0, 0, 1, 1).data).join(" ");
+  };
   return {
+    fill: rgba(style.backgroundColor),
+    ripple: rgba(style.getPropertyValue("--ha-ripple-hover-color")),
     width: style.borderTopWidth,
     color: style.borderTopColor,
     radius: `${style.borderTopLeftRadius} ${style.borderBottomLeftRadius}`,
@@ -654,6 +676,10 @@ def test_form_fields_keep_their_underline_without_the_field_variables(
     assert styles["width"] == "0px"
     assert styles["underline"] == "1"
     assert styles["radius"] == "4px 0px"
+    assert styles["fill"] == STOCK_FILL
+    assert field_styles(page, "picker")["ripple"] == "100 100 100 255"
+    page.locator(f"#{element_id}").hover()
+    assert field_styles(page, element_id)["fill"] == STOCK_HOVER_FILL
     assert page_errors == []
 
 
@@ -667,6 +693,8 @@ def test_form_fields_take_an_outline_instead_of_the_underline(
     page.wait_for_function(f"() => ({FIELD_STYLES})('{element_id}').width === '1px'")
 
     assert field_styles(page, element_id) == {
+        "fill": CLEAR_FILL,
+        "ripple": CLEAR_FILL,
         "width": "1px",
         "color": "rgb(255, 0, 0)",
         "radius": "8px 8px",
@@ -676,6 +704,23 @@ def test_form_fields_take_an_outline_instead_of_the_underline(
     remove_root_variable(page, "--ha-themes-field-outline")
     page.wait_for_function(f"() => ({FIELD_STYLES})('{element_id}').underline === '1'")
     assert field_styles(page, element_id)["width"] == "0px"
+    assert field_styles(page, element_id)["fill"] == STOCK_FILL
+    assert page_errors == []
+
+
+@pytest.mark.parametrize("element_id", ["input", "textarea", "picker"])
+def test_outlined_fields_stay_clear_and_step_their_outline_on_hover(
+    page: Page, page_errors: list[str], element_id: str
+) -> None:
+    set_root_color(page, "rgb(255, 0, 0)")
+    set_field_variables(page)
+    page.evaluate(ADD_FIELDS)
+    page.wait_for_function(f"() => ({FIELD_STYLES})('{element_id}').width === '1px'")
+
+    page.locator(f"#{element_id}").hover()
+    styles = field_styles(page, element_id)
+    assert styles["fill"] == CLEAR_FILL
+    assert styles["color"] == "rgb(255, 165, 0)"
     assert page_errors == []
 
 

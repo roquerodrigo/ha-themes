@@ -132,12 +132,13 @@ iconTileStyles.replaceSync(`
 `);
 
 // Filled form fields mark their edge, focus and errors with a bottom line drawn by an ::after
-// rule. A theme that sets --ha-themes-field-outline to 1 outlines the whole field instead, and
-// the outline takes over the focus and error colors; at the default 0 every rule resolves to
-// the stock look.
+// rule. A theme that sets --ha-themes-field-outline to 1 outlines the whole field instead, the
+// outline takes over the focus and error colors and the fill clears; at the default 0 every rule
+// resolves to the stock look.
 const FIELD_OUTLINE = "var(--ha-themes-field-outline, 0)";
 const FIELD_BORDER = `calc(${FIELD_OUTLINE} * 1px) solid var(--ha-themes-field-border-color, transparent)`;
 const FIELD_UNDERLINE_OPACITY = `calc(1 - ${FIELD_OUTLINE})`;
+const FIELD_HOVER_BORDER_COLOR = "var(--ha-color-border-neutral-normal)";
 const FIELD_FOCUS_BORDER_COLOR = "var(--primary-color)";
 const FIELD_INVALID_BORDER_COLOR = "var(--ha-color-border-danger-normal)";
 const FIELD_DISABLED_BORDER_COLOR =
@@ -145,15 +146,39 @@ const FIELD_DISABLED_BORDER_COLOR =
 const fieldBorderRadius = (stockTop, stockBottom = "var(--ha-border-radius-square)") =>
   `var(--ha-themes-field-border-radius, ${stockTop} ${stockTop} ${stockBottom} ${stockBottom})`;
 const STOCK_FIELD_RADIUS = fieldBorderRadius("var(--ha-border-radius-sm)");
+const stockFieldColor = (variable) =>
+  `color-mix(in srgb, var(${variable}) calc(${FIELD_UNDERLINE_OPACITY} * 100%), transparent)`;
+
+// The fields paint their resting, hover and disabled fills from the form background tokens,
+// which checkbox hovers share, so the tokens are cleared only inside the fields: the host keeps
+// the inherited values and the field element redefines the tokens from them.
+const FORM_FILL_TOKENS = [
+  "--ha-color-form-background",
+  "--ha-color-form-background-hover",
+  "--ha-color-form-background-disabled",
+];
+const stockFormFill = (token) => token.replace("--ha-color-", "--ha-themes-stock-");
+const declarations = (declaration) => FORM_FILL_TOKENS.map(declaration).join(" ");
+const STOCK_FORM_FILLS = `:host {
+  ${declarations((token) => `${stockFormFill(token)}: var(${token});`)}
+}`;
+const clearFormFills = (selector) => `${selector} {
+  ${declarations((token) => `${token}: ${stockFieldColor(stockFormFill(token))};`)}
+}`;
 
 const inputFieldStyles = new CSSStyleSheet();
 inputFieldStyles.replaceSync(`
+  ${STOCK_FORM_FILLS}
+  ${clearFormFills(':host([appearance="material"]) wa-input')}
   :host([appearance="material"]) wa-input::part(base) {
     border: ${FIELD_BORDER};
     border-radius: ${STOCK_FIELD_RADIUS};
   }
   :host([appearance="material"]) wa-input::part(base)::after {
     opacity: ${FIELD_UNDERLINE_OPACITY};
+  }
+  :host([appearance="material"]) wa-input::part(base):hover {
+    border-color: ${FIELD_HOVER_BORDER_COLOR};
   }
   :host([appearance="material"]:focus-within) wa-input::part(base) {
     border-color: ${FIELD_FOCUS_BORDER_COLOR};
@@ -169,11 +194,14 @@ inputFieldStyles.replaceSync(`
 
 const textareaFieldStyles = new CSSStyleSheet();
 textareaFieldStyles.replaceSync(`
+  ${STOCK_FORM_FILLS}
+  ${clearFormFills("wa-textarea")}
   :host wa-textarea::part(base) {
     border: ${FIELD_BORDER};
     border-radius: ${STOCK_FIELD_RADIUS};
   }
   wa-textarea::part(base)::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
+  wa-textarea:hover::part(base) { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
   :host(:focus-within) wa-textarea::part(base),
   :host([focused]) wa-textarea::part(base) {
     border-color: ${FIELD_FOCUS_BORDER_COLOR};
@@ -185,14 +213,25 @@ textareaFieldStyles.replaceSync(`
   wa-textarea[disabled]::part(base) { border-color: ${FIELD_DISABLED_BORDER_COLOR}; }
 `);
 
-// Selects and pickers render their field as a list item, which dims itself when disabled.
+// Selects and pickers render their field as a list item, which dims itself when disabled and
+// tints itself on hover with a ripple.
+const STOCK_HOVER_RIPPLE = "--ha-themes-stock-ripple-hover-color";
 const pickerFieldStyles = new CSSStyleSheet();
 pickerFieldStyles.replaceSync(`
+  ${STOCK_FORM_FILLS}
+  ${clearFormFills("ha-combo-box-item")}
+  :host {
+    ${STOCK_HOVER_RIPPLE}: var(
+      --ha-ripple-hover-color, var(--ha-ripple-color, var(--secondary-text-color))
+    );
+  }
   ha-combo-box-item {
+    --ha-ripple-hover-color: ${stockFieldColor(STOCK_HOVER_RIPPLE)};
     border: ${FIELD_BORDER};
     border-radius: ${fieldBorderRadius("var(--ha-border-radius-sm)", "0")};
   }
   ha-combo-box-item::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
+  ha-combo-box-item:hover:where(:not([disabled])) { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
   ha-combo-box-item:focus,
   :host(.opened) ha-combo-box-item {
     border-color: ${FIELD_FOCUS_BORDER_COLOR};
@@ -203,12 +242,14 @@ pickerFieldStyles.replaceSync(`
 const labelsFieldStyles = new CSSStyleSheet();
 labelsFieldStyles.replaceSync(`
   ha-chip-set {
+    background-color: ${stockFieldColor("--mdc-text-field-fill-color")};
     border: ${FIELD_BORDER};
     border-bottom: 1px solid var(
       --ha-themes-field-border-color, var(--ha-color-border-neutral-normal)
     );
     border-radius: ${fieldBorderRadius("var(--ha-border-radius-sm)", "0")};
   }
+  ha-chip-set:hover { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
 `);
 
 // A time input joins one input per unit, the separators and the clear button into one strip,
@@ -217,10 +258,13 @@ const STOCK_TIME_RADIUS = "var(--mdc-shape-small, var(--ha-border-radius-sm))";
 const FIELD_SEGMENT_RADIUS = `calc(var(--ha-border-radius-sm) * ${FIELD_UNDERLINE_OPACITY})`;
 const timeFieldStyles = new CSSStyleSheet();
 timeFieldStyles.replaceSync(`
+  ${STOCK_FORM_FILLS}
+  ${clearFormFills(".time-input-wrap")}
   .time-input-wrap {
     border: ${FIELD_BORDER};
     border-radius: ${fieldBorderRadius(STOCK_TIME_RADIUS)};
   }
+  .time-input-wrap:hover { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
   .time-input-wrap:focus-within { border-color: ${FIELD_FOCUS_BORDER_COLOR}; }
   ha-input::part(wa-base) {
     border-width: 0;
@@ -229,11 +273,7 @@ timeFieldStyles.replaceSync(`
   }
   .time-separator,
   ha-icon-button {
-    border-bottom-color: color-mix(
-      in srgb,
-      var(--ha-color-border-neutral-loud) calc(${FIELD_UNDERLINE_OPACITY} * 100%),
-      transparent
-    );
+    border-bottom-color: ${stockFieldColor("--ha-color-border-neutral-loud")};
   }
 `);
 
