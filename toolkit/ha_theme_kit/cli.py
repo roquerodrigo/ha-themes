@@ -69,6 +69,13 @@ def command_build(arguments: argparse.Namespace) -> int:
             print(f"  {theme.definition.name}: {len(theme.all_token_keys())} tokens")
             for key in report.unknown_tokens:
                 print(f"    ✗ unknown token {key!r} (not in frontend {catalog.frontend_version})")
+            for key in report.shadowed_base_tokens:
+                print(f"    ✗ tokens.base {key!r} is overridden by a mode, which wins there")
+            for key in report.mode_dependent_base_tokens:
+                print(
+                    f"    ! tokens.base {key!r} has a dark default, which this value replaces;"
+                    " set it per mode unless that is intended"
+                )
             for result in report.contrast:
                 if arguments.verbose or not result.passes:
                     mark = "✓" if result.passes else "✗"

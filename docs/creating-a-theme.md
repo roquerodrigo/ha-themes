@@ -95,7 +95,7 @@ charts:                        # optional; without it the frontend's series stay
 
 tokens:                        # optional raw tokens, applied last
   base:                        # mode-independent only
-    color-1: "{primary.50}"
+    ha-card-border-radius: 16px
   light: {}
   dark: {}
 ```
