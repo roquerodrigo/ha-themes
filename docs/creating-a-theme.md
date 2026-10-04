@@ -163,19 +163,30 @@ section and value named.
 
 Roles marked — are only written when set; otherwise the frontend's derived default applies.
 
-`card-background-color` follows `background`, not `surface`: despite its name, the frontend
-paints it on elements that sit directly on the page — the logbook's floating date, data
-tables, table headers — so a different tone shows up as a stripe. Raised elements read
-their own hooks: cards `ha-card-background`, pickers and popovers `wa-color-surface-default`,
-dialogs `ha-dialog-surface-background`. Dropdown menus (overflow menus, sort and group menus,
-selects) take `card-background-color` on their own element, where no theme variable can
-override it, so the support module paints them with the `menu_background` role instead. It
-follows `surface`, which keeps menus raised above the page and level with the dialogs they
-open from; their 1px border separates them without a shadow. The energy dashboard's totals
-card is the one data table nested inside a card; the support module clears its background so
-the card shows through in a single tone. Lists (`ha-md-list`) also take `card-background-color`;
-most sit inside cards or clear their background, but the entry lists on an integration's page
-stand on the page as cards, so the support module raises them to `ha-card-background`.
+`card-background-color` follows `background`, not `surface`. Despite its name, it is a
+page-plane color by design: the frontend paints it on elements that sit directly on the
+page — data tables and their headers, the logbook's floating date — so a surface tone would
+show up there as a stripe. Raised elements have hooks of their own, which the builder points
+at `surface`: cards read `ha-card-background`, dialogs `ha-dialog-surface-background`, and
+pickers and popovers the global `wa-color-surface-default` and `mdc-theme-surface`.
+
+A few raised elements still read `card-background-color`, through a variable the frontend
+sets on their own element, which outranks anything a theme sets. The support module raises
+the ones that stand out:
+
+| Element | How it reads `card-background-color` | What the support module does |
+| --- | --- | --- |
+| Dropdown menus (overflow, sort and group menus, selects) | `ha-dropdown` derives `wa-color-surface-raised` from it | Paints them with the `menu_background` role, which follows `surface`: menus sit raised above the page and level with the dialogs they open from, separated by their 1px border without a shadow |
+| Entry lists on an integration's page | `ha-md-list` sets `md-sys-color-surface` to it | Points them at `ha-card-background`, since they stand on the page as cards |
+| Energy dashboard totals card | Its data table, the one nested inside a card, paints it | Clears the table's background so the card shows through in a single tone |
+
+Other `ha-md-list` lists sit inside cards or clear their background, so they need nothing.
+Two overlays keep the page tone: pickers that open as a bottom sheet on narrow screens
+(`ha-bottom-sheet-surface-background`) and the code editor's completion popover and
+full-screen mode (`code-editor-background-color`, which themes leave unset). Because these
+overlays and the sticky table headers sit on top of other content, `card-background-color`
+must stay opaque; only `ha-card-background` and `ha-dialog-surface-background` are made
+translucent.
 
 ### Entity colors
 

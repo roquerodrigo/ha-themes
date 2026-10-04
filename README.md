@@ -62,10 +62,12 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme, gives dropdown menus the theme's surface color, outlines toasts when shadows are
-  flat, keeps the energy totals card one tone, raises the integration entry lists to the card
-  tone and recolors the generic integration icons. It stays dormant, observing nothing,
-  until a project theme is applied globally or to a view or card, and falls dormant again
+  theme, outlines toasts when shadows are flat and recolors the generic integration icons.
+  The themes keep `card-background-color` in the page tone, where the frontend mostly paints
+  it; the module lifts the few raised elements that read it anyway — dropdown menus to the
+  surface color, the integration entry lists to the card tone — and keeps the energy totals
+  card one tone. It stays dormant, observing nothing, until a project theme is applied
+  globally or to a view or card, and falls dormant again
   when none is left, so users on other themes are not affected. It is served under a
   content-hash URL, so browser and service worker caches never keep an outdated copy;
 - requests fonts from Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) only while
@@ -86,9 +88,10 @@ Remove the integration in this order, so it can delete the files it installed:
 If HA Themes was removed in HACS first, Home Assistant can no longer run its cleanup: the themes
 stay selectable but load without the support module (no web fonts, Roboto on the page body,
 dropdown menus in the page color, toasts without an edge, a page-toned table inside the
-energy totals card, page-toned integration entry lists, integration icons in their default colors). To clean up manually, delete
-the leftover entry under **Settings → Devices & services**, delete the `themes/ha_themes/`
-directory and call the `frontend.reload_themes` action (or restart Home Assistant).
+energy totals card, page-toned integration entry lists, integration icons in their default
+colors). To clean up manually, delete the leftover entry under **Settings → Devices &
+services**, delete the `themes/ha_themes/` directory and call the `frontend.reload_themes`
+action (or restart Home Assistant).
 
 ## Documentation
 

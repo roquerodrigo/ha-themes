@@ -176,9 +176,12 @@ them would show through unblurred. The builder writes the translucent color to
 dashboard header (and its tab scroll buttons) with it, falling back to
 `app-header-background-color` when a theme does not set it.
 
-Keep `card-background-color` opaque and make only `ha-card-background` translucent: the
-former is also used for surfaces that sit on top of other content, such as popovers, and
-`app-theme-color` (the browser's theme color) should stay an opaque hex value.
+Keep `card-background-color` opaque and make only `ha-card-background` translucent.
+`card-background-color` is the page plane, but sticky table headers and a few overlays
+(pickers opened as a bottom sheet, the code editor's completion popover) still paint it over
+other content; [Creating a theme](creating-a-theme.md#roles) lists its consumers and how the
+support module raises the dropdown menus and lists among them. `app-theme-color` (the
+browser's theme color) should stay an opaque hex value.
 
 ## Known upstream issues (frontend 20260826.7)
 
