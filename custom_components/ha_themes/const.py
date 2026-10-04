@@ -13,3 +13,4 @@ STATIC_URL_PATH = f"/{DOMAIN}"
 FRONTEND_MODULE_FILENAME = "ha-themes.js"
 
 ISSUE_THEMES_NOT_LOADED = "themes_not_loaded"
+ISSUE_THEMES_RELOAD_FAILED = "themes_reload_failed"
