@@ -28,13 +28,15 @@ against a running instance. Theme keys are the token name without the leading `-
 
 ## Broken upstream references
 
-Default values that point at tokens the frontend never declares; they resolve to
-nothing. Themes can fix them by setting the token explicitly.
+Default values that point at tokens the frontend never declares, or that carry
+stray CSS syntax; either way they resolve to nothing. Themes can fix them by
+setting the token explicitly.
 
-| Token | Mode | Missing reference |
+| Token | Mode | Problem |
 | --- | --- | --- |
-| `--ha-color-fill-neutral-quiet-active` | dark | `--ha-color-neutral-00` |
-| `--ha-color-surface-lower-inverted` | dark | `--ha-color-90` |
+| `--ha-color-fill-neutral-quiet-active` | dark | `--ha-color-neutral-00` is never declared |
+| `--ha-color-surface-lower-inverted` | dark | `--ha-color-90` is never declared |
+| `--wa-form-control-padding-inline` | dark | malformed value |
 
 ## core-palette
 

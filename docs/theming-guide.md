@@ -173,6 +173,7 @@ former is also used for surfaces that sit on top of other content, such as popov
 | Dark `ha-color-fill-neutral-quiet-active` references `--ha-color-neutral-00` | Resolves to nothing in dark mode | Set to `neutral.05` |
 | Dark `ha-color-surface-lower-inverted` references `--ha-color-90` | Resolves to nothing in dark mode | Set to `neutral.90` |
 | Dark mode declares `ha-color-border-normal` instead of `ha-color-border-primary-normal` | The primary normal border keeps its light value in dark mode | Set `ha-color-border-primary-normal` to `primary.50` in dark |
+| Dark `wa-form-control-padding-inline` has the next stylesheet glued onto it, and the inline value survives a switch back to light | Web Awesome form controls lose their inline padding and the gap before end slots (units, icons) in both modes | Set to `var(--ha-space-3)` in both modes |
 
 `ha-themes catalog` re-detects broken references on every capture and lists them in
 [tokens-global.md](tokens-global.md#broken-upstream-references).
