@@ -138,7 +138,9 @@ scripts/ha-themes onboard          # first run only: test user + the integration
 | `scripts/lint` | Format check, lint, type check and tests, as CI runs them |
 
 The dev server mirrors `custom_components/ha_themes` into the dev configuration on every
-start; after `ha-themes build`, restart it (or reload the integration) to see a change.
+start; after `ha-themes build`, restart Home Assistant (from the UI or by restarting
+`scripts/dev-server`) to see a change. Reloading the integration is not enough: it reinstalls
+the copy mirrored at the last start.
 
 ### Updating to a new Home Assistant release
 
