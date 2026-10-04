@@ -22,10 +22,28 @@ dashboardHeaderStyles.replaceSync(`
   }
 `);
 
-const styleDashboardHeader = (root) => {
+// The dropdown derives its menu surface from the page-toned card background on its own host,
+// which outranks anything a theme sets, so only a rule inside its shadow root can raise it.
+const dropdownMenuStyles = new CSSStyleSheet();
+dropdownMenuStyles.replaceSync(`
+  :host {
+    --wa-color-surface-raised: var(
+      --ha-themes-menu-background,
+      var(--card-background-color, var(--ha-dialog-surface-background, var(--mdc-theme-surface, #fff)))
+    );
+  }
+`);
+
+const hostStyles = new Map([
+  ["hui-root", dashboardHeaderStyles],
+  ["ha-dropdown", dropdownMenuStyles],
+]);
+
+const styleHost = (root) => {
+  const styles = hostStyles.get(root.host?.localName);
   const sheets = root.adoptedStyleSheets;
-  if (root.host?.localName === "hui-root" && !sheets.includes(dashboardHeaderStyles)) {
-    root.adoptedStyleSheets = [...sheets, dashboardHeaderStyles];
+  if (styles && !sheets.includes(styles)) {
+    root.adoptedStyleSheets = [...sheets, styles];
   }
 };
 
@@ -324,7 +342,7 @@ const watch = (root) => {
     return;
   }
   watchedRoots.add(root);
-  styleDashboardHeader(root);
+  styleHost(root);
   const observer = new MutationObserver(handleMutations);
   observer.observe(root, {
     childList: true,

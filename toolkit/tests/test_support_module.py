@@ -358,3 +358,31 @@ def test_only_the_dashboard_header_paints_the_translucent_header_background(
     remove_root_variable(page, "--ha-themes-dashboard-header-background")
     page.wait_for_function(f"() => ({header_background})('hui-root') === 'rgb(0, 0, 255)'")
     assert page_errors == []
+
+
+def test_dropdown_menus_take_the_theme_menu_background(page: Page, page_errors: list[str]) -> None:
+    menu_background = "() => getComputedStyle(window.findElement('menu')).backgroundColor"
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--card-background-color", "rgb(0, 0, 255)");
+          root.setProperty("--ha-themes-menu-background", "rgb(255, 0, 0)");
+          const host = document.createElement("ha-dropdown");
+          const shadow = host.attachShadow({ mode: "open" });
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(
+            ":host { --wa-color-surface-raised: var(--card-background-color); }"
+            + " #menu { background-color: var(--wa-color-surface-raised); }"
+          );
+          shadow.adoptedStyleSheets = [sheet];
+          const menu = document.createElement("div");
+          menu.id = "menu";
+          shadow.append(menu);
+          document.body.append(host);
+        }"""
+    )
+    page.wait_for_function(f"() => ({menu_background})() === 'rgb(255, 0, 0)'")
+
+    remove_root_variable(page, "--ha-themes-menu-background")
+    page.wait_for_function(f"() => ({menu_background})() === 'rgb(0, 0, 255)'")
+    assert page_errors == []
