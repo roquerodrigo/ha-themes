@@ -3,15 +3,14 @@
 Semantic `ha-color-*` tokens already derive from the core palette, so the roles below
 cover what the palette cannot reach: application tokens the frontend hard-codes per mode.
 
-`card-background-color` belongs to the page plane: the frontend paints it on elements that
-sit directly on the page (the logbook's floating date, data tables, headers). Cards and
-dialogs have their own hooks (`ha-card-background`, `ha-dialog-surface-background`) and keep
-the surface tone. Dropdown menus derive their surface from `card-background-color` on their
-own host, out of a theme's reach, so the support module repaints them with
-`ha-themes-menu-background`, and clears the background of the energy totals table, the one
-data table nested inside a card. Lists (`ha-md-list`) take `card-background-color` too; most
-sit inside cards or clear their background, and the support module raises the entry lists of
-the integration page, the ones that stand on the page as cards, to `ha-card-background`.
+`card-background-color` belongs to the page plane by design: the frontend paints it on
+elements that sit directly on the page (data tables and their headers, the logbook's floating
+date). Raised elements have their own hooks, mapped to `surface`: `ha-card-background`,
+`ha-dialog-surface-background`, `wa-color-surface-default` and `mdc-theme-surface`. The
+support module raises the elements that read `card-background-color` from a variable set on
+their own host, out of a theme's reach: dropdown menus take `ha-themes-menu-background`, the
+integration page's entry lists take `ha-card-background`, and the energy totals table, the one
+data table nested inside a card, is cleared so the card shows through.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
