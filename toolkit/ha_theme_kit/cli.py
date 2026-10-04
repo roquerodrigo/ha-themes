@@ -312,7 +312,9 @@ def main() -> int:
     docs = commands.add_parser("docs", help="regenerate the reference from catalog/tokens.json")
     docs.set_defaults(handler=command_docs)
 
-    build = commands.add_parser("build", help="build themes-src/*.yaml into themes/")
+    build = commands.add_parser(
+        "build", help="build themes-src/*.yaml into the integration and validate them"
+    )
     build.add_argument("themes", nargs="*", help="theme slugs (default: all)")
     build.add_argument("--strict", action="store_true", help="fail on validation errors")
     build.add_argument("--verbose", action="store_true", help="list every contrast check")
@@ -324,7 +326,9 @@ def main() -> int:
     palette.add_argument("themes", nargs="*", help="theme slugs (default: all)")
     palette.set_defaults(handler=command_palette)
 
-    preview = commands.add_parser("preview", help="screenshot themes in Google Chrome")
+    preview = commands.add_parser(
+        "preview", help="render palette sheets and screenshot themes in Google Chrome"
+    )
     preview.add_argument("themes", nargs="*", help="theme slugs (default: all)")
     preview.add_argument(
         "--palette-only", action="store_true", help="only render the palette swatch sheets"

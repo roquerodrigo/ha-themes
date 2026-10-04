@@ -1,9 +1,9 @@
 # Creating a theme
 
 A theme is one YAML file in `themes-src/`. The builder expands it into the full token set
-under `custom_components/ha_themes/themes/<slug>.yaml`, validates every key against the token catalog and checks text
-contrast. You decide on a palette and a handful of roles; the builder writes the ~100
-tokens Home Assistant needs.
+under `custom_components/ha_themes/themes/<slug>.yaml`, validates every key against the token
+catalog and checks contrast and color separation. You decide on a palette and a handful of
+roles; the builder derives every other token Home Assistant needs, in both modes.
 
 ## House conventions
 
@@ -304,12 +304,14 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
 `ha-themes build` refuses to run when two sources define the same theme name, since Home
 Assistant would keep only one of them. It then reports, per theme:
 
-- tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
-- WCAG contrast for text and secondary text on background and surface (4.5:1), error,
-  warning, success and info on background and surface (4.5:1, since the frontend draws them as
-  text), on-primary text on `primary`, `primary_hover` and `accent` (4.5:1),
-  `text_on_primary_light` on `primary_light` (4.5:1), and primary on background and surface
-  (3:1);
+- tokens that do not exist in the captured frontend (typos, or tokens removed upstream), and
+  role tokens nothing reads;
+- WCAG contrast for text and secondary text on background and surface (4.5:1), text on
+  `menu_background` (4.5:1), text and the `syntax_*` roles on `code_editor_background` (4.5:1,
+  comments 3:1), error, warning, success and info on background and surface (4.5:1, since the
+  frontend draws them as text), on-primary text on `primary`, `primary_hover` and `accent`
+  (4.5:1), `text_on_primary_light` on `primary_light` (4.5:1), and primary on background and
+  surface (3:1);
 - the toast's message and action colors on its `ha-color-neutral-10` background, in both modes
   (4.5:1, or the frontend's own ratio where that is lower);
 - the on-color of every loud fill (primary, danger, warning, success and neutral) on its
