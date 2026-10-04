@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
+import pytest
+from atomicwrites import AtomicWriter
 from homeassistant.helpers import issue_registry
+from homeassistant.util.file import WriteError
 
 from custom_components.ha_themes.const import DOMAIN, ISSUE_THEMES_NOT_LOADED
 from custom_components.ha_themes.theme_installer import HaThemesThemeInstaller
@@ -10,7 +14,6 @@ from custom_components.ha_themes.theme_installer import HaThemesThemeInstaller
 if TYPE_CHECKING:
     from pathlib import Path
 
-    import pytest
     from homeassistant.core import HomeAssistant
 
 THEMES_INCLUDE = "frontend:\n  themes: !include_dir_merge_named themes\n"
@@ -69,6 +72,25 @@ async def test_outdated_files_are_rewritten(
     await installer.async_install()
 
     assert installed.read_text() == original
+
+
+async def test_interrupted_write_keeps_the_previous_file(
+    hass: HomeAssistant, frontend: None, config_directory: Path
+) -> None:
+    installer = HaThemesThemeInstaller(hass)
+    await installer.async_install()
+    installed = next(installer.target_directory.glob("*.yaml"))
+    installed.write_text("Outdated: {}\n")
+    files_before = sorted(installer.target_directory.iterdir())
+
+    with (
+        patch.object(AtomicWriter, "commit", side_effect=OSError("disk full")),
+        pytest.raises(WriteError),
+    ):
+        await installer.async_install()
+
+    assert installed.read_text() == "Outdated: {}\n"
+    assert sorted(installer.target_directory.iterdir()) == files_before
 
 
 async def test_reload_failure_is_logged_and_reported(
