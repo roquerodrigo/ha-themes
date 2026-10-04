@@ -349,6 +349,37 @@ def test_validation_checks_on_primary_text_on_every_primary_fill() -> None:
     assert not report.ok
 
 
+def test_default_text_on_primary_light_contrasts_with_primary_light_in_each_mode() -> None:
+    theme = build_theme(minimal_definition())
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    pair_results = {
+        result.mode: result
+        for result in report.contrast
+        if (result.foreground_role, result.background_role)
+        == ("text_on_primary_light", "primary_light")
+    }
+    assert set(pair_results) == {"light", "dark"}
+    assert all(result.passes for result in pair_results.values())
+    for tokens in theme.modes.values():
+        assert "text-light-primary-color" in tokens
+
+
+def test_validation_flags_dark_text_on_a_dark_primary_light() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"text_on_primary_light": "#212121"}}))
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    assert any(
+        result.mode == "dark"
+        and result.foreground_role == "text_on_primary_light"
+        and not result.passes
+        for result in report.contrast
+    )
+    assert not report.ok
+
+
 @pytest.mark.parametrize(
     ("roles", "message"),
     [

@@ -14,7 +14,8 @@ data table nested inside a card, is cleared so the card shows through.
 
 `primary` and `text_on_primary` drive both the legacy pair (`primary-color` under
 `text-primary-color`, also drawn on `accent-color`) and the loud fills of buttons and FABs,
-so every filled primary element in a mode shows the same text color.
+so every filled primary element in a mode shows the same text color. `primary_light` is a
+fill too: avatars, person badges and the Assist debug chat draw `text_on_primary_light` on it.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
@@ -37,6 +38,7 @@ ROLE_TOKENS: dict[str, tuple[str, ...]] = {
     ),
     "primary_hover": ("ha-color-fill-primary-loud-hover",),
     "primary_light": ("light-primary-color",),
+    "text_on_primary_light": ("text-light-primary-color",),
     "primary_dark": ("dark-primary-color",),
     "primary_darker": ("darker-primary-color",),
     "accent": ("accent-color",),
@@ -74,6 +76,7 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "primary": "{primary.40}",
         "primary_hover": "{primary.30}",
         "primary_light": "{primary.80}",
+        "text_on_primary_light": "{neutral.05}",
         "primary_dark": "{primary.30}",
         "primary_darker": "{primary.20}",
         "accent": "{orange.60}",
@@ -101,6 +104,7 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
         "primary": "{primary.50}",
         "primary_hover": "{primary.60}",
         "primary_light": "{primary.30}",
+        "text_on_primary_light": "{neutral.95}",
         "primary_dark": "{primary.60}",
         "primary_darker": "{primary.70}",
         "accent": "{orange.60}",
@@ -213,6 +217,7 @@ CONTRAST_PAIRS: tuple[tuple[str, str, float], ...] = (
     ("text_on_primary", "primary", 4.5),
     ("text_on_primary", "primary_hover", 4.5),
     ("text_on_primary", "accent", 4.5),
+    ("text_on_primary_light", "primary_light", 4.5),
     ("link", "surface", 4.5),
     ("primary", "surface", 3.0),
     ("error", "surface", 3.0),
