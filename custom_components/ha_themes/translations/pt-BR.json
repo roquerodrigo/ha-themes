@@ -19,5 +19,10 @@
             "title": "O HA Themes não conseguiu recarregar os temas",
             "description": "O Home Assistant recusou recarregar os temas, então os temas instalados podem estar ausentes ou desatualizados. Corrija o erro abaixo no `configuration.yaml` ou nos arquivos de tema que ele inclui e recarregue os temas (**Ferramentas de desenvolvedor → YAML → Temas**):\n\n```\n{error}\n```"
         }
+    },
+    "exceptions": {
+        "install_failed": {
+            "message": "Não foi possível instalar os temas em {directory}: {error}"
+        }
     }
 }
