@@ -57,9 +57,10 @@ roles:
     surface: "#ffffff"
     text: "{neutral.05}"
     text_secondary: "{neutral.40}"
-    text_on_primary: "{neutral.05}"
-    primary_hover: "{primary.50}"
-    accent: "{primary.50}"
+    primary: "{primary.30}"
+    text_on_primary: "#ffffff"
+    primary_hover: "#873f26"
+    accent: "{primary.30}"
     error: "{red.50}"
     warning: "{orange.40}"
     success: "{green.40}"
@@ -73,8 +74,10 @@ roles:
     text: "{neutral.95}"
     text_secondary: "{neutral.70}"
     text_disabled: "{neutral.50}"
+    primary: "{primary.60}"
+    primary_hover: "{primary.70}"
     text_on_primary: "{neutral.05}"
-    accent: "{primary.50}"
+    accent: "{primary.60}"
     info: "{blue.60}"
     state_icon: "{blue.60}"
     syntax_property: "{blue.60}"
@@ -104,3 +107,7 @@ charts:
     - "#728f47"
     - "#5566b0"
     - "#2da28f"
+
+tokens:
+  light:
+    ha-color-on-primary-normal: "{primary.30}"
