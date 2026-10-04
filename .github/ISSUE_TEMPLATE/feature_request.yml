@@ -1,21 +1,23 @@
 ---
 name: "Feature request"
-description: "Suggest an idea for this project"
+description: "Suggest an improvement to a theme, a new theme or a new feature"
+labels: ["enhancement"]
 body:
 - type: markdown
   attributes:
-    value: Before you open a new feature request, search through the existing feature requests to see if others have had the same idea.
-- type: checkboxes
+    value: Before you open a new feature request, search the [existing feature requests](../../issues?q=is%3Aissue+label%3Aenhancement) to see if others have had the same idea.
+- type: dropdown
   attributes:
-    label: Checklist
+    label: "Theme"
+    description: "The theme the request is about."
     options:
-      - label: I have filled out the template to the best of my ability.
-        required: true
-      - label: This only contains 1 feature request (if you have multiple feature requests, open one feature request for each feature request).
-        required: true
-      - label: This issue is not a duplicate feature request of [previous feature requests](../../issues?q=is%3Aissue+label%3A%22Feature+Request%22+).
-        required: true
-
+      - Anthropic
+      - Anthropic System UI
+      - All themes
+      - A new theme
+      - Not theme-specific
+  validations:
+    required: true
 - type: textarea
   attributes:
     label: "Is your feature request related to a problem? Please describe."
@@ -23,24 +25,25 @@ body:
     placeholder: "I'm always frustrated when [...]"
   validations:
     required: true
-
 - type: textarea
   attributes:
     label: "Describe the solution you'd like"
     description: "A clear and concise description of what you want to happen."
   validations:
     required: true
-
 - type: textarea
   attributes:
     label: "Describe alternatives you've considered"
-    description: "A clear and concise description of any alternative solutions or features you've considered."
-  validations:
-    required: true
-
+    description: "Any alternative solutions or features you've considered."
 - type: textarea
   attributes:
     label: "Additional context"
-    description: "Add any other context or screenshots about the feature request here."
-  validations:
-    required: true
+    description: "Screenshots, mockups or references that illustrate the request."
+- type: checkboxes
+  attributes:
+    label: Checklist
+    options:
+      - label: This contains only one feature request (open one request for each idea).
+        required: true
+      - label: I searched the existing feature requests and this is not a duplicate.
+        required: true
