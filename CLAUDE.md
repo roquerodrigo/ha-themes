@@ -50,8 +50,9 @@ Home Assistant release).
 
 - Home Assistant only loads themes from the `frontend: themes:` YAML and replaces any other
   theme on `frontend.reload_themes`, so the integration installs files into
-  `themes/ha_themes/` and reloads, instead of injecting themes into `hass.data`. A repair
-  issue covers configurations that do not include the themes directory.
+  `themes/ha_themes/` and reloads, instead of injecting themes into `hass.data`. Repair
+  issues cover configurations that do not include the themes directory and reloads that
+  fail (for example on an invalid theme elsewhere in the configuration).
 - The support module is added with `add_extra_js_url` under a content-hash URL: both the
   HTTP cache (31 days on static files) and the frontend service worker
   (stale-while-revalidate) would otherwise serve old copies. Lovelace resources are not an
