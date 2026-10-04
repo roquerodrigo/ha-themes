@@ -32,11 +32,22 @@ def command_docs(_arguments: argparse.Namespace) -> int:
     return 0
 
 
+class UnknownThemesError(Exception):
+    def __init__(self, slugs: list[str], available: list[str]) -> None:
+        super().__init__(
+            f"unknown theme {', '.join(slugs)} (available: {', '.join(available) or 'none'})"
+        )
+
+
 def _theme_sources(selected: list[str]) -> list[Path]:
     sources = sorted(THEME_SOURCES.glob("*.yaml"))
-    if selected:
-        sources = [source for source in sources if source.stem in selected]
-    return sources
+    if not selected:
+        return sources
+    available = [source.stem for source in sources]
+    unknown = [slug for slug in selected if slug not in available]
+    if unknown:
+        raise UnknownThemesError(unknown, available)
+    return [source for source in sources if source.stem in selected]
 
 
 def command_build(arguments: argparse.Namespace) -> int:
@@ -48,10 +59,11 @@ def command_build(arguments: argparse.Namespace) -> int:
 
     catalog = TokenCatalog.load()
     failed = False
+    families = []
     for source in _theme_sources(arguments.themes):
         themes = [build_theme(variant) for variant in theme_family(ThemeDefinition.load(source))]
-        path = write_theme_family(themes, catalog.frontend_version)
-        print(f"{source.stem} → {path.relative_to(PROJECT_ROOT)}")
+        families.append(themes)
+        print(source.stem)
         for theme in themes:
             report = validate_theme(theme, catalog)
             print(f"  {theme.definition.name}: {len(theme.all_token_keys())} tokens")
@@ -88,14 +100,20 @@ def command_build(arguments: argparse.Namespace) -> int:
             if report.ok:
                 print("    ✓ all tokens known, all contrast and chart checks pass")
             failed = failed or not report.ok
+    if failed and arguments.strict:
+        print("validation failed: nothing written", file=sys.stderr)
+        return 1
+    for themes in families:
+        path = write_theme_family(themes, catalog.frontend_version)
+        print(f"wrote {path.relative_to(PROJECT_ROOT)}")
     every_theme = [
         build_theme(variant)
         for source in _theme_sources([])
         for variant in theme_family(ThemeDefinition.load(source))
     ]
     module = write_support_module(every_theme)
-    print(f"support module → {module.relative_to(PROJECT_ROOT)}")
-    return 1 if failed and arguments.strict else 0
+    print(f"wrote {module.relative_to(PROJECT_ROOT)}")
+    return 0
 
 
 def command_preview(arguments: argparse.Namespace) -> int:
@@ -129,11 +147,15 @@ def command_palette(arguments: argparse.Namespace) -> int:
     for source in _theme_sources(arguments.themes):
         definition = ThemeDefinition.load(source)
         theme = build_theme(definition)
-        seeds = list(definition.charts.get("series") or [])
-        print(f"{source.stem}: chart series orders that keep slot 1 (CVD ΔE, normal ΔE)")
-        for cvd, normal, order in suggest_series_orders(theme.chart_series):
-            labels = [seeds[index] if seeds else f"slot {index + 1}" for index in order]
-            print(f"  {cvd:5} {normal:5}  {', '.join(labels)}")
+        print(f"{source.stem}:")
+        if theme.chart_series:
+            seeds = list(definition.charts.get("series") or [])
+            print("  chart series orders that keep slot 1 (CVD ΔE, normal ΔE)")
+            for cvd, normal, order in suggest_series_orders(theme.chart_series):
+                labels = [seeds[index] for index in order]
+                print(f"    {cvd:5} {normal:5}  {', '.join(labels)}")
+        else:
+            print("  no charts section: the frontend's chart series stay in place")
         for mode in theme.modes:
             print(f"  {mode} entity colors:")
             for token, value in theme.modes[mode].items():
@@ -193,7 +215,10 @@ def main() -> int:
     preview.set_defaults(handler=command_preview)
 
     arguments = parser.parse_args()
-    return arguments.handler(arguments)
+    try:
+        return arguments.handler(arguments)
+    except UnknownThemesError as error:
+        parser.error(str(error))
 
 
 if __name__ == "__main__":

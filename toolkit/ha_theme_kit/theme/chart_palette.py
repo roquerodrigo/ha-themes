@@ -77,6 +77,8 @@ def suggest_series_orders(
     series_by_mode: dict[str, list[str]], limit: int = 5
 ) -> list[tuple[float, float, list[int]]]:
     """Rank orders that keep slot 1 and clear the normal-vision floor in every mode."""
+    if not series_by_mode:
+        return []
     ranked = []
     for rest in permutations(range(1, CATEGORICAL_SLOTS)):
         order = [0, *rest]
