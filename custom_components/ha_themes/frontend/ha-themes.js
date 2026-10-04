@@ -47,11 +47,19 @@ energySourcesTableStyles.replaceSync(`
   .mdc-data-table__header-cell { background-color: transparent; }
 `);
 
+// The integration page's entry lists take their surface from the page-toned card background,
+// so they are raised to the card tone they would have on the default theme.
+const configEntryListStyles = new CSSStyleSheet();
+configEntryListStyles.replaceSync(`
+  ha-md-list { --md-sys-color-surface: var(--ha-card-background, var(--card-background-color)); }
+`);
+
 const hostStyles = new Map([
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", dropdownMenuStyles],
   ["ha-toast", toastStyles],
   ["hui-energy-sources-table-card", energySourcesTableStyles],
+  ["ha-config-entry-row", configEntryListStyles],
 ]);
 
 const styleHost = (root) => {
