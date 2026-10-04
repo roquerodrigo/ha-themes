@@ -33,14 +33,66 @@ def minimal_definition(**overrides) -> ThemeDefinition:
 
 def test_resolver_expands_references_with_alpha() -> None:
     resolver = PaletteResolver({**MINIMAL_PALETTE, "neutral": {"seed": "#7a7a7a", "05": "#000000"}})
-    assert resolver.resolve("{neutral.05}") == "#000000"
-    assert resolver.resolve("{neutral.05@0.12}") == "rgba(0, 0, 0, 0.12)"
-    assert resolver.resolve("var(--x)") == "var(--x)"
+    assert resolver.resolve("{neutral.05}", "test") == "#000000"
+    assert resolver.resolve("{neutral.05@0.12}", "test") == "rgba(0, 0, 0, 0.12)"
+    assert resolver.resolve("{neutral.05@.5}", "test") == "rgba(0, 0, 0, .5)"
+    assert resolver.resolve("var(--x)", "test") == "var(--x)"
 
 
 def test_resolver_requires_frontend_families() -> None:
     with pytest.raises(ValueError, match="missing families"):
         PaletteResolver({"primary": "#d97757"})
+
+
+def test_resolver_accepts_hyphenated_family_names() -> None:
+    resolver = PaletteResolver(
+        {**MINIMAL_PALETTE, "light-blue": {"seed": "#6a9bcc", "40": "#123456"}}
+    )
+    assert resolver.resolve("{light-blue.40}", "test") == "#123456"
+
+
+@pytest.mark.parametrize("family", ["Blue", "light_blue", "blue-", "5"])
+def test_resolver_rejects_invalid_family_names(family: str) -> None:
+    with pytest.raises(ValueError, match="must be lowercase letters joined by hyphens"):
+        PaletteResolver({**MINIMAL_PALETTE, family: "#6a9bcc"})
+
+
+@pytest.mark.parametrize(
+    ("value", "message"),
+    [
+        ("{primary.5}", r"malformed palette reference \{primary.5\}"),
+        ("{Primary.50}", r"malformed palette reference \{Primary.50\}"),
+        ("{neutral.05@12%}", r"malformed palette reference \{neutral.05@12%\}"),
+        ("{neutral.05@1.5}", r"alpha in reference \{neutral.05@1.5\} must be between 0 and 1"),
+        ("{light-blue.40}", r"unknown palette family in reference \{light-blue.40\}"),
+        ("{primary.15}", r"unknown palette step in reference \{primary.15\}"),
+        ("{primary.50", "unbalanced braces"),
+        ("primary.50}", "unbalanced braces"),
+    ],
+)
+def test_malformed_references_fail_the_build_with_their_location(value: str, message: str) -> None:
+    with pytest.raises(ValueError, match=rf"^minimal: roles.dark.divider '.*': {message}"):
+        build_theme(minimal_definition(roles={"dark": {"divider": value}}))
+
+
+@pytest.mark.parametrize(
+    ("overrides", "location"),
+    [
+        ({"tokens": {"base": {"some-token": "{primary.5}"}}}, "tokens.base.some-token"),
+        ({"tokens": {"light": {"some-token": "{primary.5}"}}}, "tokens.light.some-token"),
+        (
+            {"entity_colors": {"pinned": {"red": "{primary.5}"}}},
+            "entity_colors.pinned.red in light",
+        ),
+        (
+            {"charts": {"series": ["{primary.5}", *["#4269d0"] * 7]}},
+            "charts.series seed 1 in light",
+        ),
+    ],
+)
+def test_malformed_references_name_their_section(overrides: dict, location: str) -> None:
+    with pytest.raises(ValueError, match=rf"^minimal: {location} '\{{primary.5\}}': malformed"):
+        build_theme(minimal_definition(**overrides))
 
 
 def test_mode_dependent_roles_never_land_in_base() -> None:
