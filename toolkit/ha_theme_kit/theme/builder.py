@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-from ha_theme_kit.color.oklch import hex_to_rgba
+from ha_theme_kit.color.oklch import hex_to_rgba, is_opaque_hex
 from ha_theme_kit.theme.chart_palette import ChartSettings, build_chart_colors, series_for_mode
-from ha_theme_kit.theme.definition import MODES, ThemeDefinition
+from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.entity_palette import EntityColorSettings, build_entity_colors
+from ha_theme_kit.theme.modes import MODES
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import (
     BACKDROP_BLUR_FILTERS,
@@ -48,6 +49,13 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
     In dark mode the frontend applies its dark defaults first and the theme's base keys on
     top of them, so a base key would silently win in both modes.
     """
+    try:
+        return _build(definition)
+    except ValueError as error:
+        raise ValueError(f"{definition.slug}: {error}") from error
+
+
+def _build(definition: ThemeDefinition) -> BuiltTheme:
     resolver = PaletteResolver(definition.palette)
 
     base = resolver.core_tokens() | TYPOGRAPHY_BRIDGE
@@ -84,14 +92,20 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
         for role, value in resolved_roles[mode].items():
             tokens.update(dict.fromkeys(ROLE_TOKENS[role], value))
         if definition.backdrop_blur:
-            tokens.update(_translucent_surfaces(resolved_roles[mode]))
+            tokens.update(_translucent_surfaces(resolved_roles[mode], mode))
         tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {})))
         modes[mode] = tokens
 
     return BuiltTheme(definition, base, modes, resolved_roles, chart_series)
 
 
-def _translucent_surfaces(roles: dict[str, str]) -> dict[str, str]:
+def _translucent_surfaces(roles: dict[str, str], mode: str) -> dict[str, str]:
+    for role in sorted({role for role, _ in TRANSLUCENT_SURFACES.values()}):
+        if not is_opaque_hex(roles[role]):
+            raise ValueError(
+                f"{mode} role {role!r} must resolve to an opaque hex color while backdrop_blur"
+                f" is on (it is given alpha), got {roles[role]!r}"
+            )
     surfaces = {
         token: hex_to_rgba(roles[role], alpha)
         for token, (role, alpha) in TRANSLUCENT_SURFACES.items()
