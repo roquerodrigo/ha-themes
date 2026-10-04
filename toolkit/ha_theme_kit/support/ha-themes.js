@@ -1,5 +1,4 @@
-const fontStylesheets = __FONT_STYLESHEETS__;
-
+const FONT_STYLESHEET_VARIABLE = "--ha-themes-font-stylesheet";
 const BRAND_PATH = "/api/brands/";
 const BRAND_ICON_COLOR_VARIABLE = "--ha-themes-brand-icon-color";
 const BRAND_ICON_COLOR_DECLARATION = new RegExp(`${BRAND_ICON_COLOR_VARIABLE}\\s*:\\s*([^;]*)`);
@@ -20,14 +19,56 @@ appendOnce("style[data-ha-themes]", () => {
   return style;
 });
 
-for (const href of fontStylesheets) {
-  appendOnce(`link[href="${href}"]`, () => {
+const declaredFontStylesheet = (element) =>
+  element.style
+    ?.getPropertyValue(FONT_STYLESHEET_VARIABLE)
+    .trim()
+    .replace(/^(["'])(.*)\1$/, "$2");
+
+// Elements whose theme (global on <html>, or per view or card) asks for a web font stylesheet.
+const fontStylesheetDeclarers = new Set();
+let fontStylesheetSyncPending = false;
+
+const syncFontStylesheets = () => {
+  fontStylesheetSyncPending = false;
+  const needed = new Set();
+  for (const element of fontStylesheetDeclarers) {
+    const href = element.isConnected && declaredFontStylesheet(element);
+    if (href) {
+      needed.add(href);
+    } else {
+      fontStylesheetDeclarers.delete(element);
+    }
+  }
+  for (const link of document.head.querySelectorAll("link[data-ha-themes-font-stylesheet]")) {
+    if (!needed.delete(link.dataset.haThemesFontStylesheet)) {
+      link.remove();
+    }
+  }
+  for (const href of needed) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = href;
-    return link;
-  });
-}
+    link.dataset.haThemesFontStylesheet = href;
+    document.head.append(link);
+  }
+};
+
+const scheduleFontStylesheetSync = () => {
+  if (!fontStylesheetSyncPending) {
+    fontStylesheetSyncPending = true;
+    queueMicrotask(syncFontStylesheets);
+  }
+};
+
+const trackFontStylesheet = (element) => {
+  if (declaredFontStylesheet(element)) {
+    fontStylesheetDeclarers.add(element);
+    scheduleFontStylesheetSync();
+  } else if (fontStylesheetDeclarers.has(element)) {
+    scheduleFontStylesheetSync();
+  }
+};
 
 const brandIconColor = (element) =>
   getComputedStyle(element).getPropertyValue(BRAND_ICON_COLOR_VARIABLE).trim();
@@ -185,6 +226,7 @@ const isBrandElement = (element) =>
 
 const scan = (root) => {
   for (const element of root.querySelectorAll("*")) {
+    trackFontStylesheet(element);
     if (isBrandElement(element)) {
       applyTo(element);
     }
@@ -220,6 +262,9 @@ const watch = (root) => {
   new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
+        if (mutation.attributeName === "style") {
+          trackFontStylesheet(mutation.target);
+        }
         if (changesBrandIconColor(mutation)) {
           rescan(mutation.target);
         }
@@ -228,10 +273,14 @@ const watch = (root) => {
         }
         continue;
       }
+      if (mutation.removedNodes.length && fontStylesheetDeclarers.size) {
+        scheduleFontStylesheetSync();
+      }
       for (const node of mutation.addedNodes) {
         if (node.nodeType !== Node.ELEMENT_NODE) {
           continue;
         }
+        trackFontStylesheet(node);
         if (isBrandElement(node)) {
           applyTo(node);
         }

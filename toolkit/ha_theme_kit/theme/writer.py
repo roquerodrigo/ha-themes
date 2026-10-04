@@ -50,18 +50,17 @@ SUPPORT_MODULE = INTEGRATION_DIRECTORY / "frontend" / "ha-themes.js"
 SUPPORT_MODULE_SOURCE = Path(__file__).resolve().parents[1] / "support" / "ha-themes.js"
 
 
-def write_support_module(themes: list[BuiltTheme], path: Path = SUPPORT_MODULE) -> Path:
-    """Reaches what theme variables cannot: the hard-coded body font, web fonts, and the
-    flat generic integration icons, which are bitmaps in the frontend's default blue.
+def write_support_module(path: Path = SUPPORT_MODULE) -> Path:
+    """Reaches what theme variables cannot: the hard-coded body font, the web font stylesheet
+    of the active theme, and the flat generic integration icons, which are bitmaps in the
+    frontend's default blue.
 
     The integration serves it under a content-hash URL, so caches never hold a stale copy.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(render_support_module(themes), encoding="utf-8")
+    path.write_text(render_support_module(), encoding="utf-8")
     return path
 
 
-def render_support_module(themes: list[BuiltTheme]) -> str:
-    stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
-    module = SUPPORT_MODULE_SOURCE.read_text(encoding="utf-8")
-    return module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2))
+def render_support_module() -> str:
+    return SUPPORT_MODULE_SOURCE.read_text(encoding="utf-8")
