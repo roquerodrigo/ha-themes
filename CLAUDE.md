@@ -6,7 +6,8 @@ Guidance for Claude Code (claude.ai/code) agents working in this repository.
 
 Before creating, renaming or restructuring any file/class/function, **read
 [`CODE_STYLE.md`](./CODE_STYLE.md)**. It is the single source of truth for conventions of the
-shipped integration. For what the project does and the commands, see
+integration and the toolkit, and maps the integration's modules. For what the project does and
+the commands, see
 [`README.md`](./README.md).
 
 ## Two halves
