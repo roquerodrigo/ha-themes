@@ -161,6 +161,13 @@ token set to a color with alpha. Settings pages scroll in a container that start
 the top bar, so nothing passes underneath their header; the effect shows on dashboards,
 the overview and dialogs. The sidebar and dropdown menus have no hook.
 
+A dialog blurs the page through the scrim, so it sees the page already dimmed by
+`brightness(68%)`: a translucent white surface then renders as a cool grey, darker than the
+page and two-toned against the opaque panes inside the dialog. The builder pairs the stock
+scrim with `brightness(147%)` on the dialog surface, which reverses the dimming under the
+dialog only, and leaves out `saturate()` there so colored content behind the dialog does not
+tint it.
+
 Keep `app-header-background-color` opaque: only the dashboard header reads the blur, but
 about a hundred other places paint that color without one (the notification drawer,
 settings page toolbars, top app bars, tab scroll buttons, badge borders), and content behind
