@@ -99,6 +99,10 @@ def command_build(arguments: argparse.Namespace) -> int:
             print(f"  {theme.definition.name}: {len(theme.all_token_keys())} tokens")
             for key in report.unknown_tokens:
                 print(f"    ✗ unknown token {key!r} (not in frontend {catalog.frontend_version})")
+            for key in report.unread_role_tokens:
+                print(
+                    f"    ✗ role token {key!r} is never read (frontend {catalog.frontend_version})"
+                )
             for key in report.shadowed_base_tokens:
                 print(f"    ✗ tokens.base {key!r} is overridden by a mode, which wins there")
             for key in report.mode_dependent_base_tokens:
@@ -139,8 +143,8 @@ def command_build(arguments: argparse.Namespace) -> int:
             _print_entity_separation(report.entity_separation)
             if report.ok:
                 print(
-                    "    ✓ all tokens known, all contrast, chart, status fill, form and entity"
-                    " color separation checks pass"
+                    "    ✓ all tokens known and read, all contrast, chart, status fill, form"
+                    " and entity color separation checks pass"
                 )
             failed = failed or not report.ok
     if failed and arguments.strict:
