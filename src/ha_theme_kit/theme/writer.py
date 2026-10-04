@@ -37,35 +37,14 @@ def write_theme_family(
 
 
 SUPPORT_MODULE = THEMES_DIRECTORY.parent / "www" / "ha-themes" / "ha-themes.js"
-SUPPORT_MODULE_TEMPLATE = """const fontStylesheets = {stylesheets};
-
-const appendOnce = (selector, create) => {{
-  if (!document.head.querySelector(selector)) {{
-    document.head.append(create());
-  }}
-}};
-
-appendOnce("style[data-ha-themes]", () => {{
-  const style = document.createElement("style");
-  style.dataset.haThemes = "";
-  style.textContent = "body {{ font-family: var(--ha-font-family-body); }}";
-  return style;
-}});
-
-for (const href of fontStylesheets) {{
-  appendOnce(`link[href="${{href}}"]`, () => {{
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = href;
-    return link;
-  }});
-}}
-"""
+SUPPORT_MODULE_SOURCE = Path(__file__).resolve().parents[1] / "support" / "ha-themes.js"
 
 
 def write_support_module(themes: list[BuiltTheme], path: Path = SUPPORT_MODULE) -> Path:
-    """The frontend hard-codes the body font, so themes need this module to reach the whole UI."""
+    """Reaches what theme variables cannot: the hard-coded body font, web fonts, and the
+    flat generic integration icons, which are bitmaps in the frontend's default blue."""
     stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
+    source = SUPPORT_MODULE_SOURCE.read_text()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(SUPPORT_MODULE_TEMPLATE.format(stylesheets=json.dumps(stylesheets, indent=2)))
+    path.write_text(source.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2)))
     return path

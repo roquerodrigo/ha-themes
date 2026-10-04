@@ -5,7 +5,7 @@ from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
-from ha_theme_kit.theme.roles import CONTRAST_PAIRS
+from ha_theme_kit.theme.roles import CONTRAST_PAIRS, PROJECT_TOKEN_PREFIX
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
@@ -39,7 +39,11 @@ class ValidationReport:
 
 
 def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport:
-    unknown = sorted(key for key in theme.all_token_keys() if catalog.find(key) is None)
+    unknown = sorted(
+        key
+        for key in theme.all_token_keys()
+        if catalog.find(key) is None and not key.startswith(PROJECT_TOKEN_PREFIX)
+    )
     contrast = []
     for mode, roles in theme.roles.items():
         for foreground, background, minimum in CONTRAST_PAIRS:

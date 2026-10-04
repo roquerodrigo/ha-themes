@@ -203,6 +203,7 @@
       markdown-code-background-color: "#f0eee6"
       sidebar-background-color: "#faf9f5"
       app-header-background-color: "rgba(250, 249, 245, 0.72)"
+      ha-themes-brand-icon-color: "#c6613f"
       ha-dialog-surface-background: "rgba(255, 255, 255, 0.85)"
       app-theme-color: "#faf9f5"
     dark:
@@ -335,6 +336,7 @@
       markdown-code-background-color: "#141413"
       sidebar-background-color: "#262624"
       app-header-background-color: "rgba(38, 38, 36, 0.72)"
+      ha-themes-brand-icon-color: "#d97757"
       ha-dialog-surface-background: "rgba(48, 48, 46, 0.85)"
       app-theme-color: "#262624"
 "Anthropic System UI":
@@ -540,6 +542,7 @@
       markdown-code-background-color: "#f0eee6"
       sidebar-background-color: "#faf9f5"
       app-header-background-color: "rgba(250, 249, 245, 0.72)"
+      ha-themes-brand-icon-color: "#c6613f"
       ha-dialog-surface-background: "rgba(255, 255, 255, 0.85)"
       app-theme-color: "#faf9f5"
     dark:
@@ -672,5 +675,6 @@
       markdown-code-background-color: "#141413"
       sidebar-background-color: "#262624"
       app-header-background-color: "rgba(38, 38, 36, 0.72)"
+      ha-themes-brand-icon-color: "#d97757"
       ha-dialog-surface-background: "rgba(48, 48, 46, 0.85)"
       app-theme-color: "#262624"

@@ -10,7 +10,7 @@ from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.validation import validate_theme
 from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
-from ha_theme_kit.theme.writer import render_home_assistant_yaml
+from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
 
 MINIMAL_PALETTE = {
     "primary": "#d97757",
@@ -128,3 +128,18 @@ def test_backdrop_blur_can_be_disabled() -> None:
     theme = build_theme(minimal_definition(backdrop_blur=False))
     assert "ha-card-backdrop-filter" not in theme.base
     assert theme.modes["dark"]["ha-card-background"].startswith("#")
+
+
+def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) -> None:
+    definition = minimal_definition(typography={"stylesheet": "https://fonts.example/css"})
+    path = write_support_module([build_theme(definition)], tmp_path / "ha-themes.js")
+    module = path.read_text()
+    assert "__FONT_STYLESHEETS__" not in module
+    assert '"https://fonts.example/css"' in module
+    assert "--ha-themes-brand-icon-color" in module
+
+
+def test_brand_icons_follow_the_primary_role() -> None:
+    theme = build_theme(minimal_definition())
+    for tokens in theme.modes.values():
+        assert tokens["ha-themes-brand-icon-color"] == tokens["primary-color"]

@@ -1,6 +1,4 @@
-const fontStylesheets = [
-  "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap"
-];
+const fontStylesheets = __FONT_STYLESHEETS__;
 
 const BRAND_PATH = "/api/brands/";
 const BRAND_ICON_COLOR_VARIABLE = "--ha-themes-brand-icon-color";

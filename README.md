@@ -23,7 +23,7 @@ builds themes from a small, validated definition.
 | [`catalog/tokens.json`](catalog/tokens.json) | Machine-readable catalog the builder validates against |
 | [`themes-src/`](themes-src) | Theme definitions |
 | [`themes/`](themes) | Generated Home Assistant theme files, ready to install |
-| [`www/ha-themes/ha-themes.js`](www/ha-themes/ha-themes.js) | Generated support module: theme font on the whole UI, web font loading |
+| [`www/ha-themes/ha-themes.js`](www/ha-themes/ha-themes.js) | Generated support module: theme font on the whole UI, web fonts, generic integration icons in the theme color |
 | [`previews/`](previews) | Screenshots of every theme in both modes |
 
 ## Themes
@@ -35,7 +35,8 @@ builds themes from a small, validated definition.
 
 All themes share the [house conventions](docs/creating-a-theme.md#house-conventions):
 sidebar and header in the page background, no shadows, backdrop blur on the header,
-cards and dialogs, a harmonized entity palette and a system-ui variant.
+cards and dialogs, a harmonized entity palette, generic integration icons in the primary
+color and a system-ui variant.
 
 | Palette, light | Palette, dark |
 | --- | --- |

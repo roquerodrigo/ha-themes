@@ -45,6 +45,7 @@ ROLE_TOKENS: dict[str, tuple[str, ...]] = {
     "sidebar_selected": ("sidebar-selected-text-color", "sidebar-selected-icon-color"),
     "header_background": ("app-header-background-color",),
     "header_text": ("app-header-text-color",),
+    "brand_icon": ("ha-themes-brand-icon-color",),
 }
 
 ROLE_DEFAULTS: dict[str, dict[str, str]] = {
@@ -105,8 +106,13 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
 ROLE_FALLBACKS: dict[str, str] = {
     "sidebar_background": "background",
     "header_background": "background",
+    "brand_icon": "primary",
 }
-"""Roles that follow another role unless a theme sets them: chrome blends into the page."""
+"""Roles that follow another role unless a theme sets them: chrome blends into the page, and
+generic integration icons take the primary color."""
+
+PROJECT_TOKEN_PREFIX = "ha-themes-"
+"""Variables read by the support module rather than the frontend."""
 
 FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
     (

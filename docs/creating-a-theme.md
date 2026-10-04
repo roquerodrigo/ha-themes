@@ -21,6 +21,9 @@ Every theme built here follows these defaults, so a new theme gets them for free
   color references — keep their hue and meaning but are restyled per mode: chroma capped to
   the theme's mood and lightness clamped into a band that reads on that mode's surfaces.
   Energy and weather-icon colors follow them.
+- **Generic integration icons in the primary color.** The flat blue icons of core
+  integrations without a logo follow the theme's `primary` role (see
+  [the guide](theming-guide.md#integration-icons)); set the `brand_icon` role to change it.
 - **A system-ui variant.** Each definition produces two themes in the same file:
   `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
   UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download.
@@ -137,6 +140,7 @@ link: "{primary.30}"           # → #9c4a2e
 | `shadow` | `shadow-color` | `rgba(0, 0, 0, 0.16)` | `rgba(0, 0, 0, 0.48)` |
 | `input_fill` | `input-fill-color` | `{neutral.95}` | `{neutral.90@0.05}` |
 | `code_background` | `markdown-code-background-color` | `{neutral.95}` | `{neutral.05}` |
+| `brand_icon` | `ha-themes-brand-icon-color` (read by the support module) | `primary` | `primary` |
 | `sidebar_background` / `header_background` | `sidebar-background-color` / `app-header-background-color` | `background` | `background` |
 | `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-*`, `app-header-text-color` | — | — |
 | `state_active` | `state-active-color` | — | — |
@@ -204,7 +208,7 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
        - /local/ha-themes/ha-themes.js
    ```
 
-   Without it, themes still work, but the sidebar, header and banners stay in Roboto and
-   web fonts are not loaded.
+   Without it, themes still work, but the sidebar, header and banners stay in Roboto, web
+   fonts are not loaded and generic integration icons stay blue.
 3. Call `frontend.reload_themes` (a restart is only needed after adding the module), then
    pick the theme in the user profile.

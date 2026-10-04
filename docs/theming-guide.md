@@ -117,6 +117,20 @@ root, and the module runs on every page.
   re-ordering collapses their separation, which is why the builder leaves them alone
   unless a theme declares its own series.
 
+## Integration icons
+
+Integration and media-source icons are PNGs served by `/api/brands/integration/<domain>/`,
+which proxies and caches the brands CDN. Core integrations without a logo of their own
+(camera, image, TTS, backup, sun, shopping list, AI task, media source…) use a generic icon
+drawn in a single flat `#00abf8`; theme variables cannot reach a bitmap, and the endpoint
+only accepts local overrides for custom integrations.
+
+The support module recolors them in the browser: it watches every shadow root for
+`/api/brands/` images, loads each one into a canvas, and recolors it only when every opaque
+pixel is that exact blue, so real logos — multicolored or monochrome in another color — are
+never touched. The color comes from `--ha-themes-brand-icon-color`; a theme that does not
+set it (the default theme included) gets the original images back.
+
 ## Backdrop blur
 
 Components expose `backdrop-filter` hooks, all unset (`none`) by default:
