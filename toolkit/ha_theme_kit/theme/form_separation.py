@@ -101,4 +101,4 @@ def _color(
 ) -> str | None:
     if name in roles:
         return roles[name] if HEX_COLOR.match(roles[name]) else None
-    return resolve_token_color(name, tokens, catalog)
+    return resolve_token_color(name, tokens, catalog, CHECKED_MODE)

@@ -122,6 +122,14 @@ those steps (`05` quiet, `10` normal, `20` hover, `30` loud hover): keep `05` at
 light as the dark `background`, keep each family's hue, and let the build's status fill
 check confirm the three stay apart.
 
+The loud danger, warning, success and neutral fills (accent buttons, badges) sit on fixed
+steps of these families, with white text in the frontend. The builder keeps those steps and
+white wherever white reaches 4.5:1. Where it does not, it switches the on-color to
+`{neutral.05}` if that reads on the resting and hover fills, and otherwise moves both steps
+together, darker under white or lighter under the dark on-color, until one of them reads. A
+pale brand orange therefore keeps its fill and gets dark text, while a mid green moves one
+step darker under white.
+
 ### References
 
 Anywhere a color is expected you can write `{family.step}` or `{family.step@alpha}`:
@@ -245,6 +253,9 @@ Assistant would keep only one of them. It then reports, per theme:
 - WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1),
   on-primary text on `primary`, `primary_hover` and `accent` (4.5:1), `text_on_primary_light`
   on `primary_light` (4.5:1), and primary and error on surface (3:1);
+- the on-color of every loud fill (primary, danger, warning, success and neutral) on its
+  resting, hover and active fill, in both modes (4.5:1), including fills a theme sets
+  through `tokens`;
 - the chart series checks above, per mode;
 - the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
   be darker than the dark `background`, and the three statuses must stay at least OKLab
