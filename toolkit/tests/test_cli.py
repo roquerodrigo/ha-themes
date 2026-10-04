@@ -7,6 +7,7 @@ import yaml
 from ha_theme_kit import cli
 from ha_theme_kit.theme import validation, writer
 from ha_theme_kit.theme.chart_palette import suggest_series_orders
+from ha_theme_kit.theme.form_separation import FormSeparationReport
 from ha_theme_kit.theme.validation import ValidationReport
 
 
@@ -78,3 +79,20 @@ def test_build_accepts_renamed_copies(theme_sources: Path) -> None:
     (theme_sources / "copy.yaml").write_text(yaml.safe_dump(document))
 
     cli._reject_duplicate_theme_names()
+
+
+def test_form_separation_failures_are_printed(capsys: pytest.CaptureFixture[str]) -> None:
+    report = FormSeparationReport(
+        mode="dark",
+        colors={"ha-color-surface-low": "#141413", "background": "#262624"},
+        form_contrast=1.03,
+        close_pairs=[("ha-color-form-background", "surface", 0.4)],
+        darker_fills=[("ha-color-surface-low", "background")],
+    )
+
+    cli._print_form_separation(report, verbose=False)
+
+    output = capsys.readouterr().out
+    assert "form background on surface 1.03:1 (min 1.2)" in output
+    assert "ha-color-form-background and surface are ΔE 0.4 apart (min 2.0)" in output
+    assert "ha-color-surface-low #141413 is darker than the background #262624" in output

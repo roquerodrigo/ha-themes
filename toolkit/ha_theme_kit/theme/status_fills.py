@@ -7,7 +7,6 @@ are near-white tints by design (the frontend's own sit about ΔE 1.5 apart), so 
 mode is held to these floors.
 """
 
-import re
 from dataclasses import dataclass
 from itertools import combinations
 
@@ -15,13 +14,12 @@ from ha_theme_kit.color.oklch import hex_to_oklch
 from ha_theme_kit.color.vision import color_distance
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
+from ha_theme_kit.theme.token_colors import resolve_token_color
 
 STATUSES = ("danger", "warning", "success")
 FILL_TONES = ("quiet", "normal")
 CHECKED_MODE = "dark"
 DISTANCE_FLOOR = 5.0
-VARIABLE_REFERENCE = re.compile(r"var\(--(?P<name>[\w-]+)\)")
-HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
 @dataclass(frozen=True)
@@ -56,7 +54,7 @@ def check_status_fills(theme: BuiltTheme, catalog: TokenCatalog) -> StatusFillRe
         fill_token(status, tone): color
         for tone in FILL_TONES
         for status in STATUSES
-        if (color := _resolve(fill_token(status, tone), tokens, catalog)) is not None
+        if (color := resolve_token_color(fill_token(status, tone), tokens, catalog)) is not None
     }
     background_lightness = hex_to_oklch(background).lightness
     darker = [
@@ -76,22 +74,3 @@ def check_status_fills(theme: BuiltTheme, catalog: TokenCatalog) -> StatusFillRe
             if distance < DISTANCE_FLOOR:
                 close_pairs.append(StatusFillPair(tone, first, second, distance))
     return StatusFillReport(CHECKED_MODE, background, fills, darker, close_pairs)
-
-
-def _resolve(key: str, tokens: dict[str, str], catalog: TokenCatalog) -> str | None:
-    seen: set[str] = set()
-    while key not in seen:
-        seen.add(key)
-        value = tokens.get(key)
-        if value is None:
-            entry = catalog.find(key)
-            value = entry and (entry.dark or entry.light)
-        if value is None:
-            return None
-        if HEX_COLOR.match(value):
-            return value
-        reference = VARIABLE_REFERENCE.fullmatch(value.strip())
-        if reference is None:
-            return None
-        key = reference.group("name")
-    return None
