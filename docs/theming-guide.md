@@ -91,8 +91,12 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
 
 The builder sets the two Material tokens to `var(--ha-font-family-body)` in every theme, and
 generates one support module, which the integration loads on every page, that binds
-`body` to `var(--ha-font-family-body)` and loads the stylesheets of every theme that declares
-`typography.stylesheet`. With both in place, an audit of every rendered text node in Chrome
+`body` to `var(--ha-font-family-body)` and loads web fonts on demand. A theme that declares
+`typography.stylesheet` carries its URL in the project variable `ha-themes-font-stylesheet`;
+the module adds the stylesheet while that variable is set on the page (by the global theme) or
+on a view or card (by a view or card theme), and removes it as soon as no visible theme sets it,
+so switching themes needs no reload. The System UI variants do not set the variable, and with
+them, the default theme or any other theme, the module requests no web font. With both in place, an audit of every rendered text node in Chrome
 finds only the theme font. Fonts declared on the document are visible inside every shadow
 root, and the module runs on every page.
 

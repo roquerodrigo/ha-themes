@@ -137,12 +137,7 @@ def command_build(arguments: argparse.Namespace) -> int:
     for themes in families:
         path = write_theme_family(themes, catalog.frontend_version)
         print(f"wrote {path.relative_to(PROJECT_ROOT)}")
-    every_theme = [
-        build_theme(variant)
-        for source in _theme_sources([])
-        for variant in theme_family(ThemeDefinition.load(source))
-    ]
-    module = write_support_module(every_theme)
+    module = write_support_module()
     print(f"wrote {module.relative_to(PROJECT_ROOT)}")
     return 0
 

@@ -10,7 +10,7 @@ from homeassistant.util.json import json_loads
 from ha_theme_kit.cli import THEME_SOURCES
 from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
-from ha_theme_kit.theme.builder import build_theme
+from ha_theme_kit.theme.builder import FONT_STYLESHEET_TOKEN, build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.validation import validate_theme
@@ -229,6 +229,14 @@ def test_system_ui_variant_drops_web_fonts() -> None:
     assert variant.base["ha-font-family-body"] == SYSTEM_UI_FONT_STACK
     assert variant.base["ha-font-family-code"] == "Fira Code"
     assert variant.font_stylesheet is None
+    assert FONT_STYLESHEET_TOKEN not in variant.base
+
+
+def test_web_font_stylesheet_is_declared_as_a_quoted_theme_variable() -> None:
+    url = "https://fonts.example/css2?family=Lora:ital,wght@0,400;1,400&display=swap"
+    theme = build_theme(minimal_definition(typography={"stylesheet": url}))
+    assert theme.base[FONT_STYLESHEET_TOKEN] == f'"{url}"'
+    assert FONT_STYLESHEET_TOKEN not in build_theme(minimal_definition()).base
 
 
 def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
@@ -245,10 +253,9 @@ def test_backdrop_blur_can_be_disabled() -> None:
 
 
 def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) -> None:
-    definition = minimal_definition(typography={"stylesheet": "https://fonts.example/css"})
-    module = write_support_module([build_theme(definition)], tmp_path / "ha-themes.js").read_text()
-    assert "__FONT_STYLESHEETS__" not in module
-    assert '"https://fonts.example/css"' in module
+    module = write_support_module(tmp_path / "ha-themes.js").read_text()
+    assert f"--{FONT_STYLESHEET_TOKEN}" in module
+    assert "fonts.googleapis.com" not in module
     assert "--ha-themes-brand-icon-color" in module
 
 

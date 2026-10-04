@@ -38,8 +38,7 @@ def test_shipped_theme_matches_its_source(source: Path) -> None:
 
 
 def test_shipped_support_module_matches_its_source() -> None:
-    every_theme = [theme for source in THEME_SOURCE_FILES for theme in build_family(source)]
-    rendered = render_support_module(every_theme)
+    rendered = render_support_module()
     assert SUPPORT_MODULE.read_bytes() == rendered.encode(), (
         f"ha-themes.js is stale: {REBUILD_HINT}"
     )
