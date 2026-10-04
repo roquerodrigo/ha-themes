@@ -17,6 +17,7 @@ from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOK
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 from ha_theme_kit.theme.tinted_on_colors import measure_tinted_pairs
 from ha_theme_kit.theme.token_colors import resolve_token_color
+from ha_theme_kit.theme.track_contrast import TRACK_ROLE, measure_track_pairs
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 
@@ -79,6 +80,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
             )
     contrast.extend(_check_loud_fills(theme, catalog))
     contrast.extend(_check_tinted_on_colors(theme, catalog))
+    contrast.extend(_check_tracks(theme, catalog))
     charts = [
         check_categorical(series, mode, theme.roles[mode]["surface"])
         for mode, series in theme.chart_series.items()
@@ -125,6 +127,14 @@ def _check_tinted_on_colors(theme: BuiltTheme, catalog: TokenCatalog) -> list[Co
         )
         for mode, mode_tokens in theme.modes.items()
         for pair in measure_tinted_pairs(mode, theme.base | mode_tokens, catalog)
+    ]
+
+
+def _check_tracks(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
+    return [
+        ContrastResult(pair.mode, TRACK_ROLE, pair.backdrop_role, pair.ratio, pair.minimum)
+        for mode, roles in theme.roles.items()
+        for pair in measure_track_pairs(mode, roles, catalog)
     ]
 
 

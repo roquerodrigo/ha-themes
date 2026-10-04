@@ -175,7 +175,7 @@ section and value named.
 | `outline_hover` | `outline-hover-color` | `{neutral.05@0.24}` | `{neutral.90@0.24}` |
 | `error` / `warning` / `success` / `info` | `*-color` | `red.50` / `orange.60` / `green.50` / `primary.50` | `red.60` / `orange.60` / `green.60` / `primary.60` |
 | `state_icon` | `state-icon-color` | `{primary.30}` | `{primary.60}` |
-| `scrollbar` | `scrollbar-thumb-color` | `{neutral.70}` | `{neutral.40}` |
+| `scrollbar` | `scrollbar-thumb-color`, and through it `slider-track-color` | `{neutral.70}` | `{neutral.60}` |
 | `shadow` | `shadow-color` | `rgba(0, 0, 0, 0.16)` | `rgba(0, 0, 0, 0.48)` |
 | `input_fill` | `input-fill-color` | `{neutral.95}` | `{neutral.90@0.05}` |
 | `code_background` | `markdown-code-background-color` | `{neutral.95}` | `{neutral.05}` |
@@ -269,6 +269,9 @@ Assistant would keep only one of them. It then reports, per theme:
 - the normal and quiet on-color of primary, danger, warning, success and neutral on its
   resting, hover and active fill, the page and the surface, in both modes (4.5:1, or the
   frontend's own ratio where that is lower);
+- the `scrollbar` role, which also paints the unfilled track of round sliders, on
+  `background` and `surface`, in both modes (3:1, or the frontend's own ratio where that is
+  lower, as for its pale light-mode thumb);
 - the chart series checks above, per mode;
 - the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
   be darker than the dark `background`, and the three statuses must stay at least OKLab
