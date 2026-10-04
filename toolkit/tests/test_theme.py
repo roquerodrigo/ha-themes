@@ -1,3 +1,4 @@
+import re
 from dataclasses import replace
 from pathlib import Path
 
@@ -246,6 +247,17 @@ def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
     assert theme.base["ha-card-backdrop-filter"].startswith("blur(")
     assert theme.modes["light"]["ha-card-background"] == "rgba(255, 255, 255, 0.8)"
     assert theme.modes["light"]["app-theme-color"].startswith("#")
+
+
+def test_dialog_surface_reverses_the_scrim_dimming_it_blurs_through() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"surface": "#ffffff"}}))
+    scrim = theme.base["ha-dialog-scrim-backdrop-filter"]
+    surface = theme.base["ha-dialog-surface-backdrop-filter"]
+    scrim_brightness = float(re.search(r"brightness\((\d+)%\)", scrim).group(1)) / 100
+    surface_brightness = float(re.search(r"brightness\((\d+)%\)", surface).group(1)) / 100
+    assert scrim_brightness * surface_brightness == pytest.approx(1, abs=0.01)
+    assert "saturate" not in surface
+    assert theme.modes["light"]["ha-dialog-surface-background"] == "rgba(255, 255, 255, 0.9)"
 
 
 def test_only_the_blurred_dashboard_header_gets_a_translucent_header_background() -> None:

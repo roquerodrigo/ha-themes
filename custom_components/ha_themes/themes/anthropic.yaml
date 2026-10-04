@@ -74,7 +74,7 @@
   md-sys-color-shadow: "transparent"
   app-header-backdrop-filter: "blur(20px) saturate(160%)"
   ha-card-backdrop-filter: "blur(16px) saturate(140%)"
-  ha-dialog-surface-backdrop-filter: "blur(24px) saturate(160%)"
+  ha-dialog-surface-backdrop-filter: "blur(24px) brightness(147%)"
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
   modes:
     light:
@@ -207,7 +207,7 @@
       app-header-background-color: "#faf9f5"
       ha-themes-brand-icon-color: "#c6613f"
       ha-themes-dashboard-header-background: "rgba(250, 249, 245, 0.72)"
-      ha-dialog-surface-background: "rgba(255, 255, 255, 0.85)"
+      ha-dialog-surface-background: "rgba(255, 255, 255, 0.9)"
       app-theme-color: "#faf9f5"
     dark:
       ha-color-fill-neutral-quiet-active: "#141413"
@@ -342,7 +342,7 @@
       app-header-background-color: "#262624"
       ha-themes-brand-icon-color: "#d97757"
       ha-themes-dashboard-header-background: "rgba(38, 38, 36, 0.72)"
-      ha-dialog-surface-background: "rgba(48, 48, 46, 0.85)"
+      ha-dialog-surface-background: "rgba(48, 48, 46, 0.9)"
       app-theme-color: "#262624"
 "Anthropic System UI":
   ha-color-primary-05: "#21120c"
@@ -417,7 +417,7 @@
   md-sys-color-shadow: "transparent"
   app-header-backdrop-filter: "blur(20px) saturate(160%)"
   ha-card-backdrop-filter: "blur(16px) saturate(140%)"
-  ha-dialog-surface-backdrop-filter: "blur(24px) saturate(160%)"
+  ha-dialog-surface-backdrop-filter: "blur(24px) brightness(147%)"
   ha-dialog-scrim-backdrop-filter: "blur(6px) brightness(68%)"
   modes:
     light:
@@ -550,7 +550,7 @@
       app-header-background-color: "#faf9f5"
       ha-themes-brand-icon-color: "#c6613f"
       ha-themes-dashboard-header-background: "rgba(250, 249, 245, 0.72)"
-      ha-dialog-surface-background: "rgba(255, 255, 255, 0.85)"
+      ha-dialog-surface-background: "rgba(255, 255, 255, 0.9)"
       app-theme-color: "#faf9f5"
     dark:
       ha-color-fill-neutral-quiet-active: "#141413"
@@ -685,5 +685,5 @@
       app-header-background-color: "#262624"
       ha-themes-brand-icon-color: "#d97757"
       ha-themes-dashboard-header-background: "rgba(38, 38, 36, 0.72)"
-      ha-dialog-surface-background: "rgba(48, 48, 46, 0.85)"
+      ha-dialog-surface-background: "rgba(48, 48, 46, 0.9)"
       app-theme-color: "#262624"

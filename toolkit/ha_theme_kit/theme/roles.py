@@ -130,11 +130,18 @@ FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
 ) | {"md-sys-color-shadow": "transparent"}
 """A transparent zero shadow instead of `none` stays valid inside comma-separated shadow lists."""
 
+SCRIM_BRIGHTNESS_PERCENT = 68
+"""The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
+
+DIALOG_UNDIMMING_PERCENT = round(100 * 100 / SCRIM_BRIGHTNESS_PERCENT)
+"""A dialog blurs the page through the scrim, so it would read as the dimmed page (a cool grey
+in light mode, darker than the page) unless its own filter reverses the dimming."""
+
 BACKDROP_BLUR_FILTERS: dict[str, str] = {
     "app-header-backdrop-filter": "blur(20px) saturate(160%)",
     "ha-card-backdrop-filter": "blur(16px) saturate(140%)",
-    "ha-dialog-surface-backdrop-filter": "blur(24px) saturate(160%)",
-    "ha-dialog-scrim-backdrop-filter": "blur(6px) brightness(68%)",
+    "ha-dialog-surface-backdrop-filter": f"blur(24px) brightness({DIALOG_UNDIMMING_PERCENT}%)",
+    "ha-dialog-scrim-backdrop-filter": f"blur(6px) brightness({SCRIM_BRIGHTNESS_PERCENT}%)",
 }
 
 DASHBOARD_HEADER_BACKGROUND_TOKEN = "ha-themes-dashboard-header-background"
@@ -145,7 +152,7 @@ module paints the dashboard header with this one instead."""
 TRANSLUCENT_SURFACES: dict[str, tuple[str, float]] = {
     DASHBOARD_HEADER_BACKGROUND_TOKEN: ("header_background", 0.72),
     "ha-card-background": ("surface", 0.8),
-    "ha-dialog-surface-background": ("surface", 0.85),
+    "ha-dialog-surface-background": ("surface", 0.9),
 }
 """A backdrop filter only shows through a translucent background, so each blurred element
 also gets its role color with alpha."""
