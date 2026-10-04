@@ -173,7 +173,9 @@ override it, so the support module paints them with the `menu_background` role i
 follows `surface`, which keeps menus raised above the page and level with the dialogs they
 open from; their 1px border separates them without a shadow. The energy dashboard's totals
 card is the one data table nested inside a card; the support module clears its background so
-the card shows through in a single tone.
+the card shows through in a single tone. Lists (`ha-md-list`) also take `card-background-color`;
+most sit inside cards or clear their background, but the entry lists on an integration's page
+stand on the page as cards, so the support module raises them to `ha-card-background`.
 
 ### Entity colors
 

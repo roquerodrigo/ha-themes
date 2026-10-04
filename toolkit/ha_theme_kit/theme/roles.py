@@ -9,7 +9,9 @@ dialogs have their own hooks (`ha-card-background`, `ha-dialog-surface-backgroun
 the surface tone. Dropdown menus derive their surface from `card-background-color` on their
 own host, out of a theme's reach, so the support module repaints them with
 `ha-themes-menu-background`, and clears the background of the energy totals table, the one
-data table nested inside a card.
+data table nested inside a card. Lists (`ha-md-list`) take `card-background-color` too; most
+sit inside cards or clear their background, and the support module raises the entry lists of
+the integration page, the ones that stand on the page as cards, to `ha-card-background`.
 """
 
 ROLE_TOKENS: dict[str, tuple[str, ...]] = {
