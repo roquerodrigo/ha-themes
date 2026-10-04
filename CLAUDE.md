@@ -50,7 +50,8 @@ Home Assistant release).
 
 - Home Assistant only loads themes from the `frontend: themes:` YAML and replaces any other
   theme on `frontend.reload_themes`, so the integration installs files into
-  `themes/ha_themes/` and reloads, instead of injecting themes into `hass.data`. Repair
+  `themes/ha_themes/` and reloads (only when a file changed or the frontend lacks the
+  themes), instead of injecting themes into `hass.data`. Repair
   issues cover configurations that do not include the themes directory and reloads that
   fail (for example on an invalid theme elsewhere in the configuration).
 - The support module is added with `add_extra_js_url` under a content-hash URL: both the
