@@ -65,6 +65,7 @@ roles:
     success: "{green.40}"
     info: "{blue.40}"
     state_icon: "{blue.40}"
+    syntax_property: "{blue.40}"
   dark:
     background: "#262624"
     surface: "{neutral.20}"
@@ -76,6 +77,7 @@ roles:
     accent: "{primary.50}"
     info: "{blue.60}"
     state_icon: "{blue.60}"
+    syntax_property: "{blue.60}"
 
 entity_colors:
   chroma_cap: 0.11
