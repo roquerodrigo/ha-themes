@@ -1,7 +1,7 @@
 # Creating a theme
 
 A theme is one YAML file in `themes-src/`. The builder expands it into the full token set
-under `themes/<slug>.yaml`, validates every key against the token catalog and checks text
+under `custom_components/ha_themes/themes/<slug>.yaml`, validates every key against the token catalog and checks text
 contrast. You decide on a palette and a handful of roles; the builder writes the ~100
 tokens Home Assistant needs.
 
@@ -33,8 +33,8 @@ Every theme built here follows these defaults, so a new theme gets them for free
 
 ```bash
 cp themes-src/anthropic.yaml themes-src/my-theme.yaml
-uv run ha-themes build my-theme --strict
-uv run ha-themes preview my-theme
+scripts/ha-themes build my-theme --strict
+scripts/ha-themes preview my-theme
 ```
 
 ## Schema
@@ -181,7 +181,7 @@ under 3:1 against the card surface are reported but allowed: every chart has a l
 tooltips. Slots 9–54 repeat the eight hues at lighter and darker steps; past eight series
 identity is no longer guaranteed, so prefer fewer series per chart.
 
-The order matters as much as the hues. `ha-themes palette <slug>` ranks the orders that
+The order matters as much as the hues. `scripts/ha-themes palette <slug>` ranks the orders that
 keep slot 1 and pass in both modes; pick one and write it into `series`.
 
 ### Validation
@@ -195,27 +195,9 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
 
 `--strict` turns any failure into a non-zero exit code.
 
-## Installing a theme
+## Shipping a theme
 
-1. Copy `themes/<slug>.yaml` into the Home Assistant `config/themes/` directory, with
-   `frontend: themes: !include_dir_merge_named themes` in `configuration.yaml`.
-2. Copy the contents of `www/ha-themes/` to `config/www/ha-themes/` and register the
-   loader once for all themes:
-
-   ```yaml
-   frontend:
-     extra_module_url:
-       - /local/ha-themes/ha-themes-loader.js
-   ```
-
-   Register the loader, not `ha-themes.js`. Two caches sit in front of `/local`: Home
-   Assistant serves it with a 31-day `Cache-Control`, and the frontend's service worker
-   answers it stale-while-revalidate. The loader never changes; it reads
-   `ha-themes.version.json` through a URL no cache has seen and imports the module by
-   content hash, so an update is picked up on the next page load. After updating, copy the
-   whole directory again.
-
-   Without it, themes still work, but the sidebar, header and banners stay in Roboto, web
-   fonts are not loaded and generic integration icons stay blue.
-3. Call `frontend.reload_themes` (a restart is only needed after adding the module), then
-   pick the theme in the user profile.
+`scripts/ha-themes build` writes every theme family into
+`custom_components/ha_themes/themes/<slug>.yaml` and regenerates the support module in
+`custom_components/ha_themes/frontend/`. Commit both with the source change; the
+integration installs them on the next update (see the README for installation).

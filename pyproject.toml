@@ -1,31 +1,100 @@
 [project]
-name = "ha-theme-kit"
+# This repo is a Home Assistant custom integration delivered as
+# ``custom_components/ha_themes/``, not a pip-installable package. The
+# ``[project]`` block exists so uv recognises the directory as a managed
+# project; ``[tool.uv] package = false`` keeps uv from building it. The theme
+# toolkit under ``toolkit/`` is development tooling and is not shipped.
+name = "ha-themes"
 version = "0.1.0"
-description = "Token catalog and theme builder for the Home Assistant frontend"
-readme = "README.md"
+description = "Design-token-driven themes for the Home Assistant frontend"
 requires-python = ">=3.14.2"
-dependencies = ["pyyaml>=6.0"]
-
-[project.scripts]
-ha-themes = "ha_theme_kit.cli:main"
-
-[dependency-groups]
-dev = ["ruff>=0.13", "pytest>=8.4", "playwright>=1.55"]
-dev-server = ["homeassistant==2026.9.4", "home-assistant-frontend==20260826.7"]
 
 [tool.uv]
-default-groups = ["dev", "dev-server"]
+package = false
+default-groups = ["dev", "lint"]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[dependency-groups]
+dev = [
+    "homeassistant==2026.9.4",
+    "home-assistant-frontend==20260826.7",
+    "playwright==1.63.0",
+    "pre-commit==4.6.2",
+    "pytest==9.0.3",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    "pytest-homeassistant-custom-component==0.13.367",
+    "pyyaml>=6.0",
+]
+lint = [
+    "ruff==0.16.9",
+    "mypy==2.3.1",
+]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/ha_theme_kit"]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests", "toolkit/tests"]
+pythonpath = [".", "toolkit"]
+addopts = [
+    "--cov=custom_components/ha_themes",
+    "--cov-report=term-missing",
+    "--cov-fail-under=90",
+]
 
+[tool.mypy]
+python_version = "3.14"
+files = ["custom_components/ha_themes"]
+ignore_missing_imports = true
+follow_imports = "silent"
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+# Ruff config mirrors Home Assistant core's pyproject.toml. The toolkit carries
+# its own, lighter ruleset in toolkit/ruff.toml.
 [tool.ruff]
-line-length = 100
 target-version = "py314"
 
+[tool.ruff.format]
+exclude = ["*.md"]
+
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+select = ["ALL"]
+ignore = [
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
+    "D203",    # no-blank-line-before-class (incompatible with formatter)
+    "D212",    # multi-line-summary-first-line (incompatible with formatter)
+    "COM812",  # incompatible with formatter
+    "ISC001",  # incompatible with formatter
+    "CPY001",  # copyright headers are not used in this project
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.per-file-ignores]
+"**/data/runtime.py" = ["TID252"]
+"tests/**" = [
+    "S101",     # assert is normal in pytest
+    "D",        # no docstrings required in tests
+    "ANN",      # no type annotations required in tests
+    "ARG001",   # fixtures are used implicitly by pytest
+    "PLC0415",  # local imports inside fixtures are intentional
+    "SLF001",   # testing private HA attrs and internal methods is intentional
+    "PLR2004",  # magic numbers in test assertions are fine
+]

@@ -1,0 +1,18 @@
+{
+  "domain": "ha_themes",
+  "name": "HA Themes",
+  "codeowners": [
+    "@roquerodrigo"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
+  "documentation": "https://github.com/roquerodrigo/ha-themes",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/roquerodrigo/ha-themes/issues",
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

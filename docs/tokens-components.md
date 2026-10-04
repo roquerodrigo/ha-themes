@@ -680,29 +680,29 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--mdc-icon-size` | `24px` | 108 |
 
-## show
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--show-duration` | `.2s`<br>`50ms` | 104 |
-
 ## hide
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--hide-duration` | `.2s` | 104 |
 
-## wa-spacing
+## show
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--wa-spacing-xs` |  | 99 |
+| `--show-duration` | `.2s`<br>`50ms` | 104 |
 
 ## backdrop
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--backdrop-filter` |  | 99 |
+
+## wa-spacing
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--wa-spacing-xs` |  | 99 |
 
 ## ha-progress
 
@@ -755,14 +755,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--settings-row-prefix-display` |  | 10 |
 | `--settings-row-prefix-flex` | `1` | 10 |
 | `--settings-row-switch-padding-block` | `var(--ha-space-4)` | 10 |
-
-## thumb
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--thumb-size` |  | 59 |
-| `--thumb-height` |  | 7 |
-| `--thumb-width` |  | 7 |
 
 ## ha-dropdown
 
@@ -848,6 +840,14 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--md-filter-chip-with-leading-icon-leading-space` | `8px` | 1 |
 | `--md-filter-chip-with-trailing-icon-trailing-space` | `8px` | 1 |
 
+## thumb
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--thumb-size` |  | 59 |
+| `--thumb-height` |  | 7 |
+| `--thumb-width` |  | 7 |
+
 ## full
 
 | Token | Fallback | Uses |
@@ -863,12 +863,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--track-height` |  | 13 |
 | `--track-size` |  | 7 |
 | `--track-clr` |  | 1 |
-
-## wa-line
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--wa-line-height-normal` |  | 60 |
 
 ## control
 
@@ -924,18 +918,24 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--control-switch-padding` |  | 1 |
 | `--control-switch-thickness` |  | 1 |
 
-## select
+## wa-line
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--select-menu-width` |  | 42 |
-| `--select-selected-text-padding-end` | `12px` | 15 |
+| `--wa-line-height-normal` |  | 60 |
 
 ## body
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--body-width` |  | 57 |
+
+## select
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--select-menu-width` |  | 42 |
+| `--select-selected-text-padding-end` | `12px` | 15 |
 
 ## expansion
 
@@ -1051,6 +1051,31 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-tab-padding-end` | `var(--wa-space-l)` | 1 |
 | `--ha-tab-padding-start` | `var(--wa-space-l)` | 1 |
 
+## bounce
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--bounce-height` | `-.5em` | 4 |
+| `--bounce-jump-scale-x` | `.9` | 4 |
+| `--bounce-jump-scale-y` | `1.1` | 4 |
+| `--bounce-land-scale-x` | `1.05` | 4 |
+| `--bounce-land-scale-y` | `.95` | 4 |
+| `--bounce-rebound` | `-.125em` | 4 |
+| `--bounce-start-scale-x` | `1.1` | 4 |
+| `--bounce-start-scale-y` | `.9` | 4 |
+
+## button
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--button-toggle-icon-size` | `20px` | 8 |
+| `--button-color-fill-loud-active` |  | 4 |
+| `--button-color-fill-loud-hover` |  | 4 |
+| `--button-color-fill-normal-active` |  | 4 |
+| `--button-color-fill-normal-hover` |  | 4 |
+| `--button-color-fill-quiet-active` |  | 4 |
+| `--button-height` | `24px`<br>`32px`<br>`40px` | 4 |
+
 ## ha-label
 
 | Token | Fallback | Uses |
@@ -1068,31 +1093,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-label-badge-title-font-size` | `.9em` | 1 |
 | `--ha-label-badge-title-font-weight` | `var(--ha-font-weight-normal)` | 1 |
 | `--ha-label-badge-title-width` | `5em` | 1 |
-
-## button
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--button-toggle-icon-size` | `20px` | 8 |
-| `--button-color-fill-loud-active` |  | 4 |
-| `--button-color-fill-loud-hover` |  | 4 |
-| `--button-color-fill-normal-active` |  | 4 |
-| `--button-color-fill-normal-hover` |  | 4 |
-| `--button-color-fill-quiet-active` |  | 4 |
-| `--button-height` | `24px`<br>`32px`<br>`40px` | 4 |
-
-## bounce
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--bounce-height` | `-.5em` | 4 |
-| `--bounce-jump-scale-x` | `.9` | 4 |
-| `--bounce-jump-scale-y` | `1.1` | 4 |
-| `--bounce-land-scale-x` | `1.05` | 4 |
-| `--bounce-land-scale-y` | `.95` | 4 |
-| `--bounce-rebound` | `-.125em` | 4 |
-| `--bounce-start-scale-x` | `1.1` | 4 |
-| `--bounce-start-scale-y` | `.9` | 4 |
 
 ## md-outlined
 
@@ -1155,6 +1155,19 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--hover-clr` |  | 1 |
 | `--hover-color` | `var(--primary-color)` | 1 |
 
+## app
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--app-safe-area-inset-bottom` | `env(safe-area-inset-bottom,0px)` | 4 |
+| `--app-safe-area-inset-left` | `env(safe-area-inset-left,0px)` | 4 |
+| `--app-safe-area-inset-right` | `env(safe-area-inset-right,0px)` | 4 |
+| `--app-safe-area-inset-top` | `env(safe-area-inset-top,0px)` | 4 |
+| `--app-header-edit-background-color` | `#455a64` | 3 |
+| `--app-header-edit-text-color` | `#fff`<br>`white` | 3 |
+| `--app-header-backdrop-filter` | `none` | 1 |
+| `--app-header-selection-bar-color` | `var(--app-header-text-color,white)` | 1 |
+
 ## ha-button
 
 | Token | Fallback | Uses |
@@ -1186,19 +1199,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--mdc-ripple-selected-opacity` | `.08` | 1 |
 | `--mdc-ripple-top` | `0`<br>`calc(50% - 50%)` | 1 |
 | `--mdc-ripple-z-index` | `0`<br>`1` | 1 |
-
-## app
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--app-safe-area-inset-bottom` | `env(safe-area-inset-bottom,0px)` | 4 |
-| `--app-safe-area-inset-left` | `env(safe-area-inset-left,0px)` | 4 |
-| `--app-safe-area-inset-right` | `env(safe-area-inset-right,0px)` | 4 |
-| `--app-safe-area-inset-top` | `env(safe-area-inset-top,0px)` | 4 |
-| `--app-header-edit-background-color` | `#455a64` | 3 |
-| `--app-header-edit-text-color` | `#fff`<br>`white` | 3 |
-| `--app-header-backdrop-filter` | `none` | 1 |
-| `--app-header-selection-bar-color` | `var(--app-header-text-color,white)` | 1 |
 
 ## tile
 
@@ -1244,19 +1244,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--arrow-size-diagonal` |  | 3 |
 | `--arrow-size-div` |  | 3 |
 
-## percentage
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--percentage` | `0%` | 20 |
-
-## ha-textarea
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-textarea-max-height` | `200px` | 10 |
-| `--ha-textarea-padding-bottom` |  | 10 |
-
 ## animation
 
 | Token | Fallback | Uses |
@@ -1266,6 +1253,19 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--animation-duration` | `1s`<br>`2s` | 4 |
 | `--animation-iteration-count` | `infinite` | 4 |
 | `--animation-timing` | `cubic-bezier(.28, .84, .42, 1)`<br>`cubic-bezier(.4, 0, .6, 1)`<br>`ease-in-out` | 4 |
+
+## ha-textarea
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-textarea-max-height` | `200px` | 10 |
+| `--ha-textarea-padding-bottom` |  | 10 |
+
+## percentage
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--percentage` | `0%` | 20 |
 
 ## flip
 
@@ -1303,18 +1303,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--time-input-flex` | `unset` | 15 |
 
-## weather
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--weather-icon-cloud-back-color` | `#d4d4d4` | 2 |
-| `--weather-icon-cloud-front-color` | `#f9f9f9` | 2 |
-| `--weather-icon-moon-color` | `#fcf497` | 2 |
-| `--weather-icon-rain-color` | `#30b3ff` | 2 |
-| `--weather-icon-snow-color` | `#f9f9f9` | 2 |
-| `--weather-icon-snow-stroke-color` | `#d4d4d4` | 2 |
-| `--weather-icon-sun-color` | `#fdd93c` | 2 |
-
 ## actions
 
 | Token | Fallback | Uses |
@@ -1340,22 +1328,17 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-tile-info-secondary-letter-spacing` | `.4px` | 1 |
 | `--ha-tile-info-secondary-line-height` | `var(--ha-line-height-condensed)` | 1 |
 
-## wa-transition
+## weather
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--wa-transition-slow` | `.2s` | 13 |
-
-## code
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--code-editor-background-color` | `var(--card-background-color)`<br>`var(--secondary-background-color)` | 4 |
-| `--code-editor-gutter-color` | `var(--secondary-background-color, whitesmoke)`<br>`var(--secondary-background-color,whitesmoke)` | 3 |
-| `--code-editor-toolbar-height` |  | 2 |
-| `--code-mirror-max-height` | `unset` | 2 |
-| `--code-font-family` | `monospace` | 1 |
-| `--code-mirror-height` | `auto` | 1 |
+| `--weather-icon-cloud-back-color` | `#d4d4d4` | 2 |
+| `--weather-icon-cloud-front-color` | `#f9f9f9` | 2 |
+| `--weather-icon-moon-color` | `#fcf497` | 2 |
+| `--weather-icon-rain-color` | `#30b3ff` | 2 |
+| `--weather-icon-snow-color` | `#f9f9f9` | 2 |
+| `--weather-icon-snow-stroke-color` | `#d4d4d4` | 2 |
+| `--weather-icon-sun-color` | `#fdd93c` | 2 |
 
 ## border
 
@@ -1369,6 +1352,17 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--check-list-item-graphic-margin-top` |  | 13 |
 
+## code
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--code-editor-background-color` | `var(--card-background-color)`<br>`var(--secondary-background-color)` | 4 |
+| `--code-editor-gutter-color` | `var(--secondary-background-color, whitesmoke)`<br>`var(--secondary-background-color,whitesmoke)` | 3 |
+| `--code-editor-toolbar-height` |  | 2 |
+| `--code-mirror-max-height` | `unset` | 2 |
+| `--code-font-family` | `monospace` | 1 |
+| `--code-mirror-height` | `auto` | 1 |
+
 ## feature
 
 | Token | Fallback | Uses |
@@ -1381,6 +1375,29 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--feature-divider-inset` |  | 1 |
 | `--feature-precipitation-opacity` |  | 1 |
 | `--feature-tint` |  | 1 |
+
+## wa-transition
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--wa-transition-slow` | `.2s` | 13 |
+
+## beat
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--beat-fade-opacity` | `.4` | 4 |
+| `--beat-fade-scale` | `1.125` | 4 |
+| `--beat-scale` | `1.25` | 4 |
+
+## md-ripple
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--md-ripple-hover-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
+| `--md-ripple-hover-opacity` | `.08` | 3 |
+| `--md-ripple-pressed-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
+| `--md-ripple-pressed-opacity` | `.12` | 3 |
 
 ## safe
 
@@ -1396,34 +1413,25 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--safe-triangle-submenu-start-x` | `0` | 1 |
 | `--safe-triangle-submenu-start-y` | `0` | 1 |
 
-## md-ripple
+## circumference
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--md-ripple-hover-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
-| `--md-ripple-hover-opacity` | `.08` | 3 |
-| `--md-ripple-pressed-color` | `var(--md-sys-color-on-surface,#1d1b20)` | 3 |
-| `--md-ripple-pressed-opacity` | `.12` | 3 |
-
-## beat
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--beat-fade-opacity` | `.4` | 4 |
-| `--beat-fade-scale` | `1.125` | 4 |
-| `--beat-scale` | `1.25` | 4 |
-
-## sidepane
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--sidepane-width` | `250px` | 11 |
+| `--circumference` |  | 11 |
 
 ## columns
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--columns` | `1` | 11 |
+
+## ha-bar
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-bar-background-color` | `var(--secondary-background-color)` | 4 |
+| `--ha-bar-border-radius` | `var(--ha-border-radius-sm)` | 4 |
+| `--ha-bar-primary-color` | `var(--primary-color)` | 3 |
 
 ## ha-formfield
 
@@ -1436,20 +1444,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--radius` |  | 11 |
-
-## circumference
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--circumference` |  | 11 |
-
-## ha-bar
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-bar-background-color` | `var(--secondary-background-color)` | 4 |
-| `--ha-bar-border-radius` | `var(--ha-border-radius-sm)` | 4 |
-| `--ha-bar-primary-color` | `var(--primary-color)` | 3 |
 
 ## round
 
@@ -1467,11 +1461,11 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--round-slider-path-color` | `lightgray` | 1 |
 | `--round-slider-path-width` | `3` | 1 |
 
-## main
+## sidepane
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--main-title-margin` | `var(--ha-space-2)`<br>`var(--ha-space-6)` | 10 |
+| `--sidepane-width` | `250px` | 11 |
 
 ## config
 
@@ -1486,6 +1480,12 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--ha-select-box-image-size` | `96px` | 10 |
 
+## main
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--main-title-margin` | `var(--ha-space-2)`<br>`var(--ha-space-6)` | 10 |
+
 ## slider
 
 | Token | Fallback | Uses |
@@ -1496,6 +1496,33 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--slider-tooltip-range` |  | 2 |
 | `--slider-size` |  | 1 |
 | `--slider-track-bar-border-radius` |  | 1 |
+
+## column
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--column-gap` | `0px` | 3 |
+| `--column-span` | `1` | 2 |
+| `--column-count` |  | 1 |
+| `--column-max-width` |  | 1 |
+| `--column-min-width` |  | 1 |
+| `--column-size` | `1` | 1 |
+
+## ha-color
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-color-90` |  | 4 |
+| `--ha-color-neutral-00` |  | 4 |
+| `--ha-color-on-error-normal` |  | 1 |
+
+## ha-entity
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-entity-toggle-switch-size` | `20px` | 3 |
+| `--ha-entity-toggle-switch-thumb-size` | `14px` | 3 |
+| `--ha-entity-toggle-switch-width` | `38px` | 3 |
 
 ## ha-section
 
@@ -1520,32 +1547,12 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-view-sections-row-gap` | `24px` | 1 |
 | `--ha-view-sections-row-height` | `56px` | 1 |
 
-## ha-entity
+## auto
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-entity-toggle-switch-size` | `20px` | 3 |
-| `--ha-entity-toggle-switch-thumb-size` | `14px` | 3 |
-| `--ha-entity-toggle-switch-width` | `38px` | 3 |
-
-## column
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--column-gap` | `0px` | 3 |
-| `--column-span` | `1` | 2 |
-| `--column-count` |  | 1 |
-| `--column-max-width` |  | 1 |
-| `--column-min-width` |  | 1 |
-| `--column-size` | `1` | 1 |
-
-## ha-color
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-color-90` |  | 4 |
-| `--ha-color-neutral-00` |  | 4 |
-| `--ha-color-on-error-normal` |  | 1 |
+| `--auto-size-available-height` | `none` | 4 |
+| `--auto-size-available-width` | `none` | 4 |
 
 ## ha-help
 
@@ -1553,27 +1560,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--ha-help-tooltip-color` | `var(--disabled-text-color)` | 4 |
 | `--ha-help-tooltip-size` | `14px` | 4 |
-
-## wa-button
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--wa-button-transform-active` |  | 4 |
-| `--wa-button-transform-hover` |  | 4 |
-
-## secondary
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--secondary-color` |  | 4 |
-| `--secondary-opacity` |  | 4 |
-
-## auto
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--auto-size-available-height` | `none` | 4 |
-| `--auto-size-available-width` | `none` | 4 |
 
 ## row
 
@@ -1584,6 +1570,20 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--row-size` | `1` | 2 |
 | `--row-span` |  | 1 |
 
+## secondary
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--secondary-color` |  | 4 |
+| `--secondary-opacity` |  | 4 |
+
+## wa-button
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--wa-button-transform-active` |  | 4 |
+| `--wa-button-transform-hover` |  | 4 |
+
 ## wa-scroll
 
 | Token | Fallback | Uses |
@@ -1591,18 +1591,18 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--wa-scroll-lock-gutter` |  | 4 |
 | `--wa-scroll-lock-size` |  | 4 |
 
-## ha-entities
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-entities-picker-entity-min-width` | `auto` | 7 |
-
 ## error
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--error-state-color` | `var(--error-color)` | 6 |
 | `--error-log-card-height` | `calc(100vh - 255px)` | 1 |
+
+## ha-entities
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-entities-picker-entity-min-width` | `auto` | 7 |
 
 ## indent
 
@@ -1616,6 +1616,14 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--indent-markers` |  | 1 |
 | `--indent-size` | `2em` | 1 |
 
+## background
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--background-color` | `white` | 3 |
+| `--background-color-hover` |  | 2 |
+| `--background-clr` |  | 1 |
+
 ## ha-picture
 
 | Token | Fallback | Uses |
@@ -1624,29 +1632,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-picture-card-text-color` | `white` | 2 |
 | `--ha-picture-icon-button-color` | `#a9a9a9` | 1 |
 | `--ha-picture-icon-button-on-color` | `white` | 1 |
-
-## service
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--service-control-items-border-top` | `1px solid var(--divider-color)` | 4 |
-| `--service-control-padding` | `0 16px`<br>`0 var(--ha-space-4)` | 2 |
-
-## scale
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--scale-direction` |  | 4 |
-| `--scale-ruler-color` |  | 1 |
-| `--scale-ruler-surface` |  | 1 |
-
-## background
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--background-color` | `white` | 3 |
-| `--background-color-hover` |  | 2 |
-| `--background-clr` |  | 1 |
 
 ## handle
 
@@ -1664,19 +1649,20 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--metric-bar-ok-color` | `var(--success-color)` | 2 |
 | `--metric-bar-warning-color` | `var(--warning-color)` | 2 |
 
-## ha-sidebar
+## scale
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-sidebar-width` | `0px`<br>`256px` | 3 |
-| `--ha-sidebar-expanded-item-width` | `248px` | 1 |
-| `--ha-sidebar-expanded-width` | `256px` | 1 |
+| `--scale-direction` |  | 4 |
+| `--scale-ruler-color` |  | 1 |
+| `--scale-ruler-surface` |  | 1 |
 
-## gauge
+## service
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--gauge-color` |  | 5 |
+| `--service-control-items-border-top` | `1px solid var(--divider-color)` | 4 |
+| `--service-control-padding` | `0 16px`<br>`0 var(--ha-space-4)` | 2 |
 
 ## calendar
 
@@ -1686,62 +1672,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--calendar-border-radius` | `var(--mdc-shape-small,4px)` | 1 |
 | `--calendar-border-width` | `1px` | 1 |
 | `--calendar-header-padding` |  | 1 |
-
-## ha-split
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-split-panel-divider-hit-area` | `12px` | 1 |
-| `--ha-split-panel-divider-width` | `2px` | 1 |
-| `--ha-split-panel-grip-display` | `block` | 1 |
-| `--ha-split-panel-max` | `100%` | 1 |
-| `--ha-split-panel-min` | `0` | 1 |
-
-## mdc-checkbox
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--mdc-checkbox-checked-color` | `var(--mdc-theme-secondary,#018786)` | 1 |
-| `--mdc-checkbox-ink-color` | `#fff` | 1 |
-| `--mdc-checkbox-ripple-size` | `40px` | 1 |
-| `--mdc-checkbox-state-layer-size` | `40px`<br>`48px` | 1 |
-| `--mdc-checkbox-touch-target-size` | `40px` | 1 |
-
-## text
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--text-color` |  | 3 |
-| `--text-accent-color` | `var(--text-primary-color)` | 2 |
-
-## sidebar
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--sidebar-dynamic-width` |  | 1 |
-| `--sidebar-gap` |  | 1 |
-| `--sidebar-menu-button-background-color` | `inherit` | 1 |
-| `--sidebar-menu-button-text-color` | `var(--primary-text-color)` | 1 |
-| `--sidebar-width` |  | 1 |
-
-## timeline
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--timeline-ball-color` | `var(--timeline-color,var(--secondary-text-color))` | 1 |
-| `--timeline-color` | `var(--secondary-text-color)` | 1 |
-| `--timeline-label-color` | `var(--secondary-text-color)` | 1 |
-| `--timeline-line-color` | `var(--timeline-color,var(--secondary-text-color))` | 1 |
-| `--timeline-top-margin` |  | 1 |
-
-## logbook
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--logbook-category-automation-color` | `var(--light-blue-color)` | 2 |
-| `--logbook-category-integration-color` | `var(--teal-color)` | 1 |
-| `--logbook-horizontal-padding` | `var(--ha-space-4)` | 1 |
-| `--logbook-max-height` |  | 1 |
 
 ## g
 
@@ -1753,12 +1683,97 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--g-x` |  | 1 |
 | `--g-y` |  | 1 |
 
+## gauge
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--gauge-color` |  | 5 |
+
+## ha-sidebar
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-sidebar-width` | `0px`<br>`256px` | 3 |
+| `--ha-sidebar-expanded-item-width` | `248px` | 1 |
+| `--ha-sidebar-expanded-width` | `256px` | 1 |
+
+## ha-split
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-split-panel-divider-hit-area` | `12px` | 1 |
+| `--ha-split-panel-divider-width` | `2px` | 1 |
+| `--ha-split-panel-grip-display` | `block` | 1 |
+| `--ha-split-panel-max` | `100%` | 1 |
+| `--ha-split-panel-min` | `0` | 1 |
+
+## logbook
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--logbook-category-automation-color` | `var(--light-blue-color)` | 2 |
+| `--logbook-category-integration-color` | `var(--teal-color)` | 1 |
+| `--logbook-horizontal-padding` | `var(--ha-space-4)` | 1 |
+| `--logbook-max-height` |  | 1 |
+
+## mdc-checkbox
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--mdc-checkbox-checked-color` | `var(--mdc-theme-secondary,#018786)` | 1 |
+| `--mdc-checkbox-ink-color` | `#fff` | 1 |
+| `--mdc-checkbox-ripple-size` | `40px` | 1 |
+| `--mdc-checkbox-state-layer-size` | `40px`<br>`48px` | 1 |
+| `--mdc-checkbox-touch-target-size` | `40px` | 1 |
+
+## sidebar
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--sidebar-dynamic-width` |  | 1 |
+| `--sidebar-gap` |  | 1 |
+| `--sidebar-menu-button-background-color` | `inherit` | 1 |
+| `--sidebar-menu-button-text-color` | `var(--primary-text-color)` | 1 |
+| `--sidebar-width` |  | 1 |
+
+## text
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--text-color` |  | 3 |
+| `--text-accent-color` | `var(--text-primary-color)` | 2 |
+
+## timeline
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--timeline-ball-color` | `var(--timeline-color,var(--secondary-text-color))` | 1 |
+| `--timeline-color` | `var(--secondary-text-color)` | 1 |
+| `--timeline-label-color` | `var(--secondary-text-color)` | 1 |
+| `--timeline-line-color` | `var(--timeline-color,var(--secondary-text-color))` | 1 |
+| `--timeline-top-margin` |  | 1 |
+
 ## circle
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--circle-color` | `var(--divider-color)` | 3 |
 | `--circle-clr` | `var(--stroke-clr)` | 1 |
+
+## fade
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--fade-opacity` | `.4` | 4 |
+
+## grid
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--grid-card-column-count` |  | 1 |
+| `--grid-card-gap` | `8px` | 1 |
+| `--grid-column-count` |  | 1 |
+| `--grid-layout-slider` |  | 1 |
 
 ## ha-automation
 
@@ -1767,12 +1782,14 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-automation-editor-max-width` |  | 3 |
 | `--ha-automation-editor-width` | `1540px` | 1 |
 
-## padding
+## ha-badge
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--padding-bottom` | `8px` | 2 |
-| `--padding-top` | `8px` | 2 |
+| `--ha-badge-border-radius` | `calc(var(--ha-badge-size,36px) / 2)` | 1 |
+| `--ha-badge-font-size` | `var(--ha-font-size-s)` | 1 |
+| `--ha-badge-icon-size` | `18px` | 1 |
+| `--ha-badge-size` | `36px` | 1 |
 
 ## ha-font
 
@@ -1781,6 +1798,30 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-font-body` |  | 2 |
 | `--ha-font-body-l` |  | 1 |
 | `--ha-font-weight-semi-bold` |  | 1 |
+
+## ha-marker
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-marker-border-radius` | `50%` | 1 |
+| `--ha-marker-color` | `var(--primary-color)` | 1 |
+| `--ha-marker-font-size` | `var(--ha-font-size-xl)` | 1 |
+| `--ha-marker-size` | `48px` | 1 |
+
+## min
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--min` |  | 2 |
+| `--min-height` | `30dvh`<br>`30vh` | 1 |
+| `--min-width` |  | 1 |
+
+## padding
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--padding-bottom` | `8px` | 2 |
+| `--padding-top` | `8px` | 2 |
 
 ## path
 
@@ -1800,34 +1841,11 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--rotate-angle` | `0deg` | 4 |
 
-## fade
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--fade-opacity` | `.4` | 4 |
-
 ## speed
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--speed` |  | 4 |
-
-## ha-marker
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-marker-border-radius` | `50%` | 1 |
-| `--ha-marker-color` | `var(--primary-color)` | 1 |
-| `--ha-marker-font-size` | `var(--ha-font-size-xl)` | 1 |
-| `--ha-marker-size` | `48px` | 1 |
-
-## min
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--min` |  | 2 |
-| `--min-height` | `30dvh`<br>`30vh` | 1 |
-| `--min-width` |  | 1 |
 
 ## view
 
@@ -1838,35 +1856,48 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--view-container-padding-bottom` | `0px` | 1 |
 | `--view-container-padding-top` | `0px` | 1 |
 
-## ha-badge
+## active
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-badge-border-radius` | `calc(var(--ha-badge-size,36px) / 2)` | 1 |
-| `--ha-badge-font-size` | `var(--ha-font-size-s)` | 1 |
-| `--ha-badge-icon-size` | `18px` | 1 |
-| `--ha-badge-size` | `36px` | 1 |
+| `--active-color` | `var(--primary-color)` | 2 |
+| `--active-clr` |  | 1 |
 
-## grid
+## badge
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--grid-card-column-count` |  | 1 |
-| `--grid-card-gap` | `8px` | 1 |
-| `--grid-column-count` |  | 1 |
-| `--grid-layout-slider` |  | 1 |
+| `--badge-padding` | `0`<br>`0px` | 2 |
+| `--badge-color` |  | 1 |
+
+## data
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--data-table-border-width` | `1px` | 1 |
+| `--data-table-empty-row-height` | `var(--safe-area-inset-bottom,0px)` | 1 |
+| `--data-table-row-height` | `52px` | 1 |
+
+## disabled
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--disabled-active-clr` |  | 1 |
+| `--disabled-clr` |  | 1 |
+| `--disabled-hover-clr` |  | 1 |
+
+## entities
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--entities-divider-color` | `var(--divider-color)` | 2 |
+| `--entities-card-row-gap` | `var(--card-row-gap,8px)` | 1 |
 
 ## file
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--file-upload-image-border-radius` |  | 3 |
-
-## picture
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--picture-opacity` | `1` | 3 |
 
 ## ha-border
 
@@ -1884,40 +1915,13 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-clock-card-analog-face-border-radius` | `none` | 1 |
 | `--ha-clock-card-analog-face-padding` | `none` | 1 |
 
-## video
+## hassio
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--video-max-height` | `calc(100vh - 97px)` | 3 |
-
-## badge
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--badge-padding` | `0`<br>`0px` | 2 |
-| `--badge-color` |  | 1 |
-
-## active
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--active-color` | `var(--primary-color)` | 2 |
-| `--active-clr` |  | 1 |
-
-## entities
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--entities-divider-color` | `var(--divider-color)` | 2 |
-| `--entities-card-row-gap` | `var(--card-row-gap,8px)` | 1 |
-
-## restore
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--restore-card-border-radius` |  | 1 |
-| `--restore-card-border-width` |  | 1 |
-| `--restore-card-box-shadow` |  | 1 |
+| `--hassio-bar-critical-color` | `var(--error-color)` | 1 |
+| `--hassio-bar-ok-color` | `var(--success-color)` | 1 |
+| `--hassio-bar-warning-color` | `var(--warning-color)` | 1 |
 
 ## hat
 
@@ -1927,28 +1931,25 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--hat-graph-node-size` |  | 1 |
 | `--hat-graph-spacing` |  | 1 |
 
-## disabled
+## picture
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--disabled-active-clr` |  | 1 |
-| `--disabled-clr` |  | 1 |
-| `--disabled-hover-clr` |  | 1 |
+| `--picture-opacity` | `1` | 3 |
 
-## hassio
+## popup
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--hassio-bar-critical-color` | `var(--error-color)` | 1 |
-| `--hassio-bar-ok-color` | `var(--success-color)` | 1 |
-| `--hassio-bar-warning-color` | `var(--warning-color)` | 1 |
+| `--popup-border-width` |  | 3 |
 
-## start
+## restore
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--start-slot-width` | `0px` | 2 |
-| `--start` |  | 1 |
+| `--restore-card-border-radius` |  | 1 |
+| `--restore-card-border-width` |  | 1 |
+| `--restore-card-box-shadow` |  | 1 |
 
 ## section
 
@@ -1958,32 +1959,66 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--section-background-opacity` |  | 1 |
 | `--section-header-text-color` | `var(--primary-text-color)` | 1 |
 
-## popup
+## start
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--popup-border-width` |  | 3 |
+| `--start-slot-width` | `0px` | 2 |
+| `--start` |  | 1 |
 
-## data
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--data-table-border-width` | `1px` | 1 |
-| `--data-table-empty-row-height` | `var(--safe-area-inset-bottom,0px)` | 1 |
-| `--data-table-row-height` | `52px` | 1 |
-
-## ha-top
+## video
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-top-app-bar-width` | `100%` | 2 |
+| `--video-max-height` | `calc(100vh - 97px)` | 3 |
 
-## horizontal
+## badges
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--horizontal-padding` | `16px` | 1 |
-| `--horizontal-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
+| `--badges-aligmnent` | `center` | 1 |
+| `--badges-wrap` | `wrap` | 1 |
+
+## box
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--box-shadow` |  | 2 |
+
+## card
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--card-row-gap` | `8px` | 1 |
+| `--card-text-align` | `inherit` | 1 |
+
+## chat
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--chat-background-color-hass` | `var(--secondary-background-color)` | 1 |
+| `--chat-background-color-user` | `var(--primary-color)` | 1 |
+
+## default
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--default-icon-clr` |  | 1 |
+| `--default-trigger-color` |  | 1 |
+
+## divider
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--divider-hit-area` |  | 1 |
+| `--divider-width` |  | 1 |
+
+## favorite
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--favorite-item-active-background-color` |  | 1 |
+| `--favorite-items-max-width` | `250px` | 1 |
 
 ## form
 
@@ -1998,60 +2033,6 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--gradient` |  | 2 |
 
-## favorite
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--favorite-item-active-background-color` |  | 1 |
-| `--favorite-items-max-width` | `250px` | 1 |
-
-## particle
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--particle-x` |  | 1 |
-| `--particle-y` |  | 1 |
-
-## masonry
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--masonry-view-card-margin` | `4px 4px 8px` | 2 |
-
-## keypad
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--keypad-columns` |  | 2 |
-
-## divider
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--divider-hit-area` |  | 1 |
-| `--divider-width` |  | 1 |
-
-## chat
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--chat-background-color-hass` | `var(--secondary-background-color)` | 1 |
-| `--chat-background-color-user` | `var(--primary-color)` | 1 |
-
-## media
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--media-browse-item-size` | `175px` | 1 |
-| `--media-browser-max-height` | `100%` | 1 |
-
-## shadow
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--shadow-default` |  | 1 |
-| `--shadow-focus` |  | 1 |
-
 ## ha-favorite
 
 | Token | Fallback | Uses |
@@ -2059,39 +2040,18 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--ha-favorite-color-button-border-radius` | `var(--ha-border-radius-pill)` | 1 |
 | `--ha-favorite-color-button-size` | `40px` | 1 |
 
-## card
+## ha-top
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--card-row-gap` | `8px` | 1 |
-| `--card-text-align` | `inherit` | 1 |
+| `--ha-top-app-bar-width` | `100%` | 2 |
 
-## stroke
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--stroke-clr` |  | 1 |
-| `--stroke-color` | `var(--secondary-text-color)` | 1 |
-
-## default
+## horizontal
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--default-icon-clr` |  | 1 |
-| `--default-trigger-color` |  | 1 |
-
-## node
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--node-color` | `var(--secondary-text-color)` | 2 |
-
-## badges
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--badges-aligmnent` | `center` | 1 |
-| `--badges-wrap` | `wrap` | 1 |
+| `--horizontal-padding` | `16px` | 1 |
+| `--horizontal-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
 
 ## input
 
@@ -2099,11 +2059,11 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--input-padding-inline-start` | `0` | 2 |
 
-## value
+## keypad
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--value` | `0`<br>`0%` | 2 |
+| `--keypad-columns` |  | 2 |
 
 ## marker
 
@@ -2112,137 +2072,57 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | `--marker-height` |  | 1 |
 | `--marker-width` |  | 1 |
 
+## masonry
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--masonry-view-card-margin` | `4px 4px 8px` | 2 |
+
+## media
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--media-browse-item-size` | `175px` | 1 |
+| `--media-browser-max-height` | `100%` | 1 |
+
+## node
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--node-color` | `var(--secondary-text-color)` | 2 |
+
+## particle
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--particle-x` |  | 1 |
+| `--particle-y` |  | 1 |
+
+## shadow
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--shadow-default` |  | 1 |
+| `--shadow-focus` |  | 1 |
+
 ## stack
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--stack-card-gap` | `8px` | 2 |
 
-## box
+## stroke
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--box-shadow` |  | 2 |
+| `--stroke-clr` |  | 1 |
+| `--stroke-color` | `var(--secondary-text-color)` | 1 |
 
-## radio
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--radio-list-item-graphic-margin-top` |  | 1 |
-
-## clock
+## value
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--clock-size` |  | 1 |
-
-## tick
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--tick-rotation` |  | 1 |
-
-## ha-toast
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-toast-bottom-offset` | `0px` | 1 |
-
-## notification
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--notification-stack-bottom-offset` | `0px` | 1 |
-
-## vacuum
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--vacuum-color` |  | 1 |
-
-## dropdown
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--dropdown-width` |  | 1 |
-
-## chart
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--chart-max-height` | `350px` | 1 |
-
-## ha-empty
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-empty-state-icon-size` | `64px` | 1 |
-
-## ha-filter
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-filter-pane-width` | `320px` | 1 |
-
-## tab
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--tab-bar-height` | `56px` | 1 |
-
-## focus
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--focus-color` |  | 1 |
-
-## gap
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--gap` |  | 1 |
-
-## glance
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--glance-column-width` | `20%` | 1 |
-
-## name
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--name-font-size` |  | 1 |
-
-## brightness
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--brightness-font-size` |  | 1 |
-
-## ha-stack
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-stack-title-text-align` | `start` | 1 |
-
-## forecast
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--forecast-icon-size` | `40px` | 1 |
-
-## low
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--low-color` | `var(--disabled-color)` | 1 |
-
-## high
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--high-color` | `var(--disabled-color)` | 1 |
+| `--value` | `0`<br>`0%` | 2 |
 
 ## action
 
@@ -2250,77 +2130,23 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--action-color` | `inherit`<br>`transparent` | 1 |
 
-## trigger
+## alarm
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--trigger-color` | `var(--default-trigger-color)` | 1 |
+| `--alarm-state-color` |  | 1 |
 
-## ha-pulse
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-pulse-opacity` | `.3` | 1 |
-
-## lovelace
+## base
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--lovelace-background` | `var(--primary-background-color)` | 1 |
+| `--base-column-count` |  | 1 |
 
-## zone
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--zone-radius-color` |  | 1 |
-
-## ha-media
+## brightness
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--ha-media-browser-thumbnail-fit` | `contain` | 1 |
-
-## cursor
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--cursor-size` |  | 1 |
-
-## sheen
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--sheen-color` |  | 1 |
-
-## mower
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--mower-color` |  | 1 |
-
-## end
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--end` |  | 1 |
-
-## position
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--position` |  | 1 |
-
-## rail
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--rail-gap` | `22px` | 1 |
-
-## dot
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--dot-pos` |  | 1 |
+| `--brightness-font-size` |  | 1 |
 
 ## category
 
@@ -2334,59 +2160,17 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--cause-icon-size` |  | 1 |
 
-## narrow
+## chart
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--narrow-column-gap` |  | 1 |
+| `--chart-max-height` | `350px` | 1 |
 
-## top
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--top-margin` |  | 1 |
-
-## content
+## clock
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--content-column-count` |  | 1 |
-
-## footer
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--footer-max-width` | `600px` | 1 |
-
-## person
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--person-badge-font-size` | `var(--ha-font-size-m)` | 1 |
-
-## ha-person
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--ha-person-badge-font-size-long` | `var(--ha-font-size-s)` | 1 |
-
-## vertical
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--vertical-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
-
-## testing
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--testing-color` |  | 1 |
-
-## rotation
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--rotation` |  | 1 |
+| `--clock-size` |  | 1 |
 
 ## codemirror
 
@@ -2394,41 +2178,107 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--codemirror-string2` | `#07a` | 1 |
 
-## rows
+## content
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--rows` | `1` | 1 |
+| `--content-column-count` |  | 1 |
 
-## base
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--base-column-count` |  | 1 |
-
-## alarm
+## cursor
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--alarm-state-color` |  | 1 |
+| `--cursor-size` |  | 1 |
 
-## table
-
-| Token | Fallback | Uses |
-| --- | --- | ---: |
-| `--table-row-width` | `100%` | 1 |
-
-## modes
+## dot
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--modes-count` | `1` | 1 |
+| `--dot-pos` |  | 1 |
 
-## history
+## dropdown
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
-| `--history-max-height` |  | 1 |
+| `--dropdown-width` |  | 1 |
+
+## end
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--end` |  | 1 |
+
+## focus
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--focus-color` |  | 1 |
+
+## footer
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--footer-max-width` | `600px` | 1 |
+
+## forecast
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--forecast-icon-size` | `40px` | 1 |
+
+## gap
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--gap` |  | 1 |
+
+## glance
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--glance-column-width` | `20%` | 1 |
+
+## ha-empty
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-empty-state-icon-size` | `64px` | 1 |
+
+## ha-filter
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-filter-pane-width` | `320px` | 1 |
+
+## ha-media
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-media-browser-thumbnail-fit` | `contain` | 1 |
+
+## ha-person
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-person-badge-font-size-long` | `var(--ha-font-size-s)` | 1 |
+
+## ha-pulse
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-pulse-opacity` | `.3` | 1 |
+
+## ha-stack
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-stack-title-text-align` | `start` | 1 |
+
+## ha-toast
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--ha-toast-bottom-offset` | `0px` | 1 |
 
 ## header
 
@@ -2436,8 +2286,158 @@ literally in the bundle. **Chunks** is how many frontend chunks build each one.
 | --- | --- | ---: |
 | `--header-bar-padding` |  | 1 |
 
+## high
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--high-color` | `var(--disabled-color)` | 1 |
+
+## history
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--history-max-height` |  | 1 |
+
+## lovelace
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--lovelace-background` | `var(--primary-background-color)` | 1 |
+
+## low
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--low-color` | `var(--disabled-color)` | 1 |
+
+## modes
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--modes-count` | `1` | 1 |
+
+## mower
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--mower-color` |  | 1 |
+
+## name
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--name-font-size` |  | 1 |
+
+## narrow
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--narrow-column-gap` |  | 1 |
+
+## notification
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--notification-stack-bottom-offset` | `0px` | 1 |
+
+## person
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--person-badge-font-size` | `var(--ha-font-size-m)` | 1 |
+
+## position
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--position` |  | 1 |
+
+## radio
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--radio-list-item-graphic-margin-top` |  | 1 |
+
+## rail
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rail-gap` | `22px` | 1 |
+
+## rotation
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rotation` |  | 1 |
+
+## rows
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--rows` | `1` | 1 |
+
+## sheen
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--sheen-color` |  | 1 |
+
+## tab
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--tab-bar-height` | `56px` | 1 |
+
+## table
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--table-row-width` | `100%` | 1 |
+
+## testing
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--testing-color` |  | 1 |
+
+## tick
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--tick-rotation` |  | 1 |
+
+## top
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--top-margin` |  | 1 |
+
+## trigger
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--trigger-color` | `var(--default-trigger-color)` | 1 |
+
+## vacuum
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--vacuum-color` |  | 1 |
+
+## vertical
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--vertical-stack-card-gap` | `var(--stack-card-gap,8px)` | 1 |
+
 ## welcome
 
 | Token | Fallback | Uses |
 | --- | --- | ---: |
 | `--welcome-link-color` | `var(--primary-color)` | 1 |
+
+## zone
+
+| Token | Fallback | Uses |
+| --- | --- | ---: |
+| `--zone-radius-color` |  | 1 |

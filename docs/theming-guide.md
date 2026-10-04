@@ -90,7 +90,7 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
 - **Themes cannot load web fonts**, since they only set CSS variables.
 
 The builder sets the two Material tokens to `var(--ha-font-family-body)` in every theme, and
-generates one support module, registered with `frontend: extra_module_url:`, that binds
+generates one support module, which the integration loads on every page, that binds
 `body` to `var(--ha-font-family-body)` and loads the stylesheets of every theme that declares
 `typography.stylesheet`. With both in place, an audit of every rendered text node in Chrome
 finds only the theme font. Fonts declared on the document are visible inside every shadow
