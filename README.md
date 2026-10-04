@@ -126,5 +126,10 @@ start; after `ha-themes build`, restart it (or reload the integration) to see a 
 
 ## Brand assets
 
-`custom_components/ha_themes/brand/` still holds the blueprint's `TODO` placeholders. Replace
-them with the project's icon and logo before the first release.
+`custom_components/ha_themes/brand/` holds the icon Home Assistant shows for the integration:
+the Lucide `palette` glyph as a glass app icon, generated with
+[Glass Icons](https://www.rodrigoroque.dev/glass-icons/?icon=lucide%2Fpalette&bg1=22d3ee&bg2=0e7490&color=ffffff&tint=ffffff&size=0.65&glass=0&shadow=0.5&blur=32&shape=rounded&optical=1). `icon.svg` is the exported source; `icon.png` and `icon@2x.png` are
+square renders of it, and `logo.png` / `dark_logo.png` (with `@2x` variants) put the icon
+beside the "HA Themes" wordmark for light and dark backgrounds. Render the PNGs from
+`icon.svg` in Google Chrome on a transparent background at the sizes
+`tests/test_brand.py` checks.

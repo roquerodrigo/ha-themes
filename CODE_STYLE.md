@@ -299,13 +299,12 @@ Both gates must stay green:
   because the sample integration is not tied to a country; a fork sets it only
   when the device or service exists in specific countries, and prefers the list
   form so adding a country is a one-line diff.
-- Brand assets live under `custom_components/<domain>/brand/` — `icon.png`,
-  `logo.png` (+ `@2x` variants) and `icon.svg`. The blueprint ships **obvious
-  `TODO` placeholders** (a slate box stamped `TODO / replace me`), not sample
-  artwork: they keep the HACS `brands` check green while making it impossible to
-  mistake them for the real brand. Replace every file per integration and
-  register the assets in
-  [home-assistant/brands](https://github.com/home-assistant/brands).
+- Brand assets live under `custom_components/ha_themes/brand/`: `icon.svg` is the
+  source exported from Glass Icons (see README → Brand assets), `icon.png` (256×256)
+  and `icon@2x.png` (512×512) are square renders of it, and `logo.png` /
+  `dark_logo.png` (256×128) with their `@2x` (512×256) variants put the icon beside the
+  "HA Themes" wordmark for light and dark backgrounds, all on a transparent background.
+  `tests/test_brand.py` checks the sizes and fails on the blueprint placeholder.
 - A `README.md` at the repo root is required; HACS surfaces it as the
   integration description. Its header follows the layout below.
 
