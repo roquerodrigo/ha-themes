@@ -1,10 +1,10 @@
-import hashlib
 import json
 from pathlib import Path
 
 from ha_theme_kit.theme.builder import BuiltTheme
 
-THEMES_DIRECTORY = Path(__file__).resolve().parents[3] / "themes"
+INTEGRATION_DIRECTORY = Path(__file__).resolve().parents[3] / "custom_components" / "ha_themes"
+THEMES_DIRECTORY = INTEGRATION_DIRECTORY / "themes"
 
 
 def render_home_assistant_yaml(themes: list[BuiltTheme], source_version: str) -> str:
@@ -37,34 +37,18 @@ def write_theme_family(
     return path
 
 
-SUPPORT_DIRECTORY = THEMES_DIRECTORY.parent / "www" / "ha-themes"
-SUPPORT_SOURCES = Path(__file__).resolve().parents[1] / "support"
-SUPPORT_LOADER = "ha-themes-loader.js"
-SUPPORT_MODULE = "ha-themes.js"
-SUPPORT_VERSION = "ha-themes.version.json"
+SUPPORT_MODULE = INTEGRATION_DIRECTORY / "frontend" / "ha-themes.js"
+SUPPORT_MODULE_SOURCE = Path(__file__).resolve().parents[1] / "support" / "ha-themes.js"
 
 
-def write_support_module(
-    themes: list[BuiltTheme], directory: Path = SUPPORT_DIRECTORY
-) -> list[Path]:
+def write_support_module(themes: list[BuiltTheme], path: Path = SUPPORT_MODULE) -> Path:
     """Reaches what theme variables cannot: the hard-coded body font, web fonts, and the
     flat generic integration icons, which are bitmaps in the frontend's default blue.
 
-    The module is registered through a loader that never changes and imports the build by
-    content hash, since Home Assistant serves /local with a long-lived cache.
+    The integration serves it under a content-hash URL, so caches never hold a stale copy.
     """
     stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
-    module = (SUPPORT_SOURCES / SUPPORT_MODULE).read_text()
-    module = module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2))
-    directory.mkdir(parents=True, exist_ok=True)
-    outputs = {
-        directory / SUPPORT_LOADER: (SUPPORT_SOURCES / SUPPORT_LOADER).read_text(),
-        directory / SUPPORT_MODULE: module,
-        directory / SUPPORT_VERSION: json.dumps(
-            {"hash": hashlib.sha256(module.encode()).hexdigest()[:12]}
-        )
-        + "\n",
-    }
-    for path, content in outputs.items():
-        path.write_text(content)
-    return list(outputs)
+    module = SUPPORT_MODULE_SOURCE.read_text()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2)))
+    return path

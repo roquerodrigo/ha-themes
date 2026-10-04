@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import pytest
@@ -133,10 +132,7 @@ def test_backdrop_blur_can_be_disabled() -> None:
 
 def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) -> None:
     definition = minimal_definition(typography={"stylesheet": "https://fonts.example/css"})
-    loader, module_path, version = write_support_module([build_theme(definition)], tmp_path)
-    module = module_path.read_text()
-    assert "ha-themes.version.json" in loader.read_text()
-    assert len(json.loads(version.read_text())["hash"]) == 12
+    module = write_support_module([build_theme(definition)], tmp_path / "ha-themes.js").read_text()
     assert "__FONT_STYLESHEETS__" not in module
     assert '"https://fonts.example/css"' in module
     assert "--ha-themes-brand-icon-color" in module

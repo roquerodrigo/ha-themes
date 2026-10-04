@@ -93,8 +93,8 @@ def command_build(arguments: argparse.Namespace) -> int:
         for source in _theme_sources([])
         for variant in theme_family(ThemeDefinition.load(source))
     ]
-    for path in write_support_module(every_theme):
-        print(f"support module → {path.relative_to(PROJECT_ROOT)}")
+    module = write_support_module(every_theme)
+    print(f"support module → {module.relative_to(PROJECT_ROOT)}")
     return 1 if failed and arguments.strict else 0
 
 
@@ -148,6 +148,14 @@ def _named_colors() -> set[str]:
     return set(FRONTEND_NAMED_HUES) | set(NEUTRAL_NAMES["light"])
 
 
+def command_onboard(_arguments: argparse.Namespace) -> int:
+    from ha_theme_kit.inventory.dev_onboarding import onboard
+
+    instance = onboard()
+    print(f"onboarded {instance.url} as {instance.username}; ha_themes added")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="ha-themes")
     commands = parser.add_subparsers(required=True)
@@ -156,6 +164,11 @@ def main() -> int:
         "catalog", help="capture tokens from the dev instance and regenerate the reference"
     )
     catalog.set_defaults(handler=command_catalog)
+
+    onboard = commands.add_parser(
+        "onboard", help="create the dev instance's test user and add the integration"
+    )
+    onboard.set_defaults(handler=command_onboard)
 
     docs = commands.add_parser("docs", help="regenerate the reference from catalog/tokens.json")
     docs.set_defaults(handler=command_docs)

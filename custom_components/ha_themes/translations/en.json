@@ -1,0 +1,19 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Install HA Themes",
+                "description": "Installs the themes into your themes directory and loads the support module that applies their fonts and icon colors on every page. Pick a theme in your profile afterwards."
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "HA Themes is already installed."
+        }
+    },
+    "issues": {
+        "themes_not_loaded": {
+            "title": "HA Themes cannot load its themes",
+            "description": "The themes were installed into `{directory}`, but Home Assistant does not load themes from that directory. Add the following to `configuration.yaml`, restart Home Assistant, then reload this integration:\n\n```yaml\n{configuration}\n```"
+        }
+    }
+}

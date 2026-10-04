@@ -1,0 +1,7 @@
+{
+    "name": "HA Themes",
+    "zip_release": true,
+    "filename": "ha_themes.zip",
+    "homeassistant": "2026.9.4",
+    "hacs": "2.0.5"
+}

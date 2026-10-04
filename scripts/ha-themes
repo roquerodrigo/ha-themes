@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")/.."
+PYTHONPATH=toolkit exec uv run python -m ha_theme_kit "$@"

@@ -1,0 +1,7 @@
+# The toolkit is development tooling, not shipped code: it keeps a lighter ruleset
+# than the integration's ["ALL"].
+target-version = "py314"
+line-length = 100
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

@@ -1,11 +1,26 @@
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
-.ruff_cache/
+# artifacts
+__pycache__
+.pytest*
+*.egg-info
+*/build/*
+*/dist/*
+
+# misc
+.coverage
+.DS_Store
+.vscode
+.idea/
+coverage.xml
+.ruff_cache
+.mypy_cache
+
+# venv / env
+.venv
+.env
+
+# local development instance
 dev/config/*
-!dev/config/dashboards/
 !dev/config/configuration.yaml
+!dev/config/dashboards/
 dev/credentials.env
 dev/*.log
-.idea/

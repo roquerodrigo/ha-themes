@@ -2,9 +2,7 @@ homeassistant:
   name: Theme Lab
 
 frontend:
-  themes: !include_dir_merge_named ../../themes
-  extra_module_url:
-    - /local/ha-themes/ha-themes-loader.js
+  themes: !include_dir_merge_named themes
 
 lovelace:
   dashboards:
