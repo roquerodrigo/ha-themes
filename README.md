@@ -18,7 +18,7 @@ the themes and the support module they need.
 
 | Light | Dark |
 | --- | --- |
-| ![Anthropic theme, light](previews/anthropic/dashboard-light.png) | ![Anthropic theme, dark](previews/anthropic/dialog-dark.png) |
+| ![Anthropic theme, light](previews/anthropic/dashboard-light.png) | ![Anthropic theme, dark](previews/anthropic/dashboard-dark.png) |
 
 ## Themes
 
@@ -130,7 +130,7 @@ scripts/ha-themes onboard          # first run only: test user + the integration
 
 | Command | Purpose |
 | --- | --- |
-| `scripts/ha-themes build [slug…] [--strict]` | Build `themes-src/` into the integration and validate |
+| `scripts/ha-themes build [slug…] [--strict] [--verbose]` | Build `themes-src/` into the integration and validate |
 | `scripts/ha-themes preview [slug…] [--palette-only]` | Render palette sheets and screenshot themes in Google Chrome |
 | `scripts/ha-themes palette [slug…]` | Rank chart series orders that pass the checks, and list entity colors |
 | `scripts/ha-themes catalog` | Re-capture the token catalog from the dev instance and regenerate the reference docs |
