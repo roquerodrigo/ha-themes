@@ -132,12 +132,57 @@ def test_validation_flags_tokens_missing_from_catalog() -> None:
     assert validate_theme(theme, catalog).unknown_tokens == ["not-a-real-token"]
 
 
+def test_validation_flags_base_tokens_that_modes_override_or_theme_per_mode() -> None:
+    theme = build_theme(
+        minimal_definition(
+            tokens={
+                "base": {
+                    "primary-color": "#ff0000",
+                    "code-editor-background-color": "#777777",
+                    "ha-card-border-radius": "16px",
+                    "ha-card-box-shadow": "none",
+                },
+                "light": {"code-editor-background-color": "#555555"},
+            }
+        )
+    )
+    entries = [
+        TokenEntry(name=f"--{key}", layer="x", group="x", light="x", dark=dark)
+        for key, dark in {
+            "primary-color": "y",
+            "code-editor-background-color": "y",
+            "ha-card-border-radius": None,
+            "ha-card-box-shadow": "y",
+        }.items()
+    ]
+    catalog = TokenCatalog("test", "test", "today", {entry.name: entry for entry in entries})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.shadowed_base_tokens == ["code-editor-background-color", "primary-color"]
+    assert report.mode_dependent_base_tokens == []
+    assert not report.ok
+
+
+def test_validation_warns_about_base_tokens_with_dark_defaults() -> None:
+    theme = build_theme(minimal_definition(tokens={"base": {"ha-card-border-radius": "16px"}}))
+    entry = TokenEntry(name="--ha-card-border-radius", layer="x", group="x", light="x", dark="y")
+    catalog = TokenCatalog("test", "test", "today", {entry.name: entry})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.shadowed_base_tokens == []
+    assert report.mode_dependent_base_tokens == ["ha-card-border-radius"]
+
+
 @pytest.mark.parametrize("source", sorted(Path("themes-src").glob("*.yaml")), ids=lambda p: p.stem)
 def test_shipped_themes_validate_against_catalog(source: Path) -> None:
     catalog = TokenCatalog.load()
     for variant in theme_family(ThemeDefinition.load(source)):
         report = validate_theme(build_theme(variant), catalog)
         assert report.unknown_tokens == []
+        assert report.shadowed_base_tokens == []
+        assert report.mode_dependent_base_tokens == []
         assert all(result.passes for result in report.contrast)
         assert all(chart.passes for chart in report.charts)
 
