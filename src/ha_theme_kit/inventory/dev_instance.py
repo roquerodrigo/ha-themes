@@ -84,7 +84,41 @@ def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
         try:
             yield page
         finally:
+            _leave_in_automatic_mode(page, instance)
             browser.close()
+
+
+TESTED_THEMES: dict[int, str] = {}
+SELECTION_SCRIPT = """({ theme, dark }) => document.querySelector("home-assistant").dispatchEvent(
+    new CustomEvent("settheme", { detail: { theme, dark: dark ?? undefined } })
+)"""
+
+
+def _wait_for_app(page: Page) -> None:
+    page.wait_for_function(
+        "() => !document.getElementById('ha-launch-screen')"
+        " && document.querySelector('home-assistant')?.shadowRoot"
+        "?.querySelector('home-assistant-main')",
+        timeout=60000,
+    )
+
+
+def _leave_in_automatic_mode(page: Page, instance: DevInstance) -> None:
+    """Hand the instance back for manual testing: the last tested theme, dark mode on auto.
+
+    The selection is saved to the user's profile on the server, so whatever a capture
+    applied last would otherwise stick for the next person who opens the instance.
+    """
+    page.goto(f"{instance.url}/lovelace/0", wait_until="domcontentloaded")
+    _wait_for_app(page)
+    theme = TESTED_THEMES.pop(id(page), None) or page.evaluate(
+        "() => document.querySelector('home-assistant').hass.selectedTheme?.theme || 'default'"
+    )
+    page.evaluate(SELECTION_SCRIPT, {"theme": theme, "dark": None})
+    page.evaluate(
+        "theme => localStorage.setItem('selectedTheme', JSON.stringify({ theme }))", theme
+    )
+    page.wait_for_timeout(1500)
 
 
 def open_with_theme(page: Page, url: str, theme: str, dark: bool, settle_ms: int = 4000) -> None:
@@ -95,16 +129,8 @@ def open_with_theme(page: Page, url: str, theme: str, dark: bool, settle_ms: int
         {"theme": theme, "dark": dark},
     )
     page.goto(url, wait_until="domcontentloaded")
-    page.wait_for_function(
-        "() => !document.getElementById('ha-launch-screen')"
-        " && document.querySelector('home-assistant')?.shadowRoot"
-        "?.querySelector('home-assistant-main')",
-        timeout=60000,
-    )
-    page.evaluate(
-        """selection => document.querySelector("home-assistant").dispatchEvent(
-            new CustomEvent("settheme", { detail: selection })
-        )""",
-        {"theme": theme, "dark": dark},
-    )
+    _wait_for_app(page)
+    page.evaluate(SELECTION_SCRIPT, {"theme": theme, "dark": dark})
+    if theme != "default":
+        TESTED_THEMES[id(page)] = theme
     page.wait_for_timeout(settle_ms)
