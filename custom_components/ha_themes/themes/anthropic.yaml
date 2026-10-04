@@ -61,6 +61,7 @@
   ha-font-family-body: "Poppins, Arial, sans-serif"
   ha-font-family-heading: "Poppins, Arial, sans-serif"
   ha-font-family-longform: "Lora, Georgia, serif"
+  ha-themes-font-size-adjust: "0.528"
   ha-themes-font-stylesheet: "\"https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap\""
   ha-box-shadow-s: "0 0 0 0 transparent"
   ha-box-shadow-m: "0 0 0 0 transparent"

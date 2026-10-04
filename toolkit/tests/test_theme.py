@@ -11,7 +11,11 @@ from homeassistant.util.json import json_loads
 from ha_theme_kit.cli import THEME_SOURCES
 from ha_theme_kit.color.oklch import hex_to_rgba
 from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
-from ha_theme_kit.theme.builder import FONT_STYLESHEET_TOKEN, build_theme
+from ha_theme_kit.theme.builder import (
+    FONT_SIZE_ADJUST_TOKEN,
+    FONT_STYLESHEET_TOKEN,
+    build_theme,
+)
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.roles import DASHBOARD_HEADER_BACKGROUND_TOKEN, TOAST_EDGE_TOKEN
@@ -236,7 +240,12 @@ def test_flat_overlays_keep_an_outline_unless_shadows_are_enabled() -> None:
 
 def test_system_ui_variant_drops_web_fonts() -> None:
     definition = minimal_definition(
-        typography={"body": "Poppins", "code": "Fira Code", "stylesheet": "https://fonts"}
+        typography={
+            "body": "Poppins",
+            "code": "Fira Code",
+            "stylesheet": "https://fonts",
+            "size_adjust": "0.5",
+        }
     )
     variant = build_theme(theme_family(definition)[1])
     assert variant.definition.name == "Minimal System UI"
@@ -244,6 +253,19 @@ def test_system_ui_variant_drops_web_fonts() -> None:
     assert variant.base["ha-font-family-code"] == "Fira Code"
     assert variant.font_stylesheet is None
     assert FONT_STYLESHEET_TOKEN not in variant.base
+    assert FONT_SIZE_ADJUST_TOKEN not in variant.base
+
+
+def test_font_size_adjust_is_declared_as_a_project_variable() -> None:
+    theme = build_theme(minimal_definition(typography={"size_adjust": "0.528"}))
+    assert theme.base[FONT_SIZE_ADJUST_TOKEN] == "0.528"
+    assert FONT_SIZE_ADJUST_TOKEN not in build_theme(minimal_definition()).base
+
+
+@pytest.mark.parametrize("value", ["0", "1.2", "none"])
+def test_font_size_adjust_must_be_an_x_height_ratio(value: str) -> None:
+    with pytest.raises(ValueError, match="size_adjust"):
+        build_theme(minimal_definition(typography={"size_adjust": value}))
 
 
 def test_web_font_stylesheet_is_declared_as_a_quoted_theme_variable() -> None:
@@ -290,6 +312,7 @@ def test_backdrop_blur_can_be_disabled() -> None:
 def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) -> None:
     module = write_support_module(tmp_path / "ha-themes.js").read_text()
     assert f"--{FONT_STYLESHEET_TOKEN}" in module
+    assert f"--{FONT_SIZE_ADJUST_TOKEN}" in module
     assert "fonts.googleapis.com" not in module
     assert "--ha-themes-brand-icon-color" in module
     assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
@@ -302,6 +325,7 @@ def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
     prefix = "ha-themes-"
     assert f'PROJECT_VARIABLE_PREFIX = "--{prefix}"' in module
     assert FONT_STYLESHEET_TOKEN.startswith(prefix)
+    assert FONT_SIZE_ADJUST_TOKEN.startswith(prefix)
     for tokens in build_theme(minimal_definition()).modes.values():
         assert any(key.startswith(prefix) for key in tokens)
 

@@ -27,6 +27,12 @@ the themes and the support module they need.
 | Anthropic | Warm paper neutrals, clay primary, brand blue and green accents; Poppins |
 | Anthropic System UI | The same theme in the platform's UI font |
 
+Poppins is wider than Roboto, the font the frontend lays its labels out for. The Anthropic
+theme draws it at Roboto's x-height to compensate, which keeps most labels whole, but on a
+phone or a dense dashboard a few still end in an ellipsis where the default theme shows
+them in full. Anthropic System UI fits exactly what the default theme fits; see
+[Wide fonts](docs/theming-guide.md#wide-fonts).
+
 Every theme has light and dark modes and follows the
 [house conventions](docs/creating-a-theme.md#house-conventions): sidebar and header in the
 page background, no shadows, backdrop blur on the header, cards and dialogs, a harmonized

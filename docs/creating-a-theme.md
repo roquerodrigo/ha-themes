@@ -34,7 +34,9 @@ Every theme built here follows these defaults, so a new theme gets them for free
   while it is active, the support module makes no request to the font host.
 - **The whole UI uses the theme font.** Material components get `md-ref-typeface-plain` and
   `mdc-typography-font-family` pointed at `ha-font-family-body`, and the support module
-  binds the page body to it (see [the guide](theming-guide.md#fonts)).
+  binds the page body to it (see [the guide](theming-guide.md#fonts)). A wide web font can
+  set `typography.size_adjust` to render at the x-height of the stock font instead of at
+  its own; the System UI variant drops it with the web font.
 
 Copy an existing source, then change its `name:` before building: theme names must be
 unique, and `build` stops when two sources would define the same theme (including the
@@ -74,6 +76,7 @@ typography:                    # optional
   longform: "Lora, Georgia, serif"   # declared by the frontend, not read by any component yet
   code: "JetBrains Mono, monospace"
   size_scale: "1"
+  size_adjust: "0.528"         # optional x-height ratio; see the guide (Fonts)
   stylesheet: "https://fonts.googleapis.com/css2?family=…"   # loaded only while this theme is active
 
 roles:                         # optional per mode; unset roles use the defaults below
