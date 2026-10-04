@@ -19,5 +19,10 @@
             "title": "HA Themes could not reload the themes",
             "description": "Home Assistant refused to reload the themes, so the installed themes may be missing or outdated. Fix the error below in `configuration.yaml` or in the theme files it includes, then reload the themes (**Developer tools → YAML → Themes**):\n\n```\n{error}\n```"
         }
+    },
+    "exceptions": {
+        "install_failed": {
+            "message": "Failed to install the themes into {directory}: {error}"
+        }
     }
 }

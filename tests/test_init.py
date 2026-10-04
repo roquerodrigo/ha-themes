@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL, DATA_THEMES
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.helpers import issue_registry
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.ha_themes.const import (
     DOMAIN,
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from homeassistant.core import HomeAssistant
-    from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 THEMES_INCLUDE = "frontend:\n  themes: !include_dir_merge_named themes\n"
@@ -59,6 +59,26 @@ async def test_setup_registers_the_module_under_a_content_hash(
     assert url is not None
     assert url.startswith(f"/{DOMAIN}/ha-themes.js?v=")
     assert url in hass.data[DATA_EXTRA_MODULE_URL].urls
+
+
+async def test_failed_install_does_not_load_the_module(
+    hass: HomeAssistant,
+    frontend: None,
+    enable_custom_integrations: None,
+    config_directory: Path,
+) -> None:
+    (config_directory / "themes").write_text("not a directory")
+    modules_before = set(hass.data[DATA_EXTRA_MODULE_URL].urls)
+    entry = MockConfigEntry(domain=DOMAIN, data={}, title="HA Themes")
+    entry.add_to_hass(hass)
+
+    assert not await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entry.state is ConfigEntryState.SETUP_ERROR
+    assert entry.reason is not None
+    assert "Failed to install the themes" in entry.reason
+    assert set(hass.data[DATA_EXTRA_MODULE_URL].urls) == modules_before
 
 
 async def test_unload_stops_loading_the_module_and_keeps_the_themes(
