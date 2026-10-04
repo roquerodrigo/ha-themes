@@ -7,6 +7,7 @@ from ha_theme_kit.inventory.classification import LAYERS
 
 DOCS_DIRECTORY = Path(__file__).resolve().parents[3] / "docs"
 UNGUARDED_VAR = re.compile(r"var\(\s*(--[A-Za-z0-9_-]+)\s*\)")
+MALFORMED_VALUE = re.compile(r"[{};@]")
 
 
 def _cell(value: str | None) -> str:
@@ -31,9 +32,14 @@ def find_broken_references(catalog: TokenCatalog) -> list[tuple[TokenEntry, str,
     broken = []
     for entry in catalog.tokens.values():
         for mode, value in (("light", entry.light), ("dark", entry.dark)):
-            for referenced in UNGUARDED_VAR.findall(value or ""):
-                if referenced not in declared:
-                    broken.append((entry, mode, referenced))
+            if value and MALFORMED_VALUE.search(value):
+                broken.append((entry, mode, "malformed value"))
+                continue
+            broken.extend(
+                (entry, mode, f"`{referenced}` is never declared")
+                for referenced in UNGUARDED_VAR.findall(value or "")
+                if referenced not in declared
+            )
     return broken
 
 
@@ -65,13 +71,14 @@ def render_global_reference(catalog: TokenCatalog) -> str:
             "",
             "## Broken upstream references",
             "",
-            "Default values that point at tokens the frontend never declares; they resolve to",
-            "nothing. Themes can fix them by setting the token explicitly.",
+            "Default values that point at tokens the frontend never declares, or that carry",
+            "stray CSS syntax; either way they resolve to nothing. Themes can fix them by",
+            "setting the token explicitly.",
             "",
-            "| Token | Mode | Missing reference |",
+            "| Token | Mode | Problem |",
             "| --- | --- | --- |",
         ]
-        lines += [f"| `{entry.name}` | {mode} | `{missing}` |" for entry, mode, missing in broken]
+        lines += [f"| `{entry.name}` | {mode} | {problem} |" for entry, mode, problem in broken]
     by_layer: dict[str, dict[str, list[TokenEntry]]] = defaultdict(lambda: defaultdict(list))
     for entry in global_tokens:
         by_layer[entry.layer][entry.group].append(entry)
