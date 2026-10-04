@@ -111,19 +111,41 @@ const recoloredUrl = async (url, color) => {
 const backgroundBrandUrl = (element) =>
   element.style.backgroundImage.match(/url\(["']?([^"')]*\/api\/brands\/[^"')]*)["']?\)/)?.[1];
 
+const forget = (element) => {
+  delete element.dataset.haThemesSrc;
+  delete element.dataset.haThemesSrcset;
+  delete element.dataset.haThemesBackground;
+  delete element.dataset.haThemesApplied;
+};
+
+const displayedValue = (element) =>
+  element instanceof HTMLImageElement ? element.src : element.style.backgroundImage;
+
+const storedSource = (element) =>
+  element instanceof HTMLImageElement
+    ? element.dataset.haThemesSrc
+    : element.dataset.haThemesBackground;
+
 const originalSource = (element) => {
   if (element instanceof HTMLImageElement) {
     if (element.src.includes(BRAND_PATH)) {
       element.dataset.haThemesSrc = element.src;
       element.dataset.haThemesSrcset = element.srcset;
+      return element.src;
     }
-    return element.dataset.haThemesSrc;
+  } else {
+    const url = backgroundBrandUrl(element);
+    if (url) {
+      element.dataset.haThemesBackground = url;
+      return url;
+    }
   }
-  const url = backgroundBrandUrl(element);
-  if (url) {
-    element.dataset.haThemesBackground = url;
+  // The frontend replaced or cleared the image: it no longer shows a brand icon.
+  if (displayedValue(element) !== element.dataset.haThemesApplied) {
+    forget(element);
+    return undefined;
   }
-  return element.dataset.haThemesBackground;
+  return storedSource(element);
 };
 
 const applyTo = async (element) => {
@@ -133,6 +155,9 @@ const applyTo = async (element) => {
   }
   const color = brandIconColor();
   const replacement = color ? await recoloredUrl(source, color) : null;
+  if (originalSource(element) !== source) {
+    return;
+  }
   if (element instanceof HTMLImageElement) {
     const target = replacement || source;
     if (element.src !== target) {
@@ -145,6 +170,7 @@ const applyTo = async (element) => {
       element.style.backgroundImage = target;
     }
   }
+  element.dataset.haThemesApplied = displayedValue(element);
 };
 
 const isBrandElement = (element) =>
