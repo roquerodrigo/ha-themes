@@ -4,11 +4,11 @@ from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.mode_colors import ModeColors
+from ha_theme_kit.theme.semantic_layer import NON_TEXT_CONTRAST_FLOOR, frontend_floor
 from ha_theme_kit.theme.track_contrast import (
     BACKDROP_TOKENS,
-    NON_TEXT_CONTRAST_FLOOR,
     TRACK_ROLE,
-    contrast_floor,
+    TRACK_TOKEN,
     measure_track_pairs,
 )
 from ha_theme_kit.theme.validation import validate_theme
@@ -40,8 +40,13 @@ def track_results(roles: dict[str, dict[str, str]] | None = None) -> dict[tuple[
 def test_the_floor_is_the_frontend_ratio_where_its_light_thumb_misses_three() -> None:
     catalog = TokenCatalog.load()
 
-    light_floors = [contrast_floor(token, catalog, "light") for token in BACKDROP_TOKENS.values()]
-    dark_floors = [contrast_floor(token, catalog, "dark") for token in BACKDROP_TOKENS.values()]
+    light_floors, dark_floors = (
+        [
+            frontend_floor(TRACK_TOKEN, token, NON_TEXT_CONTRAST_FLOOR, catalog, mode)
+            for token in BACKDROP_TOKENS.values()
+        ]
+        for mode in ("light", "dark")
+    )
 
     assert light_floors == [pytest.approx(1.71, abs=0.01), pytest.approx(1.78, abs=0.01)]
     assert dark_floors == [NON_TEXT_CONTRAST_FLOOR, NON_TEXT_CONTRAST_FLOOR]
@@ -73,7 +78,7 @@ def test_a_scrollbar_that_does_not_resolve_is_reported_unmeasured() -> None:
 
     pairs = measure_track_pairs(colors)
 
-    assert [(pair.backdrop_role, pair.ratio) for pair in pairs] == [
+    assert [(pair.background_role, pair.ratio) for pair in pairs] == [
         ("background", None),
         ("surface", None),
     ]

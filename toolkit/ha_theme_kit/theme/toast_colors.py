@@ -10,15 +10,19 @@ on-colors miss the floor: the message takes white or the darkest neutral, and th
 nearest primary step that reads.
 """
 
-from dataclasses import dataclass
-from functools import cache
-
 from ha_theme_kit.color.css_color import contrast_on
-from ha_theme_kit.color.oklch import contrast_ratio
 from ha_theme_kit.inventory.catalog import TokenCatalog
-from ha_theme_kit.theme.loud_fills import DARK_ON_COLOR_STEP, ON_COLOR_CONTRAST_FLOOR, WHITE
+from ha_theme_kit.theme.contrast_result import ContrastResult
+from ha_theme_kit.theme.loud_fills import DARK_ON_COLOR_STEP, WHITE
 from ha_theme_kit.theme.mode_colors import ModeColors
-from ha_theme_kit.theme.tinted_on_colors import PALETTE_REFERENCE, contrast_floor, readable_on_color
+from ha_theme_kit.theme.semantic_layer import (
+    TEXT_CONTRAST_FLOOR,
+    frontend_catalog,
+    frontend_floor,
+    frontend_palette_step,
+    nearest_readable_step,
+    rounded_ratio,
+)
 from ha_theme_kit.theme.token_colors import resolve_token_color
 
 TOAST_BACKGROUND_TOKEN = "ha-color-neutral-10"
@@ -30,29 +34,15 @@ TOAST_ON_COLORS = {TOAST_TEXT_TOKEN: FRONTEND_TEXT_TOKEN, TOAST_ACTION_TOKEN: FR
 """Each toast token and the frontend on-color it replaces when unset."""
 
 
-@dataclass(frozen=True)
-class ToastPair:
-    mode: str
-    on_color_token: str
-    ratio: float | None
-    minimum: float
-
-    @property
-    def passes(self) -> bool:
-        return self.ratio is not None and self.ratio >= self.minimum
-
-
-def measure_toast_pairs(colors: ModeColors) -> list[ToastPair]:
+def measure_toast_pairs(colors: ModeColors) -> list[ContrastResult]:
     background = colors.opaque_token(TOAST_BACKGROUND_TOKEN, None)
     return [
-        ToastPair(
+        ContrastResult(
             colors.mode,
             toast_token,
-            contrast_on(
-                colors.token(toast_token) or colors.token(frontend_token),
-                background,
-            ),
-            contrast_floor(frontend_token, TOAST_BACKGROUND_TOKEN, colors.catalog, colors.mode),
+            TOAST_BACKGROUND_TOKEN,
+            contrast_on(colors.token(toast_token) or colors.token(frontend_token), background),
+            _floor(frontend_token, colors.catalog, colors.mode),
         )
         for toast_token, frontend_token in TOAST_ON_COLORS.items()
     ]
@@ -62,16 +52,16 @@ def build_toast_colors(
     mode: str, tokens: dict[str, str], scales: dict[str, dict[str, str]]
 ) -> dict[str, str]:
     """Toast tokens only for the on-colors that miss their floor on the toast."""
-    catalog = _frontend_catalog()
+    catalog = frontend_catalog()
     background = resolve_token_color(TOAST_BACKGROUND_TOKEN, tokens, catalog, mode)
     if background is None:
         return {}
     toast_colors: dict[str, str] = {}
     text = resolve_token_color(FRONTEND_TEXT_TOKEN, tokens, catalog, mode)
-    if text is None or _ratio(text, background) < ON_COLOR_CONTRAST_FLOOR:
+    if text is None or rounded_ratio(text, background) < TEXT_CONTRAST_FLOOR:
         toast_colors[TOAST_TEXT_TOKEN] = max(
             (WHITE, scales["neutral"][DARK_ON_COLOR_STEP]),
-            key=lambda candidate: _ratio(candidate, background),
+            key=lambda candidate: rounded_ratio(candidate, background),
         )
     action = _readable_action(mode, tokens, scales["primary"], background, catalog)
     if action is not None:
@@ -87,23 +77,17 @@ def _readable_action(
     catalog: TokenCatalog,
 ) -> str | None:
     """The primary step nearest the frontend's that reads on the toast, None if that one does."""
-    floor = contrast_floor(FRONTEND_ACTION_TOKEN, TOAST_BACKGROUND_TOKEN, catalog, mode)
+    floor = _floor(FRONTEND_ACTION_TOKEN, catalog, mode)
     action = resolve_token_color(FRONTEND_ACTION_TOKEN, tokens, catalog, mode)
-    if action is not None and _ratio(action, background) >= floor:
+    if action is not None and rounded_ratio(action, background) >= floor:
         return None
-    entry = catalog.find(FRONTEND_ACTION_TOKEN)
-    reference = entry and PALETTE_REFERENCE.fullmatch(
-        (mode == "dark" and entry.dark) or entry.light or ""
+    step = frontend_palette_step(FRONTEND_ACTION_TOKEN, catalog, mode)
+    if step is None:
+        return None
+    return nearest_readable_step(primary_scale, step[1], [(background, floor)])
+
+
+def _floor(frontend_token: str, catalog: TokenCatalog, mode: str) -> float:
+    return frontend_floor(
+        frontend_token, TOAST_BACKGROUND_TOKEN, TEXT_CONTRAST_FLOOR, catalog, mode
     )
-    if not reference:
-        return None
-    return readable_on_color(primary_scale, reference["step"], [(background, floor)])
-
-
-def _ratio(foreground: str, background: str) -> float:
-    return round(contrast_ratio(foreground, background), 2)
-
-
-@cache
-def _frontend_catalog() -> TokenCatalog:
-    return TokenCatalog.load()
