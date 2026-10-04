@@ -15,6 +15,7 @@ from ha_theme_kit.theme.loud_fills import (
 )
 from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
+from ha_theme_kit.theme.tinted_on_colors import measure_tinted_pairs
 from ha_theme_kit.theme.token_colors import resolve_token_color
 
 HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -77,6 +78,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
                 )
             )
     contrast.extend(_check_loud_fills(theme, catalog))
+    contrast.extend(_check_tinted_on_colors(theme, catalog))
     charts = [
         check_categorical(series, mode, theme.roles[mode]["surface"])
         for mode, series in theme.chart_series.items()
@@ -114,6 +116,16 @@ def _check_loud_fills(theme: BuiltTheme, catalog: TokenCatalog) -> list[Contrast
                     )
                 )
     return results
+
+
+def _check_tinted_on_colors(theme: BuiltTheme, catalog: TokenCatalog) -> list[ContrastResult]:
+    return [
+        ContrastResult(
+            pair.mode, pair.on_color_token, pair.backdrop_token, pair.ratio, pair.minimum
+        )
+        for mode, mode_tokens in theme.modes.items()
+        for pair in measure_tinted_pairs(mode, theme.base | mode_tokens, catalog)
+    ]
 
 
 def _check_base_overrides(theme: BuiltTheme, catalog: TokenCatalog) -> tuple[list[str], list[str]]:

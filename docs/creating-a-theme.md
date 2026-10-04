@@ -130,6 +130,16 @@ together, darker under white or lighter under the dark on-color, until one of th
 pale brand orange therefore keeps its fill and gets dark text, while a mid green moves one
 step darker under white.
 
+The normal and quiet on-colors (text of filled and plain buttons, badges and alerts) are
+fixed steps of the same families too, drawn on the tinted normal and quiet fills and on the
+page and surface. Their rule is **not worse than stock, otherwise 4.5:1**: on every fill
+state, `primary-background-color` and `ha-color-surface-default`, each on-color must reach
+4.5:1, or, where the frontend's own pair falls short of 4.5:1, at least the frontend's ratio
+for that pair. Where the frontend's step misses, the builder moves the on-color along its
+family, away from the fills, to the nearest step that meets every floor, and leaves the
+fills alone. A light brand orange whose `40` is paler than the frontend's therefore gets its
+warning text from `30`. Disabled text is exempt.
+
 ### References
 
 Anywhere a color is expected you can write `{family.step}` or `{family.step@alpha}`:
@@ -256,6 +266,9 @@ Assistant would keep only one of them. It then reports, per theme:
 - the on-color of every loud fill (primary, danger, warning, success and neutral) on its
   resting, hover and active fill, in both modes (4.5:1), including fills a theme sets
   through `tokens`;
+- the normal and quiet on-color of primary, danger, warning, success and neutral on its
+  resting, hover and active fill, the page and the surface, in both modes (4.5:1, or the
+  frontend's own ratio where that is lower);
 - the chart series checks above, per mode;
 - the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
   be darker than the dark `background`, and the three statuses must stay at least OKLab
