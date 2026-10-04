@@ -56,8 +56,12 @@ def write_support_module(themes: list[BuiltTheme], path: Path = SUPPORT_MODULE) 
 
     The integration serves it under a content-hash URL, so caches never hold a stale copy.
     """
-    stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
-    module = SUPPORT_MODULE_SOURCE.read_text()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2)))
+    path.write_text(render_support_module(themes), encoding="utf-8")
     return path
+
+
+def render_support_module(themes: list[BuiltTheme]) -> str:
+    stylesheets = sorted({theme.font_stylesheet for theme in themes if theme.font_stylesheet})
+    module = SUPPORT_MODULE_SOURCE.read_text(encoding="utf-8")
+    return module.replace("__FONT_STYLESHEETS__", json.dumps(stylesheets, indent=2))
