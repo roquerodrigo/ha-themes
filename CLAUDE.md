@@ -49,7 +49,11 @@ Pinned in four places that must move together: `homeassistant`,
 `home-assistant-frontend` and `pytest-homeassistant-custom-component` (whose
 `requires_dist` must list the same `homeassistant`) in `pyproject.toml`, and
 `homeassistant` in `hacs.json`. Then re-capture the catalog and review the frontend copies
-kept by hand (README → Updating to a new Home Assistant release).
+kept by hand (README → Updating to a new Home Assistant release). Dependabot ignores the
+three packages, and `toolkit/tests/test_pinned_versions.py` fails while any of the four
+pins or `catalog/tokens.json` disagree with the installed packages. pytest, pytest-asyncio
+and pytest-cov come exact-pinned from `pytest-homeassistant-custom-component`; do not pin
+them again in `pyproject.toml`.
 
 ## Conventions not obvious from the code
 
