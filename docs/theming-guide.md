@@ -91,14 +91,23 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
 
 The builder sets the two Material tokens to `var(--ha-font-family-body)` in every theme, and
 generates one support module, which the integration loads on every page, that binds
-`body` to `var(--ha-font-family-body)` and loads web fonts on demand. A theme that declares
+`body` to `var(--ha-font-family-body)` while a project theme is the global theme and loads
+web fonts on demand. A theme that declares
 `typography.stylesheet` carries its URL in the project variable `ha-themes-font-stylesheet`;
 the module adds the stylesheet while that variable is set on the page (by the global theme) or
 on a view or card (by a view or card theme), and removes it as soon as no visible theme sets it,
 so switching themes needs no reload. The System UI variants do not set the variable, and with
 them, the default theme or any other theme, the module requests no web font. With both in place, an audit of every rendered text node in Chrome
 finds only the theme font. Fonts declared on the document are visible inside every shadow
-root, and the module runs on every page.
+root.
+
+The module is dormant while no project theme is in use: it only notices when a theme sets a
+`ha-themes-*` variable (every project theme sets `ha-themes-brand-icon-color`), without
+patching `attachShadow` or observing any shadow root. The first such variable, from the
+global theme or from a view or card theme, activates it; it then scans the shadow roots that
+already exist and watches new ones. Once no element declares a project variable any more, it
+restores the icons, removes the font stylesheets, disconnects its observers and goes dormant
+again.
 
 ## Entity and chart colors
 
@@ -129,7 +138,7 @@ which proxies and caches the brands CDN. Core integrations without a logo of the
 drawn in a single flat `#00abf8`; theme variables cannot reach a bitmap, and the endpoint
 only accepts local overrides for custom integrations.
 
-The support module recolors them in the browser: it watches every shadow root for
+The support module recolors them in the browser: while active, it watches every shadow root for
 `/api/brands/` images, loads each one into a canvas, and recolors it only when every opaque
 pixel is that exact blue, so real logos — multicolored or monochrome in another color — are
 never touched. The color comes from `--ha-themes-brand-icon-color`; a theme that does not
