@@ -1,6 +1,6 @@
 import re
 
-from ha_theme_kit.color.oklch import hex_to_rgba
+from ha_theme_kit.color.oklch import hex_to_rgba, is_opaque_hex
 from ha_theme_kit.color.palette import PALETTE_STEPS, generate_tonal_scale
 
 REQUIRED_FAMILIES = ("primary", "neutral", "red", "orange", "green")
@@ -18,19 +18,26 @@ class PaletteResolver:
 
     @staticmethod
     def _expand(family: str, spec: str | dict[str, str]) -> dict[str, str]:
-        if isinstance(spec, str):
-            return generate_tonal_scale(spec)
-        if "seed" in spec:
-            scale = generate_tonal_scale(spec["seed"])
-            scale.update(
-                {str(step).zfill(2): value for step, value in spec.items() if step != "seed"}
+        if not isinstance(spec, dict):
+            return generate_tonal_scale(_require_hex(f"palette.{family}", spec))
+        explicit_steps = {
+            str(step).zfill(2): value for step, value in spec.items() if step != "seed"
+        }
+        unknown_steps = sorted(set(explicit_steps) - set(PALETTE_STEPS))
+        if unknown_steps:
+            raise ValueError(
+                f"palette family {family!r} has unknown steps {unknown_steps},"
+                f" expected some of {list(PALETTE_STEPS)}"
             )
-            return scale
-        scale = {str(step).zfill(2): value for step, value in spec.items()}
-        missing_steps = [step for step in PALETTE_STEPS if step not in scale]
+        for step, value in explicit_steps.items():
+            _require_hex(f"palette.{family}.{step}", value)
+        if "seed" in spec:
+            seed = _require_hex(f"palette.{family}.seed", spec["seed"])
+            return generate_tonal_scale(seed) | explicit_steps
+        missing_steps = [step for step in PALETTE_STEPS if step not in explicit_steps]
         if missing_steps:
             raise ValueError(f"palette family {family!r} is missing steps {missing_steps}")
-        return scale
+        return explicit_steps
 
     def core_tokens(self) -> dict[str, str]:
         return {
@@ -50,3 +57,9 @@ class PaletteResolver:
         if alpha is None:
             return color
         return hex_to_rgba(color, alpha)
+
+
+def _require_hex(path: str, value: object) -> str:
+    if not isinstance(value, str) or not is_opaque_hex(value):
+        raise ValueError(f"{path} must be an opaque hex color, got {value!r}")
+    return value

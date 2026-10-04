@@ -12,7 +12,13 @@ def parse_lightness_bands(section: str, document: dict | None) -> dict[str, tupl
             and all(_is_number(bound) for bound in band)
         ):
             raise ValueError(f"{section}.lightness.{mode} must be [minimum, maximum], got {band!r}")
-        bands[mode] = (float(band[0]), float(band[1]))
+        minimum, maximum = float(band[0]), float(band[1])
+        if not 0 <= minimum <= maximum <= 1:
+            raise ValueError(
+                f"{section}.lightness.{mode} must satisfy 0 <= minimum <= maximum <= 1,"
+                f" got {band!r}"
+            )
+        bands[mode] = (minimum, maximum)
     return bands
 
 

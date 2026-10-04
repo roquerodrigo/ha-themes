@@ -6,6 +6,7 @@ import yaml
 from ha_theme_kit.theme.chart_palette import ChartSettings
 from ha_theme_kit.theme.entity_palette import EntityColorSettings
 from ha_theme_kit.theme.modes import MODES
+from ha_theme_kit.theme.palette_resolver import PaletteResolver
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,7 @@ class ThemeDefinition:
             if unknown_modes:
                 raise ValueError(f"{path.name}: unknown {section} modes {sorted(unknown_modes)}")
         try:
+            PaletteResolver(document["palette"])
             EntityColorSettings.from_document(document.get("entity_colors"))
             ChartSettings.from_document(document.get("charts"))
         except ValueError as error:
@@ -58,6 +60,13 @@ class ThemeDefinition:
             tokens=document.get("tokens") or {},
             entity_colors=document.get("entity_colors") or {},
             charts=document.get("charts") or {},
-            shadows=bool(document.get("shadows", False)),
-            backdrop_blur=bool(document.get("backdrop_blur", True)),
+            shadows=_require_bool(path, document, "shadows", default=False),
+            backdrop_blur=_require_bool(path, document, "backdrop_blur", default=True),
         )
+
+
+def _require_bool(path: Path, document: dict, key: str, *, default: bool) -> bool:
+    value = document.get(key, default)
+    if not isinstance(value, bool):
+        raise ValueError(f"{path.name}: {key} must be true or false, got {value!r}")
+    return value
