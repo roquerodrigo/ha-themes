@@ -50,6 +50,29 @@ This project started from the [ha-integration-blueprint](https://github.com/roqu
 
 Run `scripts/setup` once to create the `uv`-managed virtual environment, then `scripts/develop` to start a stand-alone Home Assistant instance in debug mode with the integration loaded and the included [`configuration.yaml`](./config/configuration.yaml) file.
 
+## Releasing
+
+Releases are cut by `.github/workflows/release.yml` after CI passes on a push to `main`.
+release-please keeps a release pull request open with the version bump and the changelog;
+merging it tags `vX.Y.Z`, creates the GitHub release and attaches `ha_themes.zip`, the
+contents of `custom_components/ha_themes/` that HACS installs (`zip_release` in `hacs.json`).
+`tests/test_release_packaging.py` keeps the asset name and the version files consistent.
+
+The release workflow needs these one-time steps on GitHub before it can run:
+
+1. Create a fine-grained personal access token for this repository with **Contents** and
+   **Pull requests** read and write, and store it as the Actions secret `RELEASE_PLEASE_PAT`.
+   The workflow falls back to `GITHUB_TOKEN` without it, and that token cannot open the
+   release pull request (Actions may not create pull requests in this repository) and its
+   pushes do not trigger the CI and CodeQL checks that `main` requires.
+2. Delete the branch `release-please--branches--main--components--ha-themes` left by the
+   failed first run, so release-please starts the release pull request from scratch.
+3. Re-enable the **Release** workflow (Actions → Release → Enable workflow) and re-run it, or
+   push to `main`.
+4. Close Dependabot pull request #2: `home-assistant-frontend` is pinned together with Home
+   Assistant and the token catalog, and Dependabot now ignores it (README: Updating to a new
+   Home Assistant release).
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under its MIT License.
