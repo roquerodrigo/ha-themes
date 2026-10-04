@@ -129,6 +129,8 @@ async def test_theme_reload_clears_a_previous_reload_failure(
     (config_directory / "configuration.yaml").write_text(
         "frontend:\n  themes:\n    Broken: 12\n"
     )
+    outdated = next((config_directory / "themes" / DOMAIN).glob("*.yaml"))
+    outdated.write_text("Outdated: {}\n")
     assert await hass.config_entries.async_reload(setup_integration.entry_id)
     await hass.async_block_till_done()
     assert issue(hass, ISSUE_THEMES_RELOAD_FAILED) is not None
