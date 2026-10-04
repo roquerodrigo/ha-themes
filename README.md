@@ -62,8 +62,10 @@ The integration:
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
-  theme and recolors the generic integration icons. It is served under a content-hash URL,
-  so browser and service worker caches never keep an outdated copy;
+  theme and recolors the generic integration icons. It stays dormant, observing nothing,
+  until a project theme is applied globally or to a view or card, and falls dormant again
+  when none is left, so users on other themes are not affected. It is served under a
+  content-hash URL, so browser and service worker caches never keep an outdated copy;
 - requests fonts from Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) only while
   a theme that declares them is active — globally, or on a view or card. The System UI
   variants, the default theme and other themes make no font request;
