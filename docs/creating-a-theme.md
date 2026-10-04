@@ -63,7 +63,7 @@ palette:                       # required: primary, neutral, red, orange, green
     "95": "#f0eee6"
   red:
     seed: "#bf4d43"            # or a seed with hand-tuned steps on top
-    "05": "#1f0b09"
+    "05": "#411c18"
   orange: "#d08b2c"
   green: "#788c5d"
   blue: "#6a9bcc"              # extra families are allowed, but only usable as references
@@ -116,7 +116,11 @@ tokens:                        # optional raw tokens, applied last
 (`ha-color-<family>-<step>`); `red`, `orange` and `green` are the danger, warning and success
 families of the semantic layer. Seeds sit at step 50. The generator is a port of the
 frontend's own `generateColorPalette` and produces identical values, but its darkest steps
-drift towards black — hand-tune `05`–`30` when the theme has a dark mode.
+drift towards black and, for warm seeds, towards red — hand-tune `05`–`30` of `red`,
+`orange` and `green` when the theme has a dark mode. Dark mode paints the status fills from
+those steps (`05` quiet, `10` normal, `20` hover, `30` loud hover): keep `05` at least as
+light as the dark `background`, keep each family's hue, and let the build's status fill
+check confirm the three stay apart.
 
 ### References
 
@@ -227,7 +231,11 @@ Assistant would keep only one of them. It then reports, per theme:
 - tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
 - WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1), and
   primary, error and on-primary text (3:1);
-- the chart series checks above, per mode.
+- the chart series checks above, per mode;
+- the dark-mode danger, warning and success fills (quiet and normal): quiet fills must not
+  be darker than the dark `background`, and the three statuses must stay at least OKLab
+  ΔE 5 apart at each emphasis. Light mode is exempt, since the frontend's own quiet fills
+  there are near-white tints by design.
 
 `--strict` turns any failure into a non-zero exit code.
 
