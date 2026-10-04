@@ -43,27 +43,37 @@ def command_build(arguments: argparse.Namespace) -> int:
     from ha_theme_kit.theme.builder import build_theme
     from ha_theme_kit.theme.definition import ThemeDefinition
     from ha_theme_kit.theme.validation import validate_theme
-    from ha_theme_kit.theme.writer import write_font_loader, write_theme
+    from ha_theme_kit.theme.variants import theme_family
+    from ha_theme_kit.theme.writer import write_support_module, write_theme_family
 
     catalog = TokenCatalog.load()
     failed = False
     for source in _theme_sources(arguments.themes):
-        theme = build_theme(ThemeDefinition.load(source))
-        report = validate_theme(theme, catalog)
-        path = write_theme(theme, catalog.frontend_version)
-        token_count = len(theme.all_token_keys())
-        print(f"{source.stem}: {token_count} tokens → {path.relative_to(PROJECT_ROOT)}")
-        if font_loader := write_font_loader(theme):
-            print(f"  font loader → {font_loader.relative_to(PROJECT_ROOT)}")
-        for key in report.unknown_tokens:
-            print(f"  ✗ unknown token {key!r} (not in frontend {catalog.frontend_version})")
-        for result in report.contrast:
-            mark = "✓" if result.passes else "✗"
-            print(
-                f"  {mark} {result.mode:5} {result.foreground_role} on {result.background_role}:"
-                f" {result.ratio}:1 (min {result.minimum})"
-            )
-        failed = failed or not report.ok
+        themes = [build_theme(variant) for variant in theme_family(ThemeDefinition.load(source))]
+        path = write_theme_family(themes, catalog.frontend_version)
+        print(f"{source.stem} → {path.relative_to(PROJECT_ROOT)}")
+        for theme in themes:
+            report = validate_theme(theme, catalog)
+            print(f"  {theme.definition.name}: {len(theme.all_token_keys())} tokens")
+            for key in report.unknown_tokens:
+                print(f"    ✗ unknown token {key!r} (not in frontend {catalog.frontend_version})")
+            for result in report.contrast:
+                if arguments.verbose or not result.passes:
+                    mark = "✓" if result.passes else "✗"
+                    print(
+                        f"    {mark} {result.mode:5} {result.foreground_role} on"
+                        f" {result.background_role}: {result.ratio}:1 (min {result.minimum})"
+                    )
+            if report.ok:
+                print("    ✓ all tokens known, all contrast checks pass")
+            failed = failed or not report.ok
+    every_theme = [
+        build_theme(variant)
+        for source in _theme_sources([])
+        for variant in theme_family(ThemeDefinition.load(source))
+    ]
+    module = write_support_module(every_theme)
+    print(f"support module → {module.relative_to(PROJECT_ROOT)}")
     return 1 if failed and arguments.strict else 0
 
 
@@ -71,12 +81,13 @@ def command_preview(arguments: argparse.Namespace) -> int:
     from ha_theme_kit.inventory.dev_instance import DevInstance
     from ha_theme_kit.theme.definition import ThemeDefinition
     from ha_theme_kit.theme.preview import capture_previews
+    from ha_theme_kit.theme.variants import theme_family
 
     instance = DevInstance.from_credentials_file()
     for source in _theme_sources(arguments.themes):
-        definition = ThemeDefinition.load(source)
-        for path in capture_previews(instance, definition.name, definition.slug):
-            print(f"wrote {path.relative_to(PROJECT_ROOT)}")
+        for definition in theme_family(ThemeDefinition.load(source)):
+            for path in capture_previews(instance, definition.name, definition.slug):
+                print(f"wrote {path.relative_to(PROJECT_ROOT)}")
     return 0
 
 
@@ -95,6 +106,7 @@ def main() -> int:
     build = commands.add_parser("build", help="build themes-src/*.yaml into themes/")
     build.add_argument("themes", nargs="*", help="theme slugs (default: all)")
     build.add_argument("--strict", action="store_true", help="fail on validation errors")
+    build.add_argument("--verbose", action="store_true", help="list every contrast check")
     build.set_defaults(handler=command_build)
 
     preview = commands.add_parser("preview", help="screenshot themes in Google Chrome")

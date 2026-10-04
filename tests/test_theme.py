@@ -8,6 +8,7 @@ from ha_theme_kit.theme.builder import build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
 from ha_theme_kit.theme.validation import validate_theme
+from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
 from ha_theme_kit.theme.writer import render_home_assistant_yaml
 
 MINIMAL_PALETTE = {
@@ -60,7 +61,9 @@ def test_extra_palette_families_are_references_only() -> None:
 
 
 def test_rendered_yaml_is_a_home_assistant_theme() -> None:
-    document = yaml.safe_load(render_home_assistant_yaml(build_theme(minimal_definition()), "test"))
+    themes = [build_theme(variant) for variant in theme_family(minimal_definition())]
+    document = yaml.safe_load(render_home_assistant_yaml(themes, "test"))
+    assert set(document) == {"Minimal", "Minimal System UI"}
     theme = document["Minimal"]
     assert set(theme["modes"]) == {"light", "dark"}
     assert theme["ha-color-primary-50"] == "#d97757"
@@ -78,6 +81,32 @@ def test_validation_flags_tokens_missing_from_catalog() -> None:
 
 @pytest.mark.parametrize("source", sorted(Path("themes-src").glob("*.yaml")), ids=lambda p: p.stem)
 def test_shipped_themes_validate_against_catalog(source: Path) -> None:
-    report = validate_theme(build_theme(ThemeDefinition.load(source)), TokenCatalog.load())
-    assert report.unknown_tokens == []
-    assert all(result.passes for result in report.contrast)
+    catalog = TokenCatalog.load()
+    for variant in theme_family(ThemeDefinition.load(source)):
+        report = validate_theme(build_theme(variant), catalog)
+        assert report.unknown_tokens == []
+        assert all(result.passes for result in report.contrast)
+
+
+def test_chrome_follows_background_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"sidebar_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["sidebar-background-color"] == light["primary-background-color"]
+    assert light["app-header-background-color"] == light["primary-background-color"]
+    assert theme.modes["dark"]["sidebar-background-color"] == "#000000"
+
+
+def test_shadows_are_flat_unless_enabled() -> None:
+    assert build_theme(minimal_definition()).base["ha-card-box-shadow"] == "0 0 0 0 transparent"
+    assert "ha-card-box-shadow" not in build_theme(minimal_definition(shadows=True)).base
+
+
+def test_system_ui_variant_drops_web_fonts() -> None:
+    definition = minimal_definition(
+        typography={"body": "Poppins", "code": "Fira Code", "stylesheet": "https://fonts"}
+    )
+    variant = build_theme(theme_family(definition)[1])
+    assert variant.definition.name == "Minimal System UI"
+    assert variant.base["ha-font-family-body"] == SYSTEM_UI_FONT_STACK
+    assert variant.base["ha-font-family-code"] == "Fira Code"
+    assert variant.font_stylesheet is None

@@ -79,16 +79,28 @@ for the loading screen. Automations can still set the default theme with
 
 ## Fonts
 
-Themes can only set CSS variables, so they cannot load web fonts. To use a font that is not
-installed on every device, load its stylesheet globally with a small module registered as
-`frontend: extra_module_url:` (the builder generates one per theme that declares
-`typography.stylesheet`). The module runs on every page, and fonts declared on the
-document are visible inside every shadow root.
+Setting `ha-font-family-body` is not enough to change the font everywhere:
+
+- **The page body hard-codes Roboto.** `index.html` declares
+  `body { font-family: Roboto, Noto, sans-serif }` as a literal baked in at build time, so
+  everything that inherits from the body — sidebar, header, banners, buttons — ignores the
+  theme. Dashboards and settings cards read the variable and do follow it.
+- **Material components fall back to a literal Roboto.** They read
+  `md-ref-typeface-plain` and `mdc-typography-font-family`, which the frontend never sets.
+- **Themes cannot load web fonts**, since they only set CSS variables.
+
+The builder sets the two Material tokens to `var(--ha-font-family-body)` in every theme, and
+generates one support module, registered with `frontend: extra_module_url:`, that binds
+`body` to `var(--ha-font-family-body)` and loads the stylesheets of every theme that declares
+`typography.stylesheet`. With both in place, an audit of every rendered text node in Chrome
+finds only the theme font. Fonts declared on the document are visible inside every shadow
+root, and the module runs on every page.
 
 ## Known upstream issues (frontend 20260826.7)
 
 | Issue | Effect | Workaround applied by the builder |
 | --- | --- | --- |
+| `body` font is a hard-coded literal | Sidebar, header and banners ignore `ha-font-family-body` | Support module binds `body` to the variable |
 | Dark `ha-color-fill-neutral-quiet-active` references `--ha-color-neutral-00` | Resolves to nothing in dark mode | Set to `neutral.05` |
 | Dark `ha-color-surface-lower-inverted` references `--ha-color-90` | Resolves to nothing in dark mode | Set to `neutral.90` |
 | Dark mode declares `ha-color-border-normal` instead of `ha-color-border-primary-normal` | The primary normal border keeps its light value in dark mode | Set `ha-color-border-primary-normal` to `primary.50` in dark |

@@ -38,7 +38,6 @@ roles:
   light:
     background: "#faf9f5"
     surface: "#ffffff"
-    sidebar_background: "#f5f4ed"
     text: "{neutral.05}"
     text_secondary: "{neutral.40}"
     link: "{primary.30}"
@@ -52,7 +51,6 @@ roles:
     background: "#262624"
     surface: "{neutral.20}"
     surface_variant: "{neutral.30}"
-    sidebar_background: "{neutral.10}"
     text: "{neutral.95}"
     text_secondary: "{neutral.70}"
     text_disabled: "{neutral.50}"

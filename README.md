@@ -23,7 +23,7 @@ builds themes from a small, validated definition.
 | [`catalog/tokens.json`](catalog/tokens.json) | Machine-readable catalog the builder validates against |
 | [`themes-src/`](themes-src) | Theme definitions |
 | [`themes/`](themes) | Generated Home Assistant theme files, ready to install |
-| [`www/ha-themes/`](www/ha-themes) | Generated font loaders |
+| [`www/ha-themes/ha-themes.js`](www/ha-themes/ha-themes.js) | Generated support module: theme font on the whole UI, web font loading |
 | [`previews/`](previews) | Screenshots of every theme in both modes |
 
 ## Themes
@@ -31,6 +31,10 @@ builds themes from a small, validated definition.
 | Theme | Description |
 | --- | --- |
 | [Anthropic](themes/anthropic.yaml) | Warm paper neutrals, clay primary, brand blue and green accents; Poppins and Lora |
+| [Anthropic System UI](themes/anthropic.yaml) | The same theme in the platform's UI font |
+
+All themes share the [house conventions](docs/creating-a-theme.md#house-conventions):
+sidebar and header in the page background, no shadows, and a system-ui variant.
 
 Installation steps are in [creating-a-theme.md](docs/creating-a-theme.md#installing-a-theme).
 

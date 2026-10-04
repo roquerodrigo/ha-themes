@@ -5,6 +5,22 @@ under `themes/<slug>.yaml`, validates every key against the token catalog and ch
 contrast. You decide on a palette and a handful of roles; the builder writes the ~100
 tokens Home Assistant needs.
 
+## House conventions
+
+Every theme built here follows these defaults, so a new theme gets them for free:
+
+- **Sidebar and header share the page background.** `sidebar_background` and
+  `header_background` follow the `background` role unless a theme sets them; the 1px
+  dividers keep the regions apart.
+- **No shadows.** Elevation tokens are flattened (cards, dialogs, menus, tooltips, the
+  Material and Web Awesome components). A theme opts back in with `shadows: true`.
+- **A system-ui variant.** Each definition produces two themes in the same file:
+  `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
+  UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download.
+- **The whole UI uses the theme font.** Material components get `md-ref-typeface-plain` and
+  `mdc-typography-font-family` pointed at `ha-font-family-body`, and the support module
+  binds the page body to it (see [the guide](theming-guide.md#fonts)).
+
 ```bash
 cp themes-src/anthropic.yaml themes-src/my-theme.yaml
 uv run ha-themes build my-theme --strict
@@ -16,6 +32,7 @@ uv run ha-themes preview my-theme
 ```yaml
 name: My Theme                 # theme name shown in the profile picker
 description: One paragraph.
+shadows: false                 # optional, default false
 
 palette:                       # required: primary, neutral, red, orange, green
   primary: "#d97757"           # a seed: generates steps 05…95 with the frontend's algorithm
@@ -36,7 +53,7 @@ typography:                    # optional
   longform: "Lora, Georgia, serif"
   code: "JetBrains Mono, monospace"
   size_scale: "1"
-  stylesheet: "https://fonts.googleapis.com/css2?family=…"   # generates a font loader
+  stylesheet: "https://fonts.googleapis.com/css2?family=…"   # loaded by the support module
 
 roles:                         # optional per mode; unset roles use the defaults below
   light:
@@ -88,16 +105,15 @@ link: "{primary.30}"           # → #9c4a2e
 | `outline_hover` | `outline-hover-color` | `{neutral.05@0.24}` | `{neutral.90@0.24}` |
 | `error` / `warning` / `success` / `info` | `*-color` | `red.50` / `orange.60` / `green.50` / `primary.50` | `red.60` / `orange.60` / `green.60` / `primary.60` |
 | `state_icon` | `state-icon-color` | `{primary.30}` | `{primary.60}` |
-| `state_active` | `state-active-color` | — | — |
 | `scrollbar` | `scrollbar-thumb-color` | `{neutral.70}` | `{neutral.40}` |
 | `shadow` | `shadow-color` | `rgba(0, 0, 0, 0.16)` | `rgba(0, 0, 0, 0.48)` |
 | `input_fill` | `input-fill-color` | `{neutral.95}` | `{neutral.90@0.05}` |
 | `code_background` | `markdown-code-background-color` | `{neutral.95}` | `{neutral.05}` |
-| `sidebar_background` / `sidebar_text` / `sidebar_selected` | `sidebar-*` | — | — |
-| `header_background` / `header_text` | `app-header-*` | — | — |
+| `sidebar_background` / `header_background` | `sidebar-background-color` / `app-header-background-color` | `background` | `background` |
+| `sidebar_text` / `sidebar_selected` / `header_text` | `sidebar-*`, `app-header-text-color` | — | — |
+| `state_active` | `state-active-color` | — | — |
 
-Roles marked — are only written when set; otherwise the frontend's derived default applies
-(the sidebar follows the card background, the header follows the sidebar).
+Roles marked — are only written when set; otherwise the frontend's derived default applies.
 
 ### Validation
 
@@ -113,14 +129,16 @@ Roles marked — are only written when set; otherwise the frontend's derived def
 
 1. Copy `themes/<slug>.yaml` into the Home Assistant `config/themes/` directory, with
    `frontend: themes: !include_dir_merge_named themes` in `configuration.yaml`.
-2. If the theme has a font loader, copy `www/ha-themes/<slug>-fonts.js` to
-   `config/www/ha-themes/` and register it:
+2. Copy `www/ha-themes/ha-themes.js` to `config/www/ha-themes/` and register it once for
+   all themes:
 
    ```yaml
    frontend:
      extra_module_url:
-       - /local/ha-themes/<slug>-fonts.js
+       - /local/ha-themes/ha-themes.js
    ```
 
+   Without it, themes still work, but the sidebar, header and banners stay in Roboto and
+   web fonts are not loaded.
 3. Call `frontend.reload_themes` (a restart is only needed after adding the module), then
    pick the theme in the user profile.

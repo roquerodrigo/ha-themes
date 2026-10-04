@@ -2,7 +2,14 @@ from dataclasses import dataclass
 
 from ha_theme_kit.theme.definition import MODES, ThemeDefinition
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
-from ha_theme_kit.theme.roles import ROLE_DEFAULTS, ROLE_TOKENS, UPSTREAM_FIXES
+from ha_theme_kit.theme.roles import (
+    FLAT_ELEVATION,
+    ROLE_DEFAULTS,
+    ROLE_FALLBACKS,
+    ROLE_TOKENS,
+    TYPOGRAPHY_BRIDGE,
+    UPSTREAM_FIXES,
+)
 
 FONT_STYLESHEET_KEY = "stylesheet"
 TYPOGRAPHY_TOKENS = {
@@ -37,19 +44,23 @@ def build_theme(definition: ThemeDefinition) -> BuiltTheme:
     """
     resolver = PaletteResolver(definition.palette)
 
-    base = resolver.core_tokens()
+    base = resolver.core_tokens() | TYPOGRAPHY_BRIDGE
     for role, value in definition.typography.items():
         if role == FONT_STYLESHEET_KEY:
             continue
         if role not in TYPOGRAPHY_TOKENS:
             raise ValueError(f"unknown typography role {role!r}")
         base[TYPOGRAPHY_TOKENS[role]] = str(value)
+    if not definition.shadows:
+        base.update(FLAT_ELEVATION)
     base.update(_resolve_all(resolver, definition.tokens.get("base", {})))
 
     modes: dict[str, dict[str, str]] = {}
     resolved_roles: dict[str, dict[str, str]] = {}
     for mode in MODES:
         mode_roles = {**ROLE_DEFAULTS[mode], **definition.roles.get(mode, {})}
+        for role, source_role in ROLE_FALLBACKS.items():
+            mode_roles.setdefault(role, mode_roles[source_role])
         unknown_roles = set(mode_roles) - set(ROLE_TOKENS)
         if unknown_roles:
             raise ValueError(f"unknown {mode} roles {sorted(unknown_roles)}")

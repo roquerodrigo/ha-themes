@@ -15,6 +15,7 @@ class ThemeDefinition:
     typography: dict[str, str] = field(default_factory=dict)
     roles: dict[str, dict[str, str]] = field(default_factory=dict)
     tokens: dict[str, dict[str, str]] = field(default_factory=dict)
+    shadows: bool = False
 
     @classmethod
     def load(cls, path: Path) -> ThemeDefinition:
@@ -26,6 +27,7 @@ class ThemeDefinition:
             "typography",
             "roles",
             "tokens",
+            "shadows",
         }
         if unknown_sections:
             raise ValueError(f"{path.name}: unknown sections {sorted(unknown_sections)}")
@@ -41,4 +43,5 @@ class ThemeDefinition:
             typography=document.get("typography") or {},
             roles=document.get("roles") or {},
             tokens=document.get("tokens") or {},
+            shadows=bool(document.get("shadows", False)),
         )

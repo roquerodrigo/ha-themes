@@ -92,6 +92,34 @@ ROLE_DEFAULTS: dict[str, dict[str, str]] = {
     },
 }
 
+ROLE_FALLBACKS: dict[str, str] = {
+    "sidebar_background": "background",
+    "header_background": "background",
+}
+"""Roles that follow another role unless a theme sets them: chrome blends into the page."""
+
+FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
+    (
+        "ha-box-shadow-s",
+        "ha-box-shadow-m",
+        "ha-box-shadow-l",
+        "wa-shadow-s",
+        "wa-shadow-m",
+        "wa-shadow-l",
+        "ha-card-box-shadow",
+        "dialog-box-shadow",
+        "bar-box-shadow",
+    ),
+    "0 0 0 0 transparent",
+) | {"md-sys-color-shadow": "transparent"}
+"""A transparent zero shadow instead of `none` stays valid inside comma-separated shadow lists."""
+
+TYPOGRAPHY_BRIDGE: dict[str, str] = {
+    "md-ref-typeface-plain": "var(--ha-font-family-body)",
+    "mdc-typography-font-family": "var(--ha-font-family-body)",
+}
+"""Material components fall back to a literal Roboto instead of the HA body font."""
+
 UPSTREAM_FIXES: dict[str, dict[str, str]] = {
     "dark": {
         "ha-color-fill-neutral-quiet-active": "{neutral.05}",
