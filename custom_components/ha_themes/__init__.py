@@ -24,6 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HaThemesConfigEntry) -> 
         frontend_module=frontend_module,
         installed_themes=await theme_installer.async_install(),
     )
+    entry.async_on_unload(theme_installer.async_watch_theme_reloads())
     return True
 
 
@@ -33,6 +34,7 @@ async def async_unload_entry(
 ) -> bool:
     """Stop loading the support module; installed themes stay until removal."""
     entry.runtime_data.frontend_module.unregister()
+    entry.runtime_data.theme_installer.clear_issues()
     return True
 
 

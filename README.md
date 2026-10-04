@@ -61,7 +61,8 @@ The integration:
   generic integration icons. It is served under a content-hash URL, so browser and service
   worker caches never keep an outdated copy;
 - raises a repair issue if the themes directory is not included in `configuration.yaml`, or
-  with the error if Home Assistant refuses to reload the themes.
+  with the error if Home Assistant refuses to reload the themes, and re-checks it on every
+  theme reload, so fixing the configuration and reloading the themes clears it.
 
 ## Documentation
 

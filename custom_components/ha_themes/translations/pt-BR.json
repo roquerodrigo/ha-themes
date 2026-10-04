@@ -13,11 +13,11 @@
     "issues": {
         "themes_not_loaded": {
             "title": "O HA Themes não consegue carregar os temas",
-            "description": "Os temas foram instalados em `{directory}`, mas o Home Assistant não carrega temas desse diretório. Deixe `frontend: themes:` no `configuration.yaml` como abaixo, reinicie o Home Assistant e recarregue esta integração:\n\n```yaml\n{configuration}\n```"
+            "description": "Os temas foram instalados em `{directory}`, mas o Home Assistant não carrega temas desse diretório. Deixe `frontend: themes:` no `configuration.yaml` como abaixo e recarregue os temas (**Ferramentas de desenvolvedor → YAML → Temas**) ou reinicie o Home Assistant:\n\n```yaml\n{configuration}\n```"
         },
         "themes_reload_failed": {
             "title": "O HA Themes não conseguiu recarregar os temas",
-            "description": "O Home Assistant recusou recarregar os temas, então os temas instalados podem estar ausentes ou desatualizados. Corrija o erro abaixo no `configuration.yaml` ou nos arquivos de tema que ele inclui e recarregue esta integração:\n\n```\n{error}\n```"
+            "description": "O Home Assistant recusou recarregar os temas, então os temas instalados podem estar ausentes ou desatualizados. Corrija o erro abaixo no `configuration.yaml` ou nos arquivos de tema que ele inclui e recarregue os temas (**Ferramentas de desenvolvedor → YAML → Temas**):\n\n```\n{error}\n```"
         }
     }
 }

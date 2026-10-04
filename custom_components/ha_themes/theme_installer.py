@@ -6,8 +6,9 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from homeassistant.components.frontend import DATA_THEMES
+from homeassistant.components.frontend import DATA_THEMES, EVENT_THEMES_UPDATED
 from homeassistant.components.frontend import DOMAIN as FRONTEND_DOMAIN
+from homeassistant.core import Event, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import issue_registry
 from homeassistant.util.file import write_utf8_file_atomic
@@ -22,7 +23,7 @@ from .const import (
 )
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import CALLBACK_TYPE, HomeAssistant
 
 PACKAGED_THEMES = Path(__file__).parent / THEMES_DIRECTORY
 RELOAD_THEMES_SERVICE = "reload_themes"
@@ -36,12 +37,13 @@ class HaThemesThemeInstaller:
     anything else on every `frontend.reload_themes`, so the themes are installed as
     files the standard `!include_dir_merge_named themes` picks up, then reloaded. A
     repair issue explains the fix when the reload fails or the configuration does not
-    include that directory.
+    include that directory, and is re-checked whenever the themes are reloaded.
     """
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Bind the installer to a Home Assistant instance."""
         self._hass = hass
+        self._installed: tuple[str, ...] = ()
 
     @property
     def target_directory(self) -> Path:
@@ -57,6 +59,7 @@ class HaThemesThemeInstaller:
     async def async_install(self) -> tuple[str, ...]:
         """Install or update the theme files and reload the frontend themes."""
         installed = await self._hass.async_add_executor_job(self._synchronize_files)
+        self._installed = installed
         reload_error = await self._async_reload_themes()
         self._update_issues(installed, reload_error)
         LOGGER.debug("Installed themes %s into %s", installed, self.target_directory)
@@ -66,8 +69,25 @@ class HaThemesThemeInstaller:
         """Remove the installed theme files and reload the frontend themes."""
         await self._hass.async_add_executor_job(self._remove_files)
         await self._async_reload_themes()
+        self.clear_issues()
+
+    @callback
+    def async_watch_theme_reloads(self) -> CALLBACK_TYPE:
+        """Re-check the repair issues after every successful theme reload."""
+        return self._hass.bus.async_listen(
+            EVENT_THEMES_UPDATED, self._handle_themes_updated
+        )
+
+    @callback
+    def clear_issues(self) -> None:
+        """Remove the integration's repair issues."""
         self._delete_issue(ISSUE_THEMES_NOT_LOADED)
         self._delete_issue(ISSUE_THEMES_RELOAD_FAILED)
+
+    @callback
+    def _handle_themes_updated(self, _event: Event) -> None:
+        """Update the repair issues against the themes the frontend now serves."""
+        self._update_issues(self._installed, None)
 
     def _remove_files(self) -> None:
         """Delete the installed theme directory, if present."""
