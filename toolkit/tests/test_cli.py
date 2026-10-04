@@ -53,3 +53,28 @@ def test_strict_build_writes_nothing_when_validation_fails(
 
     assert cli.command_build(arguments) == 1
     assert written == []
+
+
+def test_build_rejects_sources_that_share_a_theme_name(
+    theme_sources: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    written: list[str] = []
+    monkeypatch.setattr(writer, "write_theme_family", lambda *_: written.append("theme"))
+    monkeypatch.setattr(writer, "write_support_module", lambda *_: written.append("module"))
+    (theme_sources / "copy.yaml").write_text((theme_sources / "chartless.yaml").read_text())
+
+    arguments = argparse.Namespace(themes=["copy"], strict=False, verbose=False)
+
+    with pytest.raises(cli.DuplicateThemeNamesError) as error:
+        cli.command_build(arguments)
+    assert "'Anthropic' in chartless.yaml, copy.yaml" in str(error.value)
+    assert "'Anthropic System UI' in chartless.yaml, copy.yaml" in str(error.value)
+    assert written == []
+
+
+def test_build_accepts_renamed_copies(theme_sources: Path) -> None:
+    document = yaml.safe_load((theme_sources / "chartless.yaml").read_text())
+    document["name"] = "My Theme"
+    (theme_sources / "copy.yaml").write_text(yaml.safe_dump(document))
+
+    cli._reject_duplicate_theme_names()

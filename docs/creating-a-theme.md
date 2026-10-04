@@ -31,8 +31,13 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `mdc-typography-font-family` pointed at `ha-font-family-body`, and the support module
   binds the page body to it (see [the guide](theming-guide.md#fonts)).
 
+Copy an existing source, then change its `name:` before building: theme names must be
+unique, and `build` stops when two sources would define the same theme (including the
+`System UI` variant).
+
 ```bash
 cp themes-src/anthropic.yaml themes-src/my-theme.yaml
+# edit themes-src/my-theme.yaml: name: My Theme
 scripts/ha-themes build my-theme --strict
 scripts/ha-themes preview my-theme
 ```
@@ -191,7 +196,8 @@ keep slot 1 and pass in both modes; pick one and write it into `series`.
 
 ### Validation
 
-`ha-themes build` reports, per theme:
+`ha-themes build` refuses to run when two sources define the same theme name, since Home
+Assistant would keep only one of them. It then reports, per theme:
 
 - tokens that do not exist in the captured frontend (typos, or tokens removed upstream);
 - WCAG contrast for text on background and surface (4.5:1), link on surface (4.5:1), and
