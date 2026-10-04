@@ -1,9 +1,11 @@
 """Dark-mode checks that form fields and neutral fills stand apart from what they sit on.
 
-Fields must read as boxes on the surface, disabled fields must differ from both the surface
-and enabled fields, and the quiet fills, hover fills and `ha-color-surface-low` must not sink
-below the page or surface they are drawn on. In light mode the frontend draws fields and
-hovers as darker tints by design, so only dark mode is held to these floors.
+Filled fields must read as boxes on the surface, disabled fields must differ from both the
+surface and enabled fields, and the quiet fills, hover fills and `ha-color-surface-low` must not
+sink below the page or surface they are drawn on. In light mode the frontend draws fields and
+hovers as darker tints by design, so only dark mode is held to these floors. A theme with
+`field_outline` draws its fields as clear outlined boxes, so the field fill checks do not apply;
+the form hover fill is still checked, since checkboxes paint it on hover.
 """
 
 from dataclasses import dataclass, field
@@ -58,12 +60,16 @@ class FormSeparationReport:
     darker_fills: list[tuple[str, str]]
     unresolved: list[str] = field(default_factory=list)
     """Checked roles and tokens that do not resolve to a measurable color."""
+    fields_filled: bool = True
+    """False when the theme outlines its fields without a fill, which skips the field checks."""
 
     @property
     def passes(self) -> bool:
         return (
-            self.form_contrast is not None
-            and self.form_contrast >= FORM_CONTRAST_FLOOR
+            (
+                not self.fields_filled
+                or (self.form_contrast is not None and self.form_contrast >= FORM_CONTRAST_FLOOR)
+            )
             and not self.close_pairs
             and not self.darker_fills
             and not self.unresolved
@@ -80,15 +86,17 @@ def check_form_separation(theme: BuiltTheme, catalog: TokenCatalog) -> FormSepar
     }
     colors = {name: color.to_hex() for name, color in resolved.items() if color is not None}
     unresolved = [name for name, color in resolved.items() if color is None]
+    fields_filled = not theme.definition.field_outline
     form_contrast = (
         round(contrast_ratio(colors[FORM_BACKGROUND], colors["surface"]), 2)
-        if FORM_BACKGROUND in colors and "surface" in colors
+        if fields_filled and FORM_BACKGROUND in colors and "surface" in colors
         else None
     )
     close_pairs = [
         (first, second, distance)
         for first, second in DISTINCT_PAIRS
-        if first in colors
+        if fields_filled
+        and first in colors
         and second in colors
         and (distance := round(color_distance(colors[first], colors[second]), 2)) < DISTANCE_FLOOR
     ]
@@ -100,5 +108,5 @@ def check_form_separation(theme: BuiltTheme, catalog: TokenCatalog) -> FormSepar
         and hex_to_oklch(colors[token]).lightness < hex_to_oklch(colors[base]).lightness
     ]
     return FormSeparationReport(
-        CHECKED_MODE, colors, form_contrast, close_pairs, darker_fills, unresolved
+        CHECKED_MODE, colors, form_contrast, close_pairs, darker_fills, unresolved, fields_filled
     )

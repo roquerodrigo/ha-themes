@@ -215,8 +215,10 @@ def _print_form_separation(report: FormSeparationReport | None, verbose: bool) -
             f"    ✗ {report.mode:5} {token} {report.colors[token]} is darker than the {base}"
             f" {report.colors[base]}"
         )
-    if verbose and report.passes:
+    if verbose and report.passes and report.fields_filled:
         print(f"    ✓ {report.mode:5} form background on surface {report.form_contrast}:1")
+    elif verbose and report.passes:
+        print(f"    ✓ {report.mode:5} form fields outlined without a fill")
 
 
 def _print_entity_separation(report: EntitySeparationReport | None) -> None:

@@ -22,12 +22,13 @@ Every theme built here follows these defaults, so a new theme gets them for free
   notification drawer, top app bars) stays opaque. A theme opts out with
   `backdrop_blur: false`.
 - **Outlined form fields.** Text inputs, text areas, selects, pickers, the labels field and
-  time inputs keep their fill but trade the Material bottom line for a 1px outline in
+  time inputs drop their fill and trade the Material bottom line for a 1px outline in
   `ha-color-border-neutral-quiet` with `ha-border-radius-md` corners, drawn by the support
-  module (see [the guide](theming-guide.md#form-fields)). The outline turns the primary color
-  on focus and the danger color on an invalid value, as the bottom line did, and fades on a
-  disabled field. Buttons, chips, switches and checkboxes are untouched. A theme opts out
-  with `field_outline: false`.
+  module (see [the guide](theming-guide.md#form-fields)), so they show the page, card or
+  dialog behind them. The outline steps to `ha-color-border-neutral-normal` on hover instead
+  of the darker hover fill, turns the primary color on focus and the danger color on an
+  invalid value, as the bottom line did, and fades on a disabled field. Buttons, chips,
+  switches and checkboxes are untouched. A theme opts out with `field_outline: false`.
 - **A harmonized entity palette.** The frontend's named colors — which every entity state
   color references — keep their hue and meaning but are restyled per mode: chroma capped to
   the theme's mood and lightness rescaled into a band that reads on that mode's surfaces.
@@ -341,7 +342,9 @@ Assistant would keep only one of them. It then reports, per theme:
   ΔE 5 apart at each emphasis. Light mode is exempt, since the frontend's own quiet fills
   there are near-white tints by design;
 - dark-mode form separation: the form background must reach 1.2:1 against `surface`, enabled
-  and disabled fields must stay at least OKLab ΔE 2 from the surface and from each other, the
+  and disabled fields must stay at least OKLab ΔE 2 from the surface and from each other (only
+  with `field_outline: false`; outlined fields have no fill, and their text is held to the
+  `text` and `text_secondary` pairs on `background` and `surface`), the
   quiet resting and active fills and `ha-color-surface-low` may not be darker than
   `background`, and the quiet, normal and form hover fills may not be darker than `surface`;
 - the entity color groups above, per mode (OKLab ΔE 5 between competing neighbours).

@@ -46,6 +46,7 @@ def theme_with(**overrides) -> ThemeDefinition:
         description="",
         palette=PALETTE,
         roles=overrides.pop("roles", RAISED_DARK_ROLES),
+        field_outline=overrides.pop("field_outline", False),
         **overrides,
     )
 
@@ -98,3 +99,21 @@ def test_roles_that_do_not_resolve_fail() -> None:
     assert "surface" in report.unresolved
     assert report.form_contrast is None
     assert not report.passes
+
+
+def test_outlined_fields_skip_the_field_fill_checks() -> None:
+    theme = build_theme(theme_with(tokens={"dark": FRONTEND_STEPS}, field_outline=True))
+    report = check_form_separation(theme, TokenCatalog.load())
+
+    assert not report.fields_filled
+    assert report.form_contrast is None
+    assert report.close_pairs == []
+    assert (QUIET_HOVER, "surface") in report.darker_fills
+    assert not report.passes
+
+
+def test_outlined_fields_with_layered_fills_pass() -> None:
+    report = check_form_separation(build_theme(theme_with(field_outline=True)), TokenCatalog.load())
+
+    assert report.form_contrast is None
+    assert report.passes

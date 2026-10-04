@@ -125,3 +125,20 @@ def test_build_reports_pairs_it_cannot_evaluate(
         " evaluable, a side does not resolve to a color the checks can measure"
         in capsys.readouterr().out
     )
+
+
+def test_outlined_form_fields_are_reported_without_a_form_contrast(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    report = FormSeparationReport(
+        mode="dark",
+        colors={},
+        form_contrast=None,
+        close_pairs=[],
+        darker_fills=[],
+        fields_filled=False,
+    )
+
+    cli._print_form_separation(report, verbose=True)
+
+    assert "dark  form fields outlined without a fill" in capsys.readouterr().out
