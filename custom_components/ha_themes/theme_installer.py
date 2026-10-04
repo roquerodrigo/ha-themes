@@ -23,6 +23,8 @@ from .const import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from homeassistant.core import CALLBACK_TYPE, HomeAssistant
 
 PACKAGED_THEMES = Path(__file__).parent / THEMES_DIRECTORY
@@ -91,7 +93,15 @@ class HaThemesThemeInstaller:
 
     def _remove_files(self) -> None:
         """Delete the installed theme directory, if present."""
-        shutil.rmtree(self.target_directory, ignore_errors=True)
+        if self.target_directory.exists():
+            shutil.rmtree(self.target_directory, onexc=self._log_removal_failure)
+
+    @staticmethod
+    def _log_removal_failure(
+        _function: Callable[..., object], path: str, error: BaseException
+    ) -> None:
+        """Report a file the uninstall could not delete instead of failing it."""
+        LOGGER.warning("Could not remove %s: %s", path, error)
 
     def _synchronize_files(self) -> tuple[str, ...]:
         """Mirror the packaged theme files and return the theme names they define."""
@@ -100,6 +110,12 @@ class HaThemesThemeInstaller:
         for stale in self.target_directory.glob("*.yaml"):
             if stale.name not in packaged:
                 stale.unlink()
+                LOGGER.info(
+                    "Removed %s: %s is managed by %s and only keeps its themes",
+                    stale,
+                    self.target_directory,
+                    DOMAIN,
+                )
         names: list[str] = []
         for name, source in sorted(packaged.items()):
             content = source.read_bytes()

@@ -55,7 +55,11 @@ icons in the primary color, and a system-ui variant.
 The integration:
 
 - installs the themes into `themes/ha_themes/` and reloads them — updates arrive with every
-  HACS update, and removing the integration removes the files;
+  HACS update, and removing the integration removes the files. The integration owns that
+  directory: any other file placed there is deleted (and logged) on the next install or
+  reload, so keep your own themes elsewhere under `themes/`. Do not reuse the names of the
+  shipped themes either — Home Assistant keeps only one theme per name, and which file wins
+  depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body), loads web fonts and recolors the
   generic integration icons. It is served under a content-hash URL, so browser and service
