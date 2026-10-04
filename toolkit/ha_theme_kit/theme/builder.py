@@ -20,7 +20,7 @@ from ha_theme_kit.theme.roles import (
     TYPOGRAPHY_BRIDGE,
     UPSTREAM_FIXES,
 )
-from ha_theme_kit.theme.tinted_on_colors import build_tinted_on_colors
+from ha_theme_kit.theme.semantic_layer import build_semantic_colors
 from ha_theme_kit.theme.toast_colors import build_toast_colors
 
 FONT_STYLESHEET_KEY = "stylesheet"
@@ -111,7 +111,7 @@ def _build(definition: ThemeDefinition) -> BuiltTheme:
             tokens.update(dict.fromkeys(ROLE_TOKENS[role], value))
         if definition.backdrop_blur:
             tokens.update(_translucent_surfaces(resolved_roles[mode], mode))
-        tokens |= build_tinted_on_colors(mode, base | tokens, resolver.scales)
+        tokens |= build_semantic_colors(mode, base | tokens, resolver.scales)
         tokens.update(_resolve_all(resolver, definition.tokens.get(mode, {}), f"tokens.{mode}"))
         tokens = build_toast_colors(mode, base | tokens, resolver.scales) | tokens
         modes[mode] = tokens

@@ -12,10 +12,8 @@ from dataclasses import dataclass
 
 from ha_theme_kit.color.oklch import contrast_ratio, relative_luminance
 from ha_theme_kit.color.palette import PALETTE_STEPS
+from ha_theme_kit.theme.semantic_layer import TEXT_CONTRAST_FLOOR
 
-LOUD_FILL_STATUSES = ("danger", "warning", "success", "neutral")
-LOUD_FILL_STATES = ("resting", "hover", "active")
-ON_COLOR_CONTRAST_FLOOR = 4.5
 WHITE = "#ffffff"
 DARK_ON_COLOR_STEP = "05"
 
@@ -51,7 +49,7 @@ class LoudFill:
                 contrast_ratio(self.on_color, self.resting),
                 contrast_ratio(self.on_color, self.hover),
             )
-            >= ON_COLOR_CONTRAST_FLOOR
+            >= TEXT_CONTRAST_FLOOR
         )
 
 

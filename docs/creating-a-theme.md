@@ -133,15 +133,20 @@ together, darker under white or lighter under the dark on-color, until one of th
 pale brand orange therefore keeps its fill and gets dark text, while a mid green moves one
 step darker under white.
 
-The normal and quiet on-colors (text of filled and plain buttons, badges and alerts) are
-fixed steps of the same families too, drawn on the tinted normal and quiet fills and on the
-page and surface. Their rule is **not worse than stock, otherwise 4.5:1**: on every fill
-state, `primary-background-color` and `ha-color-surface-default`, each on-color must reach
-4.5:1, or, where the frontend's own pair falls short of 4.5:1, at least the frontend's ratio
-for that pair. Where the frontend's step misses, the builder moves the on-color along its
-family, away from the fills, to the nearest step that meets every floor, and leaves the
-fills alone. A light brand orange whose `40` is paler than the frontend's therefore gets its
-warning text from `30`. Disabled text is exempt.
+The rest of the semantic layer is fixed steps of the same families too: the normal and quiet
+on-colors (text of filled and plain buttons, badges and alerts), drawn on the tinted normal and
+quiet fills and on the page and surface, the `ha-color-border-*` borders of fields, switches,
+checkboxes, outlined buttons and dividers, and the `ha-color-text-*` text, both drawn on the page
+and surface. Their rule is **not worse than stock, otherwise 4.5:1 for text and 3:1 for
+borders**: on every fill state, `primary-background-color` and `ha-color-surface-default`, each
+token must reach that floor, or, where the frontend's own pair falls short of it, at least the
+frontend's ratio for that pair. The build reads the pairs from the catalog, so it checks only
+tokens the frontend reads. Where the frontend's step misses, the builder moves the token along its
+family, away from what it sits on, to the nearest step that meets every floor, and leaves the
+fills and surfaces alone; a token the theme already sets (through a role or `tokens`) is kept and
+only measured. A light brand orange whose `40` is paler than the frontend's therefore gets its
+warning text from `30`, and a dark surface lighter than stock gets its neutral borders one step
+lighter. Disabled and inverted colors are exempt.
 
 Toasts are painted in `ha-color-neutral-10` in both modes, with the loud neutral on-color for the
 message and the normal primary on-color for plain action buttons, both tuned for other
@@ -311,8 +316,9 @@ Assistant would keep only one of them. It then reports, per theme:
   resting, hover and active fill, in both modes (4.5:1), including fills a theme sets
   through `tokens`;
 - the normal and quiet on-color of primary, danger, warning, success and neutral on its
-  resting, hover and active fill, the page and the surface, in both modes (4.5:1, or the
-  frontend's own ratio where that is lower);
+  resting, hover and active fill, the page and the surface, and every `ha-color-border-*` and
+  `ha-color-text-*` token the frontend reads on the page and the surface, in both modes (4.5:1
+  for text and 3:1 for borders, or the frontend's own ratio where that is lower);
 - the `scrollbar` role, which also paints the unfilled track of round sliders, on
   `background` and `surface`, in both modes (3:1, or the frontend's own ratio where that is
   lower, as for its pale light-mode thumb);

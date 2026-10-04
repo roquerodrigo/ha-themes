@@ -1,5 +1,3 @@
-import re
-
 import pytest
 
 from ha_theme_kit.inventory.catalog import TokenCatalog
@@ -7,7 +5,6 @@ from ha_theme_kit.theme.builder import build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
 from ha_theme_kit.theme.loud_fills import (
     FRONTEND_LOUD_STEPS,
-    LOUD_FILL_STATUSES,
     WHITE,
     build_loud_fills,
     fill_token,
@@ -15,6 +12,7 @@ from ha_theme_kit.theme.loud_fills import (
     readable_loud_fill,
 )
 from ha_theme_kit.theme.palette_resolver import PaletteResolver
+from ha_theme_kit.theme.semantic_layer import PALETTE_REFERENCE
 from ha_theme_kit.theme.validation import validate_theme
 
 PALE_PALETTE = {
@@ -24,8 +22,7 @@ PALE_PALETTE = {
     "orange": "#d08b2c",
     "green": "#788c5d",
 }
-STATUS_ON_COLORS = {on_color_token(status) for status in LOUD_FILL_STATUSES}
-PALETTE_REFERENCE = re.compile(r"var\(--ha-color-(?P<family>[a-z]+)-(?P<step>\d{2})\)")
+STATUS_ON_COLORS = {on_color_token(status) for status in FRONTEND_LOUD_STEPS["light"]}
 
 
 def anthropic_like_scales() -> dict[str, dict[str, str]]:
