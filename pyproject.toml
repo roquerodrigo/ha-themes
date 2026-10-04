@@ -19,9 +19,6 @@ dev = [
     "home-assistant-frontend==20260930.0",
     "playwright==1.63.0",
     "pre-commit==4.6.2",
-    "pytest==9.0.3",
-    "pytest-asyncio==1.4.0",
-    "pytest-cov==7.1.0",
     "pytest-homeassistant-custom-component==0.13.367",
     "pyyaml>=6.0",
 ]

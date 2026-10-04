@@ -131,7 +131,9 @@ start; after `ha-themes build`, restart it (or reload the integration) to see a 
 
 1. Bump `homeassistant`, `home-assistant-frontend` and the matching
    `pytest-homeassistant-custom-component` in `pyproject.toml`, and `homeassistant` in
-   `hacs.json`; run `uv sync`.
+   `hacs.json`; run `uv sync`. Dependabot ignores these three packages, and pytest,
+   pytest-asyncio and pytest-cov are not pinned here because the test harness pins them.
+   Until the catalog is re-captured, `toolkit/tests/test_pinned_versions.py` fails.
 2. Restart `scripts/dev-server` and run `scripts/ha-themes catalog`.
 3. Review the diff of `catalog/tokens.json` and the generated docs: new, removed and changed
    tokens, and the broken-reference list.
