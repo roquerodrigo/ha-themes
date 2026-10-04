@@ -106,7 +106,7 @@ charts:                        # optional; without it the frontend's series stay
     light: [0.50, 0.72]
     dark: [0.58, 0.66]
 
-tokens:                        # optional raw tokens, applied last
+tokens:                        # optional raw tokens, applied last and validated like roles
   base:                        # mode-independent only
     ha-card-border-radius: 16px
   light: {}
@@ -340,6 +340,22 @@ reference, is composited over what it sits on: the surface over the page, everyt
 over the surface. A value that never reaches such a color (a named color like `white`,
 `hsl()`, an undeclared variable, a translucent page) is reported as not evaluable and fails
 the check instead of being skipped.
+
+Role pairs are measured on the tokens the theme finally paints, not on the role values: every
+token the foreground role writes against every token the background role writes, after raw
+`tokens` and backdrop blur are applied, and the worst combination is reported with its tokens
+(`text on surface (primary-text-color on ha-card-background)`). A raw override of a role token,
+such as `secondary-text-color` or `ha-card-background` under `tokens.dark`, is therefore held to
+the same floor as the role, and text on a card is measured on the card's translucent background
+composited over the page. The `scrollbar` check likewise reads `scrollbar-thumb-color`. The
+semantic, loud fill and toast checks already read the built tokens.
+
+Raw tokens outside the roles and the semantic layer — card border color and width, radii, focus
+rings, font sizes — are only checked for existence. A theme far from Anthropic, such as the
+high-contrast, cold blue test fixture in `toolkit/tests/fixtures/high-contrast-glacier.yaml`
+(pure black and white planes, opaque borders through `divider` and raw card border tokens,
+hand-tuned dark status steps, a pinned entity blue), is expressed with roles, palette steps and
+`tokens`; the test suite keeps it valid in both modes.
 
 `--strict` turns any failure into a non-zero exit code.
 

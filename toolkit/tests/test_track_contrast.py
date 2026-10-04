@@ -22,14 +22,23 @@ PALETTE = {
 }
 
 
-def track_definition(roles: dict[str, dict[str, str]] | None = None) -> ThemeDefinition:
+def track_definition(
+    roles: dict[str, dict[str, str]] | None = None, tokens: dict[str, dict[str, str]] | None = None
+) -> ThemeDefinition:
     return ThemeDefinition(
-        slug="tracks", name="Tracks", description="", palette=PALETTE, roles=roles or {}
+        slug="tracks",
+        name="Tracks",
+        description="",
+        palette=PALETTE,
+        roles=roles or {},
+        tokens=tokens or {},
     )
 
 
-def track_results(roles: dict[str, dict[str, str]] | None = None) -> dict[tuple[str, str], bool]:
-    report = validate_theme(build_theme(track_definition(roles)), TokenCatalog.load())
+def track_results(
+    roles: dict[str, dict[str, str]] | None = None, tokens: dict[str, dict[str, str]] | None = None
+) -> dict[tuple[str, str], bool]:
+    report = validate_theme(build_theme(track_definition(roles, tokens)), TokenCatalog.load())
     return {
         (result.mode, result.background_role): result.passes
         for result in report.contrast
@@ -68,11 +77,18 @@ def test_a_scrollbar_close_to_the_dark_surface_fails_validation() -> None:
     assert results[("dark", "surface")] is False
 
 
+def test_a_raw_scrollbar_token_is_measured_instead_of_the_role() -> None:
+    results = track_results(tokens={"dark": {TRACK_TOKEN: "{neutral.30}"}})
+
+    assert results[("dark", "background")] is False
+    assert results[("dark", "surface")] is False
+
+
 def test_a_scrollbar_that_does_not_resolve_is_reported_unmeasured() -> None:
     colors = ModeColors(
         "dark",
-        {"scrollbar": "var(--x)", "background": "#141414", "surface": "#202020"},
-        {},
+        {"background": "#141414", "surface": "#202020"},
+        {TRACK_TOKEN: "var(--x)"},
         TokenCatalog.load(),
     )
 
@@ -88,8 +104,8 @@ def test_a_scrollbar_that_does_not_resolve_is_reported_unmeasured() -> None:
 def test_a_translucent_scrollbar_is_measured_over_its_backdrop() -> None:
     colors = ModeColors(
         "dark",
-        {"scrollbar": "rgba(255, 255, 255, 0.5)", "background": "#000000", "surface": "#000"},
-        {},
+        {"background": "#000000", "surface": "#000"},
+        {TRACK_TOKEN: "rgba(255, 255, 255, 0.5)"},
         TokenCatalog.load(),
     )
 

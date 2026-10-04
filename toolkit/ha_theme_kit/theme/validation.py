@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from ha_theme_kit.color.css_color import contrast_on
 from ha_theme_kit.color.vision import CategoricalReport, check_categorical
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import BuiltTheme
@@ -8,7 +7,8 @@ from ha_theme_kit.theme.contrast_result import ContrastResult
 from ha_theme_kit.theme.entity_separation import EntitySeparationReport, check_entity_separation
 from ha_theme_kit.theme.form_separation import FormSeparationReport, check_form_separation
 from ha_theme_kit.theme.mode_colors import ModeColors
-from ha_theme_kit.theme.roles import CONTRAST_PAIRS, FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
+from ha_theme_kit.theme.role_contrast import measure_role_pairs
+from ha_theme_kit.theme.roles import FLAT_ELEVATION, PROJECT_TOKEN_PREFIX
 from ha_theme_kit.theme.semantic_layer import measure_semantic_pairs
 from ha_theme_kit.theme.status_fills import StatusFillReport, check_status_fills
 from ha_theme_kit.theme.toast_colors import measure_toast_pairs
@@ -52,16 +52,7 @@ def validate_theme(theme: BuiltTheme, catalog: TokenCatalog) -> ValidationReport
     contrast: list[ContrastResult] = []
     for mode in theme.roles:
         colors = ModeColors.of_theme(theme, mode, catalog)
-        contrast.extend(
-            ContrastResult(
-                mode,
-                foreground,
-                background,
-                contrast_on(colors.role(foreground), colors.opaque_role(background)),
-                minimum,
-            )
-            for foreground, background, minimum in CONTRAST_PAIRS
-        )
+        contrast.extend(measure_role_pairs(colors))
         contrast.extend(measure_semantic_pairs(colors))
         contrast.extend(measure_track_pairs(colors))
         contrast.extend(measure_toast_pairs(colors))
