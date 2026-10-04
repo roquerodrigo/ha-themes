@@ -84,7 +84,7 @@ def test_theme_overrides_of_the_fill_tokens_are_checked() -> None:
     assert report.close_pairs == [StatusFillPair("normal", "danger", "warning", 0.0)]
 
 
-def test_fills_that_do_not_resolve_to_a_hex_color_are_skipped() -> None:
+def test_translucent_fills_are_composited_over_the_background() -> None:
     definition = theme_with(
         TUNED_PALETTE,
         tokens={"dark": {fill_token("success", "quiet"): "rgba(0, 0, 0, 0.2)"}},
@@ -92,8 +92,20 @@ def test_fills_that_do_not_resolve_to_a_hex_color_are_skipped() -> None:
 
     report = check_status_fills(build_theme(definition), frontend_catalog())
 
+    assert report.darker_than_background == [fill_token("success", "quiet")]
+    assert not report.passes
+
+
+def test_fills_that_do_not_resolve_to_a_color_fail() -> None:
+    definition = theme_with(
+        TUNED_PALETTE, tokens={"dark": {fill_token("success", "quiet"): "var(--missing)"}}
+    )
+
+    report = check_status_fills(build_theme(definition), frontend_catalog())
+
     assert fill_token("success", "quiet") not in report.fills
-    assert report.passes
+    assert report.unresolved == [fill_token("success", "quiet")]
+    assert not report.passes
 
 
 def test_failing_status_fills_fail_validation() -> None:

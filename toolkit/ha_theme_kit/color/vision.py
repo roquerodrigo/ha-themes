@@ -99,7 +99,8 @@ class CategoricalReport:
         )
 
 
-def check_categorical(palette: list[str], mode: str, surface: str) -> CategoricalReport:
+def check_categorical(palette: list[str], mode: str, surface: str | None) -> CategoricalReport:
+    """`surface` is None when it does not resolve; the surface's own text pairs fail then."""
     lower, upper = LIGHTNESS_BAND[mode]
     return CategoricalReport(
         mode=mode,
@@ -112,6 +113,8 @@ def check_categorical(palette: list[str], mode: str, surface: str) -> Categorica
         worst_cvd_distance=round(worst_adjacent_cvd_distance(palette), 1),
         worst_normal_distance=round(worst_adjacent_normal_distance(palette), 1),
         below_mark_contrast=[
-            color for color in palette if contrast_ratio(color, surface) < MARK_CONTRAST
+            color
+            for color in palette
+            if surface is not None and contrast_ratio(color, surface) < MARK_CONTRAST
         ],
     )

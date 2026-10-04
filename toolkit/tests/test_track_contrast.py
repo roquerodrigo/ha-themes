@@ -3,6 +3,7 @@ import pytest
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.builder import build_theme
 from ha_theme_kit.theme.definition import ThemeDefinition
+from ha_theme_kit.theme.mode_colors import ModeColors
 from ha_theme_kit.theme.track_contrast import (
     BACKDROP_TOKENS,
     NON_TEXT_CONTRAST_FLOOR,
@@ -62,10 +63,31 @@ def test_a_scrollbar_close_to_the_dark_surface_fails_validation() -> None:
     assert results[("dark", "surface")] is False
 
 
-def test_a_scrollbar_that_is_not_a_plain_color_is_not_measured() -> None:
-    assert (
-        measure_track_pairs(
-            "dark", {"scrollbar": "var(--x)", "surface": "#202020"}, TokenCatalog.load()
-        )
-        == []
+def test_a_scrollbar_that_does_not_resolve_is_reported_unmeasured() -> None:
+    colors = ModeColors(
+        "dark",
+        {"scrollbar": "var(--x)", "background": "#141414", "surface": "#202020"},
+        {},
+        TokenCatalog.load(),
     )
+
+    pairs = measure_track_pairs(colors)
+
+    assert [(pair.backdrop_role, pair.ratio) for pair in pairs] == [
+        ("background", None),
+        ("surface", None),
+    ]
+    assert not any(pair.passes for pair in pairs)
+
+
+def test_a_translucent_scrollbar_is_measured_over_its_backdrop() -> None:
+    colors = ModeColors(
+        "dark",
+        {"scrollbar": "rgba(255, 255, 255, 0.5)", "background": "#000000", "surface": "#000"},
+        {},
+        TokenCatalog.load(),
+    )
+
+    pairs = measure_track_pairs(colors)
+
+    assert [pair.ratio for pair in pairs] == [5.32, 5.32]

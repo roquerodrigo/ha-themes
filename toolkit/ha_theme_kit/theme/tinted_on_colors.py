@@ -15,16 +15,20 @@ import re
 from dataclasses import dataclass
 from functools import cache
 
+from ha_theme_kit.color.css_color import contrast_on
 from ha_theme_kit.color.oklch import contrast_ratio, relative_luminance
 from ha_theme_kit.color.palette import PALETTE_STEPS
 from ha_theme_kit.inventory.catalog import TokenCatalog
 from ha_theme_kit.theme.loud_fills import ON_COLOR_CONTRAST_FLOOR
+from ha_theme_kit.theme.mode_colors import PAGE_ROLE, SURFACE_ROLE, ModeColors
 from ha_theme_kit.theme.token_colors import resolve_token_color
 
 TINTED_STATUSES = ("primary", "danger", "warning", "success", "neutral")
 TINTED_TONES = ("normal", "quiet")
 FILL_STATES = ("resting", "hover", "active")
-PAGE_AND_SURFACE = ("primary-background-color", "ha-color-surface-default")
+PAGE_TOKEN = "primary-background-color"
+SURFACE_TOKEN = "ha-color-surface-default"
+PAGE_AND_SURFACE = (PAGE_TOKEN, SURFACE_TOKEN)
 PALETTE_REFERENCE = re.compile(r"var\(--ha-color-(?P<family>[a-z]+)-(?P<step>\d{2})\)")
 
 
@@ -33,12 +37,12 @@ class TintedPair:
     mode: str
     on_color_token: str
     backdrop_token: str
-    ratio: float
+    ratio: float | None
     minimum: float
 
     @property
     def passes(self) -> bool:
-        return self.ratio >= self.minimum
+        return self.ratio is not None and self.ratio >= self.minimum
 
 
 def on_color_token(status: str, tone: str) -> str:
@@ -50,30 +54,31 @@ def backdrop_tokens(status: str, tone: str) -> tuple[str, ...]:
     return (*fills, *PAGE_AND_SURFACE)
 
 
-def measure_tinted_pairs(
-    mode: str, tokens: dict[str, str], catalog: TokenCatalog
-) -> list[TintedPair]:
-    """Every normal and quiet on-color on its backdrops, as the theme resolves them in `mode`."""
-    pairs = []
-    for status in TINTED_STATUSES:
-        for tone in TINTED_TONES:
-            key = on_color_token(status, tone)
-            on_color = resolve_token_color(key, tokens, catalog, mode)
-            if on_color is None:
-                continue
-            for backdrop in backdrop_tokens(status, tone):
-                color = resolve_token_color(backdrop, tokens, catalog, mode)
-                if color is not None:
-                    pairs.append(
-                        TintedPair(
-                            mode,
-                            key,
-                            backdrop,
-                            _ratio(on_color, color),
-                            contrast_floor(key, backdrop, catalog, mode),
-                        )
-                    )
-    return pairs
+def measure_tinted_pairs(colors: ModeColors) -> list[TintedPair]:
+    """Every normal and quiet on-color on its backdrops, as the theme resolves them.
+
+    Translucent fills and the surface are composited over the surface and the page they sit on.
+    """
+    return [
+        TintedPair(
+            colors.mode,
+            on_color_token(status, tone),
+            backdrop,
+            contrast_on(
+                colors.token(on_color_token(status, tone)),
+                colors.opaque_token(backdrop, _backdrop_role(backdrop)),
+            ),
+            contrast_floor(on_color_token(status, tone), backdrop, colors.catalog, colors.mode),
+        )
+        for status in TINTED_STATUSES
+        for tone in TINTED_TONES
+        for backdrop in backdrop_tokens(status, tone)
+    ]
+
+
+def _backdrop_role(backdrop: str) -> str | None:
+    """The page has nothing under it, the surface lies on the page and the fills on the surface."""
+    return {PAGE_TOKEN: None, SURFACE_TOKEN: PAGE_ROLE}.get(backdrop, SURFACE_ROLE)
 
 
 def contrast_floor(on_color: str, backdrop: str, catalog: TokenCatalog, mode: str) -> float:
