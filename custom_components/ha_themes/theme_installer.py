@@ -10,6 +10,7 @@ from homeassistant.components.frontend import DATA_THEMES
 from homeassistant.components.frontend import DOMAIN as FRONTEND_DOMAIN
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import issue_registry
+from homeassistant.util.file import write_utf8_file_atomic
 from homeassistant.util.yaml import load_yaml_dict
 
 from .const import DOMAIN, ISSUE_THEMES_NOT_LOADED, LOGGER, THEMES_DIRECTORY
@@ -76,7 +77,7 @@ class HaThemesThemeInstaller:
             content = source.read_bytes()
             target = self.target_directory / name
             if not target.is_file() or target.read_bytes() != content:
-                target.write_bytes(content)
+                write_utf8_file_atomic(str(target), content, mode="wb")
             names.extend(str(theme) for theme in load_yaml_dict(source))
         return tuple(names)
 
