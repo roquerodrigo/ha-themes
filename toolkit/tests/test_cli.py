@@ -121,6 +121,7 @@ def test_build_reports_pairs_it_cannot_evaluate(
 
     assert cli.command_build(arguments) == 1
     assert (
-        "✗ light text on background: not evaluable, a side does not resolve to a color the"
-        " checks can measure" in capsys.readouterr().out
+        "✗ light text on background (primary-text-color on primary-background-color): not"
+        " evaluable, a side does not resolve to a color the checks can measure"
+        in capsys.readouterr().out
     )

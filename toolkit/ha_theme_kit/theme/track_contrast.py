@@ -25,7 +25,7 @@ def measure_track_pairs(colors: ModeColors) -> list[ContrastResult]:
             colors.mode,
             TRACK_ROLE,
             backdrop_role,
-            contrast_on(colors.role(TRACK_ROLE), colors.opaque_role(backdrop_role)),
+            contrast_on(colors.token(TRACK_TOKEN), colors.opaque_role(backdrop_role)),
             frontend_floor(
                 TRACK_TOKEN, backdrop_token, NON_TEXT_CONTRAST_FLOOR, colors.catalog, colors.mode
             ),

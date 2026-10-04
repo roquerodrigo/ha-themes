@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from ha_theme_kit.inventory.catalog import TokenCatalog
 
 if TYPE_CHECKING:
+    from ha_theme_kit.theme.contrast_result import ContrastResult
     from ha_theme_kit.theme.entity_separation import EntitySeparationReport
     from ha_theme_kit.theme.form_separation import FormSeparationReport
     from ha_theme_kit.theme.status_fills import StatusFillReport
@@ -114,14 +115,14 @@ def command_build(arguments: argparse.Namespace) -> int:
             for result in report.contrast:
                 if result.ratio is None:
                     print(
-                        f"    ✗ {result.mode:5} {result.foreground_role} on"
-                        f" {result.background_role}: not evaluable, a side {UNRESOLVED}"
+                        f"    ✗ {result.mode:5} {_contrast_pair(result)}: not evaluable,"
+                        f" a side {UNRESOLVED}"
                     )
                 elif arguments.verbose or not result.passes:
                     mark = "✓" if result.passes else "✗"
                     print(
-                        f"    {mark} {result.mode:5} {result.foreground_role} on"
-                        f" {result.background_role}: {result.ratio}:1 (min {result.minimum})"
+                        f"    {mark} {result.mode:5} {_contrast_pair(result)}: {result.ratio}:1"
+                        f" (min {result.minimum})"
                     )
             for chart in report.charts:
                 mark = "✓" if chart.passes else "✗"
@@ -162,6 +163,13 @@ def command_build(arguments: argparse.Namespace) -> int:
     module = write_support_module()
     print(f"wrote {module.relative_to(PROJECT_ROOT)}")
     return 0
+
+
+def _contrast_pair(result: ContrastResult) -> str:
+    pair = f"{result.foreground_role} on {result.background_role}"
+    if result.foreground_token is None or result.background_token is None:
+        return pair
+    return f"{pair} ({result.foreground_token} on {result.background_token})"
 
 
 def _print_status_fills(report: StatusFillReport | None, verbose: bool) -> None:
