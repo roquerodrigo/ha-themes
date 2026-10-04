@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -u
+cd "$(dirname "$0")/.."
+trap 'exit 130' INT TERM
+while true; do
+  mkdir -p dev/config/www
+  rsync -a --delete www/ha-themes/ dev/config/www/ha-themes/
+  .venv/bin/hass -c dev/config
+  exit_code=$?
+  case "$exit_code" in
+    0 | 130) exit "$exit_code" ;;
+    *) echo "hass exited with $exit_code, restarting" >&2 ;;
+  esac
+  sleep 2
+done

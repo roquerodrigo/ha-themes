@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dev/config/*
+!dev/config/configuration.yaml
+dev/credentials.env
+dev/*.log
+.idea/

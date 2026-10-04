@@ -1,0 +1,77 @@
+name: Anthropic
+description: >-
+  Warm paper neutrals, clay as the primary action color, and the brand's blue and
+  green as supporting accents. Headings and UI text in Poppins, long-form text in Lora.
+
+palette:
+  primary:
+    seed: "#d97757"
+    "05": "#21120c"
+    "10": "#331a10"
+    "20": "#5e2a18"
+    "30": "#9c4a2e"
+    "40": "#c6613f"
+  neutral:
+    "05": "#141413"
+    "10": "#1f1e1d"
+    "20": "#30302e"
+    "30": "#3d3d3a"
+    "40": "#5e5d59"
+    "50": "#73726c"
+    "60": "#87867f"
+    "70": "#b0aea5"
+    "80": "#d1cfc5"
+    "90": "#e8e6dc"
+    "95": "#f0eee6"
+  red: "#bf4d43"
+  orange: "#d08b2c"
+  green: "#788c5d"
+  blue: "#6a9bcc"
+
+typography:
+  body: "Poppins, Arial, sans-serif"
+  heading: "Poppins, Arial, sans-serif"
+  longform: "Lora, Georgia, serif"
+  stylesheet: "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap"
+
+roles:
+  light:
+    background: "#faf9f5"
+    surface: "#ffffff"
+    sidebar_background: "#f5f4ed"
+    text: "{neutral.05}"
+    text_secondary: "{neutral.40}"
+    link: "{primary.30}"
+    accent: "{primary.50}"
+    error: "{red.50}"
+    warning: "{orange.50}"
+    success: "{green.40}"
+    info: "{blue.40}"
+    state_icon: "{blue.40}"
+  dark:
+    background: "#262624"
+    surface: "{neutral.20}"
+    surface_variant: "{neutral.30}"
+    sidebar_background: "{neutral.10}"
+    text: "{neutral.95}"
+    text_secondary: "{neutral.70}"
+    text_disabled: "{neutral.50}"
+    text_on_primary: "{neutral.05}"
+    accent: "{primary.50}"
+    info: "{blue.60}"
+    state_icon: "{blue.60}"
+    scrollbar: "{neutral.30}"
+
+tokens:
+  base:
+    color-1: "{primary.50}"
+    color-2: "{blue.50}"
+    color-3: "{green.50}"
+    color-4: "{orange.50}"
+    color-5: "#9b87c4"
+    color-6: "#cf8fa6"
+    color-7: "#8a6e5a"
+    color-8: "#5aa59a"
+    energy-grid-consumption-color: "{blue.50}"
+    energy-solar-color: "{primary.50}"
+    energy-non-fossil-color: "{green.50}"
