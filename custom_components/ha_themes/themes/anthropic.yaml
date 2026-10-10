@@ -1,4 +1,4 @@
-# Generated from themes-src/anthropic.yaml for frontend 20260826.7.
+# Generated from themes-src/anthropic.yaml for frontend 20260930.2.
 # Do not edit by hand: run `ha-themes build`.
 "Anthropic":
   ha-color-primary-05: "#21120c"
@@ -74,7 +74,6 @@
   ha-card-box-shadow: "0 0 0 0 transparent"
   dialog-box-shadow: "0 0 0 0 transparent"
   bar-box-shadow: "0 0 0 0 transparent"
-  md-sys-color-shadow: "transparent"
   ha-tooltip-box-shadow: "0 0 0 1px var(--outline-color)"
   ha-themes-toast-box-shadow: "0 0 0 1px var(--outline-color)"
   app-header-backdrop-filter: "blur(20px) saturate(160%)"
@@ -106,8 +105,6 @@
   mdc-shape-small: "8px"
   mdc-shape-medium: "8px"
   mdc-shape-large: "8px"
-  md-sys-shape-corner-small: "8px"
-  md-filter-chip-container-shape: "8px"
   ha-assist-chip-container-shape: "8px"
   ha-card-border-radius: "8px"
   ha-card-features-border-radius: "8px"
@@ -541,7 +538,6 @@
   ha-card-box-shadow: "0 0 0 0 transparent"
   dialog-box-shadow: "0 0 0 0 transparent"
   bar-box-shadow: "0 0 0 0 transparent"
-  md-sys-color-shadow: "transparent"
   ha-tooltip-box-shadow: "0 0 0 1px var(--outline-color)"
   ha-themes-toast-box-shadow: "0 0 0 1px var(--outline-color)"
   app-header-backdrop-filter: "blur(20px) saturate(160%)"
@@ -573,8 +569,6 @@
   mdc-shape-small: "8px"
   mdc-shape-medium: "8px"
   mdc-shape-large: "8px"
-  md-sys-shape-corner-small: "8px"
-  md-filter-chip-container-shape: "8px"
   ha-assist-chip-container-shape: "8px"
   ha-card-border-radius: "8px"
   ha-card-features-border-radius: "8px"
