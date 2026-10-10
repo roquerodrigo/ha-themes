@@ -75,6 +75,7 @@ configEntryListStyles.replaceSync(`
 const ICON_TILE_ENTITY_COLORS = {
   "#0082FC": "blue",
   "#00838F": "teal",
+  "#00897B": "teal",
   "#0D47A1": "indigo",
   "#153163": "indigo",
   "#2458B3": "indigo",
@@ -280,7 +281,7 @@ timeFieldStyles.replaceSync(`
 // The input chip locks its pill shape on its own host, out of reach of the theme's radius.
 const inputChipStyles = new CSSStyleSheet();
 inputChipStyles.replaceSync(`
-  :host { --md-input-chip-container-shape: var(--ha-themes-corner-radius, 16px); }
+  :host { --ha-button-border-radius: var(--ha-themes-corner-radius, 16px); }
 `);
 
 const hostStyles = new Map([

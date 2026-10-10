@@ -445,8 +445,8 @@ def test_input_chips_take_the_theme_corner_radius(page: Page, page_errors: list[
           const shadow = host.attachShadow({ mode: "open" });
           const sheet = new CSSStyleSheet();
           sheet.replaceSync(
-            ":host { --md-input-chip-container-shape: 16px; }"
-            + " #chip { border-radius: var(--md-input-chip-container-shape); }"
+            ":host { --ha-button-border-radius: 16px; }"
+            + " #chip { border-radius: var(--ha-button-border-radius); }"
           );
           shadow.adoptedStyleSheets = [sheet];
           const chip = document.createElement("div");

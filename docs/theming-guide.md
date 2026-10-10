@@ -1,6 +1,6 @@
 # How Home Assistant themes work today
 
-Verified against frontend `20260826.7` / Core `2026.9.4`, by reading the shipped theme
+Verified against frontend `20260930.2` / Core `2026.10.0`, by reading the shipped theme
 sources and observing the running frontend in Google Chrome. Much of the theming advice
 online predates the 2025–2026 design-token rework; this page describes what the current
 frontend actually does.
@@ -223,7 +223,7 @@ The frontend rounds by size: `ha-border-radius-sm` (4px) for small controls up t
 (36px) for large ones, and `ha-border-radius-pill` (9999px) for buttons, badges, tile icons and
 progress bars. Many components read a hook or a library variable first (`ha-card-border-radius`,
 `ha-dialog-border-radius`, `ha-button-border-radius`, `wa-panel-border-radius`,
-`mdc-shape-small`, `md-sys-shape-corner-small` …) whose fallback is a literal or a fixed step,
+`mdc-shape-small` …) whose fallback is a literal or a fixed step,
 so the scale alone does not reach them.
 
 A theme's `corner_radius` (default `8px`) replaces every step of the scale, the pill, and each
@@ -280,7 +280,7 @@ bottom sheet still paint it over other content; [Creating a theme](creating-a-th
 support module raises the dropdown menus and lists among them. `app-theme-color` (the
 browser's theme color) should stay an opaque hex value.
 
-## Known upstream issues (frontend 20260826.7)
+## Known upstream issues (frontend 20260930.2)
 
 | Issue | Effect | Workaround applied by the builder |
 | --- | --- | --- |
