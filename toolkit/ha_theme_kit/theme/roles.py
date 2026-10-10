@@ -174,7 +174,7 @@ FLAT_ELEVATION: dict[str, str] = dict.fromkeys(
         "bar-box-shadow",
     ),
     "0 0 0 0 transparent",
-) | {"md-sys-color-shadow": "transparent"}
+)
 """A transparent zero shadow instead of `none` stays valid inside comma-separated shadow lists."""
 
 TOAST_EDGE_TOKEN = "ha-themes-toast-box-shadow"
@@ -235,8 +235,6 @@ CORNER_RADIUS_BRIDGES: tuple[str, ...] = (
     "mdc-shape-small",
     "mdc-shape-medium",
     "mdc-shape-large",
-    "md-sys-shape-corner-small",
-    "md-filter-chip-container-shape",
     "ha-assist-chip-container-shape",
     "ha-card-border-radius",
     "ha-card-features-border-radius",
