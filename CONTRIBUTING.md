@@ -76,9 +76,9 @@ contents of `custom_components/ha_themes/` that HACS installs (`zip_release` in 
 `tests/test_release_packaging.py` keeps the asset name and the version files consistent.
 
 Versions follow the commit types in `CODE_STYLE.md` (Conventional commits): before 1.0.0
-`feat` bumps the minor version, `fix`, `perf`, `revert` and `deps` bump the patch version,
-and a breaking change bumps the minor version. `docs`, `refactor`, `deps-dev`, `build`,
-`ci`, `test`, `style` and `chore` are hidden from the changelog and do not cut a release
+`feat` bumps the minor version, `fix`, `perf`, `revert` and `chore` bump the patch version,
+and a breaking change bumps the minor version. `deps`, `deps-dev`, `docs`, `refactor`,
+`build`, `ci`, `test` and `style` are hidden from the changelog and do not cut a release
 by themselves. release-please creates `CHANGELOG.md` with the first release.
 
 The release workflow needs these one-time steps on GitHub before it can run:

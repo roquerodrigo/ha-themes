@@ -412,15 +412,15 @@ which `release-please` parses to bump the version and generate `CHANGELOG.md`:
 | `fix` | Bug fix | patch | Bug Fixes |
 | `perf` | Performance improvement | patch | Performance Improvements |
 | `revert` | Revert of an earlier commit | patch | Reverts |
-| `deps` | Runtime dependency bump | patch | Dependencies |
+| `chore` | Anything else (rarely) | patch | Miscellaneous Chores |
 | `docs` | Documentation only | none | hidden |
 | `refactor` | Refactor without behavior change | none | hidden |
+| `deps` | Runtime dependency bump | none | hidden |
 | `deps-dev` | Development dependency bump | none | hidden |
 | `build` | Build system or packaging | none | hidden |
 | `ci` | CI / tooling change | none | hidden |
 | `test` | Test-only change | none | hidden |
 | `style` | Formatting only | none | hidden |
-| `chore` | Anything else (rarely) | none | hidden |
 
 Hidden types are marked `"hidden": true` in `changelog-sections`, so they stay out
 of the release notes and never open a release on their own; they ship with the next

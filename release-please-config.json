@@ -48,7 +48,8 @@
         },
         {
           "type": "deps",
-          "section": "Dependencies"
+          "section": "Dependencies",
+          "hidden": true
         },
         {
           "type": "deps-dev",
@@ -82,8 +83,7 @@
         },
         {
           "type": "chore",
-          "section": "Miscellaneous Chores",
-          "hidden": true
+          "section": "Miscellaneous Chores"
         }
       ]
     }
