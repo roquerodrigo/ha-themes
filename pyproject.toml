@@ -16,9 +16,9 @@ default-groups = ["dev", "lint"]
 [dependency-groups]
 dev = [
     "homeassistant==2026.9.4",
-    "home-assistant-frontend==20260930.3",
-    "playwright==1.63.0",
-    "pre-commit==4.6.2",
+    "home-assistant-frontend==20260930.4",
+    "playwright==1.64.0",
+    "pre-commit==4.7.0",
     "pytest==9.0.3",
     "pytest-asyncio==1.4.0",
     "pytest-cov==7.1.0",
@@ -26,7 +26,7 @@ dev = [
     "pyyaml>=6.0",
 ]
 lint = [
-    "ruff==0.17.0",
+    "ruff==0.17.1",
     "mypy==2.4.0",
 ]
 
