@@ -16,7 +16,7 @@ default-groups = ["dev", "lint"]
 [dependency-groups]
 dev = [
     "homeassistant==2026.9.4",
-    "home-assistant-frontend==20260930.4",
+    "home-assistant-frontend==20261028.1",
     "playwright==1.64.1",
     "pre-commit==4.7.0",
     "pytest==9.0.3",
@@ -26,8 +26,8 @@ dev = [
     "pyyaml>=6.0",
 ]
 lint = [
-    "ruff==0.17.2",
-    "mypy==2.4.0",
+    "ruff==0.17.3",
+    "mypy==2.4.1",
 ]
 
 [tool.pytest.ini_options]
