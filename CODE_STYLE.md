@@ -32,9 +32,7 @@ Generated files — `custom_components/ha_themes/themes/*.yaml`,
   - Documentation: README, `CONTRIBUTING.md`, `SECURITY.md`, every other
     Markdown doc, docstrings and code comments.
   - Git history: commit subjects and bodies, PR titles and descriptions.
-  - Releases: release notes and `CHANGELOG.md`, including the section headings
-    — translate every `section` of `changelog-sections` in
-    `release-please-config.json` (`"Features"` → `"Funcionalidades"`).
+  - Releases: release notes and `CHANGELOG.md`, including the section headings.
   - Public communication: issues, issue and PR comments, review comments,
     discussions, the issue templates and the PR template under `.github/`.
   - Repository metadata: the GitHub description, and `description` in
@@ -309,8 +307,9 @@ Both gates must stay green:
 - A `README.md` at the repo root is required; HACS surfaces it as the
   integration description. Its header follows the layout below.
 
-Release-please tags releases on every merge to `main`; HACS surfaces the five
-most recent GitHub releases to users, so keep the changelog grep-able.
+[Release Autopilot](https://github.com/marketplace/actions/release-autopilot) tags a release each time the
+release pull request merges into `main`; HACS surfaces the five most recent
+GitHub releases to users, so keep the changelog grep-able.
 
 ## README header
 
@@ -377,7 +376,8 @@ the equivalent direct commands).
 ## Conventional commits
 
 All commits follow [Conventional Commits](https://www.conventionalcommits.org/),
-which `release-please` parses to bump the version and generate `CHANGELOG.md`:
+which Release Autopilot parses to bump the version and write the release notes
+and `CHANGELOG.md`:
 
 | Type | Meaning | Bump |
 |---|---|---|
