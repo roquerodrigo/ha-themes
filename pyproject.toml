@@ -16,7 +16,7 @@ default-groups = ["dev", "lint"]
 [dependency-groups]
 dev = [
     "homeassistant==2026.9.4",
-    "home-assistant-frontend==20261028.1",
+    "home-assistant-frontend==20261028.2",
     "playwright==1.64.1",
     "pre-commit==4.7.0",
     "pytest-homeassistant-custom-component==0.13.367",
