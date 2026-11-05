@@ -230,9 +230,9 @@ A theme's `corner_radius` (default `8px`) replaces every step of the scale, the 
 of those hooks with one value, so a card, a dialog, a button, a badge and a field share the same
 corner whatever their size. The builder also sets `ha-themes-corner-radius`, which the support
 module gives the input chips (`ha-input-chip`), since they lock a 16px pill on their own host.
-`ha-border-radius-circle` (50%), `ha-border-radius-square` (0) and
-`md-sys-shape-corner-full` are shapes rather than sizes and stay, so avatars, round icon
-buttons, radio buttons and switch thumbs remain circles. The frontend's derived radii stay
+`ha-border-radius-circle` (50%) and `ha-border-radius-square` (0) are shapes rather than
+sizes and stay, so avatars, round icon buttons, radio buttons and switch thumbs remain
+circles. The frontend's derived radii stay
 positive: the inner card edges subtract 1–2px, the control switch subtracts its 6px padding
 from `ha-border-radius-6xl`, and the Web Awesome checkbox takes the smaller of 37.5 % of its
 size and `wa-border-radius-s`.

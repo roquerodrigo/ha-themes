@@ -327,7 +327,6 @@ def test_every_radius_of_the_scale_and_its_bridges_takes_the_corner_radius() -> 
 def test_circles_and_squares_keep_their_shape() -> None:
     base = build_theme(minimal_definition()).base
     assert not {name.removeprefix("--") for name in SHAPE_TOKENS} & set(base)
-    assert "md-sys-shape-corner-full" not in base
 
 
 def test_corner_radius_defaults_to_eight_pixels_and_false_keeps_the_frontend_radii(

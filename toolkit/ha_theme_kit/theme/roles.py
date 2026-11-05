@@ -8,9 +8,8 @@ elements that sit directly on the page (data tables and their headers, the logbo
 date). Raised elements have their own hooks, mapped to `surface`: `ha-card-background`,
 `ha-dialog-surface-background`, `wa-color-surface-default` and `mdc-theme-surface`. The
 support module raises the elements that read `card-background-color` from a variable set on
-their own host, out of a theme's reach: dropdown menus take `ha-themes-menu-background`, the
-integration page's entry lists take `ha-card-background`, and the energy totals table, the one
-data table nested inside a card, is cleared so the card shows through.
+their own host, out of a theme's reach: dropdown menus and the map overview panel take
+`ha-themes-menu-background`, and the integration page's entry lists take `ha-card-background`.
 
 `primary` and `text_on_primary` drive both the legacy pair (`primary-color` under
 `text-primary-color`, also drawn on `accent-color`) and the loud fills of buttons and FABs,
@@ -255,8 +254,7 @@ CORNER_RADIUS_BRIDGES: tuple[str, ...] = (
     "markdown-image-border-radius",
 )
 """Component and library radii that fall back to a literal or to a fixed step of the scale
-instead of following it, so the scale alone would not reach them. `md-sys-shape-corner-full`
-stays: it rounds focus rings and the circular icon buttons and avatars."""
+instead of following it, so the scale alone would not reach them."""
 
 SCRIM_BRIGHTNESS_PERCENT = 68
 """The frontend's own scrim dimming, kept so modals darken the page as in stock HA."""
