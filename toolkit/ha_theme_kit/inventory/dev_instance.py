@@ -157,7 +157,7 @@ def _leave_in_automatic_mode(
 ) -> None:
     tested_theme = (local_selection.selection or {}).get("theme")
     local_selection.persist = True
-    _goto_when_settled(page, f"{instance.url}/lovelace/0")
+    _goto_when_settled(page, f"{instance.url}/theme-lab/0")
     _wait_for_app(page)
     theme = (
         tested_theme
