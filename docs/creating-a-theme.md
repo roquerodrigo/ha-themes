@@ -269,7 +269,7 @@ the ones that stand out:
 | --- | --- | --- |
 | Dropdown menus (overflow, sort and group menus, selects) | `ha-dropdown` derives `wa-color-surface-raised` from it | Paints them with the `menu_background` role, which follows `surface`: menus sit raised above the page and level with the dialogs they open from, separated by their 1px border without a shadow |
 | Entry lists on an integration's page | `ha-config-entry-row` paints its entry and device lists with it | Points them at `ha-card-background`, since they stand on the page as cards |
-| Energy dashboard totals card | Its data table, the one nested inside a card, paints it | Clears the table's background so the card shows through in a single tone |
+| Map overview panel (people, devices and zones over the map) | `hui-map-overview` paints the floating panel, its selected tab and its activity avatars with it | Paints them with the `menu_background` role, so the panel floats over the map raised like a menu |
 
 Other lists sit inside cards or clear their background, so they need nothing.
 The code editor, its completion popover and its full-screen mode would also read it, but
