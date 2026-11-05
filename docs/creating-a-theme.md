@@ -268,10 +268,10 @@ the ones that stand out:
 | Element | How it reads `card-background-color` | What the support module does |
 | --- | --- | --- |
 | Dropdown menus (overflow, sort and group menus, selects) | `ha-dropdown` derives `wa-color-surface-raised` from it | Paints them with the `menu_background` role, which follows `surface`: menus sit raised above the page and level with the dialogs they open from, separated by their 1px border without a shadow |
-| Entry lists on an integration's page | `ha-md-list` sets `md-sys-color-surface` to it | Points them at `ha-card-background`, since they stand on the page as cards |
+| Entry lists on an integration's page | `ha-config-entry-row` paints its entry and device lists with it | Points them at `ha-card-background`, since they stand on the page as cards |
 | Energy dashboard totals card | Its data table, the one nested inside a card, paints it | Clears the table's background so the card shows through in a single tone |
 
-Other `ha-md-list` lists sit inside cards or clear their background, so they need nothing.
+Other lists sit inside cards or clear their background, so they need nothing.
 The code editor, its completion popover and its full-screen mode would also read it, but
 the builder sets `code-editor-background-color` from the `code_editor_background` role, which
 follows `surface`: the editor stays level with the card it sits in, and the popover and the

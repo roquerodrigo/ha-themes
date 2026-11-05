@@ -508,24 +508,19 @@ def test_integration_entry_lists_take_the_card_tone(page: Page, page_errors: lis
           root.setProperty("--ha-card-background", "rgb(0, 255, 0)");
           const listSheet = new CSSStyleSheet();
           listSheet.replaceSync(`
-            :host { display: block; --md-sys-color-surface: var(--card-background-color); }
-            div { background: var(--md-sys-color-surface); }
+            .config-entry-wrapper { background-color: var(--card-background-color); }
           `);
-          const createList = (id) => {
-            const list = document.createElement("ha-md-list");
-            const shadow = list.attachShadow({ mode: "open" });
-            shadow.adoptedStyleSheets = [listSheet];
-            const surface = document.createElement("div");
-            surface.id = id;
-            shadow.append(surface);
-            return list;
-          };
           for (const [hostName, listId] of [
             ["ha-config-entry-row", "entry-list"],
             ["ha-config-integration-page", "page-list"],
           ]) {
             const host = document.createElement(hostName);
-            host.attachShadow({ mode: "open" }).append(createList(listId));
+            const shadow = host.attachShadow({ mode: "open" });
+            shadow.adoptedStyleSheets = [listSheet];
+            const wrapper = document.createElement("div");
+            wrapper.id = listId;
+            wrapper.className = "config-entry-wrapper";
+            shadow.append(wrapper);
             document.body.append(host);
           }
         }"""
