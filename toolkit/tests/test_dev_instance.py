@@ -14,7 +14,7 @@ INTERRUPTED = PlaywrightError(
 
 
 class FakePage:
-    def __init__(self, goto_failures: list[Exception] | None = None) -> None:
+    def __init__(self, goto_failures: list[Exception | None] | None = None) -> None:
         self.goto_failures = list(goto_failures or [])
         self.visited: list[str] = []
         self.settle_waits = 0
@@ -24,13 +24,19 @@ class FakePage:
 
     def goto(self, url: str, wait_until: str | None = None) -> None:
         self.visited.append(url)
-        if self.goto_failures:
-            raise self.goto_failures.pop(0)
+        if self.goto_failures and (failure := self.goto_failures.pop(0)):
+            raise failure
 
     def wait_for_load_state(self, state: str) -> None:
         self.settle_waits += 1
 
     def evaluate(self, script: str, argument=None) -> None:
+        pass
+
+    def wait_for_function(self, script: str, arg=None, timeout: int | None = None) -> None:
+        pass
+
+    def wait_for_timeout(self, milliseconds: int) -> None:
         pass
 
 
@@ -123,3 +129,24 @@ def test_other_navigation_errors_are_not_retried():
         dev_instance._goto_when_settled(page, "http://localhost:8123/lovelace/0")
 
     assert len(page.visited) == 1
+
+
+def test_opening_with_a_theme_waits_out_the_redirect_of_the_login_page(monkeypatch):
+    page = FakePage(goto_failures=[INTERRUPTED])
+    monkeypatch.setitem(dev_instance.LOCAL_SELECTIONS, id(page), dev_instance.LocalThemeSelection())
+
+    dev_instance.open_with_theme(page, "http://localhost:8123/lovelace/0", "Anthropic", dark=False)
+
+    assert page.visited == ["http://localhost:8123/lovelace/0"] * 2
+    assert page.settle_waits == 1
+
+
+def test_the_session_opens_once_the_login_page_has_sent_it_to_the_app(browser):
+    browser.page.goto_failures = [None, INTERRUPTED]
+
+    with chrome_session(INSTANCE) as page:
+        assert page.visited == [
+            f"{INSTANCE.url}/onboarding.html",
+            f"{INSTANCE.url}/",
+            f"{INSTANCE.url}/",
+        ]
