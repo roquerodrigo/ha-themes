@@ -6,7 +6,7 @@ from unittest.mock import patch
 from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL, DATA_THEMES
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState
 from homeassistant.helpers import issue_registry
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.ha_themes.const import (
     DOMAIN,
@@ -68,7 +68,6 @@ async def test_setup_registers_the_module_under_a_content_hash(
 async def test_failed_install_does_not_load_the_module(
     hass: HomeAssistant,
     frontend: None,
-    enable_custom_integrations: None,
     config_directory: Path,
 ) -> None:
     (config_directory / "themes").write_text("not a directory")
@@ -195,7 +194,6 @@ async def test_removal_succeeds_when_the_theme_reload_fails(
 async def test_removing_an_entry_that_failed_setup_leaves_nothing_behind(
     hass: HomeAssistant,
     frontend: None,
-    enable_custom_integrations: None,
     config_directory: Path,
 ) -> None:
     modules_before = set(hass.data[DATA_EXTRA_MODULE_URL].urls)

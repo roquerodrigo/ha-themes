@@ -6,8 +6,9 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from homeassistant.components.frontend import DATA_THEMES, EVENT_THEMES_UPDATED
+from homeassistant.components.frontend import DATA_THEMES
 from homeassistant.components.frontend import DOMAIN as FRONTEND_DOMAIN
+from homeassistant.const import EVENT_THEMES_UPDATED
 from homeassistant.core import Event, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import issue_registry

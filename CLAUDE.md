@@ -47,14 +47,13 @@ the last tested theme selected and dark mode on automatic.
 ## Bumping the Home Assistant version
 
 Pinned in four places that must move together: `homeassistant`,
-`home-assistant-frontend` and `pytest-homeassistant-custom-component` (whose
-`requires_dist` must list the same `homeassistant`) in `pyproject.toml`, and
-`homeassistant` in `hacs.json`. Then re-capture the catalog and review the frontend copies
+`home-assistant-frontend` and `pytest-homeassistant` (released by Home Assistant core with
+the same version number) in `pyproject.toml`, and `homeassistant` in `hacs.json`. Then re-capture the catalog and review the frontend copies
 kept by hand (README → Updating to a new Home Assistant release). Dependabot ignores the
 three packages, and `toolkit/tests/test_pinned_versions.py` fails while any of the four
-pins or `catalog/tokens.json` disagree with the installed packages. pytest, pytest-asyncio
-and pytest-cov come exact-pinned from `pytest-homeassistant-custom-component`; do not pin
-them again in `pyproject.toml`.
+pins or `catalog/tokens.json` disagree with the installed packages. pytest and pytest-asyncio
+come exact-pinned from `pytest-homeassistant`; do not pin them again in `pyproject.toml`.
+It does not bring pytest-cov, which is pinned here for the coverage gate.
 
 ## Conventions not obvious from the code
 

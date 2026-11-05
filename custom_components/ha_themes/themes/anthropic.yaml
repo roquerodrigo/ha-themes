@@ -1,4 +1,4 @@
-# Generated from themes-src/anthropic.yaml for frontend 20260930.2.
+# Generated from themes-src/anthropic.yaml for frontend 20261028.4.
 # Do not edit by hand: run `ha-themes build`.
 "Anthropic":
   ha-color-primary-05: "#21120c"
@@ -56,7 +56,6 @@
   ha-color-green-80: "#cedabf"
   ha-color-green-90: "#ecf4e1"
   ha-color-green-95: "#fbfff3"
-  md-ref-typeface-plain: "var(--ha-font-family-body)"
   mdc-typography-font-family: "var(--ha-font-family-body)"
   ha-themes-icon-tile-palette-share: "100%"
   ha-themes-icon-tile-max-lightness: "0.6"
@@ -522,7 +521,6 @@
   ha-color-green-80: "#cedabf"
   ha-color-green-90: "#ecf4e1"
   ha-color-green-95: "#fbfff3"
-  md-ref-typeface-plain: "var(--ha-font-family-body)"
   mdc-typography-font-family: "var(--ha-font-family-body)"
   ha-themes-icon-tile-palette-share: "100%"
   ha-themes-icon-tile-max-lightness: "0.6"

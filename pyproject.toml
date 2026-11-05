@@ -15,11 +15,12 @@ default-groups = ["dev", "lint"]
 
 [dependency-groups]
 dev = [
-    "homeassistant==2026.10.0",
-    "home-assistant-frontend==20260930.2",
+    "homeassistant==2026.11.0",
+    "home-assistant-frontend==20261028.4",
     "playwright==1.64.1",
     "pre-commit==4.7.0",
-    "pytest-homeassistant-custom-component==0.13.371",
+    "pytest-cov==7.1.0",
+    "pytest-homeassistant==2026.11.0",
     "pyyaml>=6.0",
 ]
 lint = [
@@ -29,9 +30,12 @@ lint = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests", "toolkit/tests"]
 pythonpath = [".", "toolkit"]
 addopts = [
+    "-p",
+    "no:respx",
     "--cov=custom_components/ha_themes",
     "--cov-report=term-missing",
     "--cov-fail-under=90",

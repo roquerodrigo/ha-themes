@@ -169,7 +169,7 @@ def test_disabled_inverted_and_unread_semantic_tokens_are_not_checked() -> None:
     assert "ha-color-on-disabled-normal" not in foregrounds
     assert "ha-color-text-secondary-inverted" not in foregrounds
     assert "ha-color-text-link" not in foregrounds
-    assert "ha-color-border-primary-normal" not in foregrounds
+    assert "ha-color-border-normal" not in foregrounds
     assert "ha-color-on-error-normal" not in foregrounds
 
 

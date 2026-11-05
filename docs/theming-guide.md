@@ -1,6 +1,6 @@
 # How Home Assistant themes work today
 
-Verified against frontend `20260930.2` / Core `2026.10.0`, by reading the shipped theme
+Verified against frontend `20261028.4` / Core `2026.11.0`, by reading the shipped theme
 sources and observing the running frontend in Google Chrome. Much of the theming advice
 online predates the 2025–2026 design-token rework; this page describes what the current
 frontend actually does.
@@ -86,10 +86,10 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
   everything that inherits from the body — sidebar, header, banners, buttons — ignores the
   theme. Dashboards and settings cards read the variable and do follow it.
 - **Material components fall back to a literal Roboto.** They read
-  `md-ref-typeface-plain` and `mdc-typography-font-family`, which the frontend never sets.
+  `mdc-typography-font-family`, which the frontend never sets.
 - **Themes cannot load web fonts**, since they only set CSS variables.
 
-The builder sets the two Material tokens to `var(--ha-font-family-body)` in every theme, and
+The builder sets that Material token to `var(--ha-font-family-body)` in every theme, and
 generates one support module, which the integration loads on every page, that binds
 `body` to `var(--ha-font-family-body)` while a project theme is the global theme and loads
 web fonts on demand. A theme that declares
@@ -280,7 +280,7 @@ bottom sheet still paint it over other content; [Creating a theme](creating-a-th
 support module raises the dropdown menus and lists among them. `app-theme-color` (the
 browser's theme color) should stay an opaque hex value.
 
-## Known upstream issues (frontend 20260930.2)
+## Known upstream issues (frontend 20261028.4)
 
 | Issue | Effect | Workaround applied by the builder |
 | --- | --- | --- |

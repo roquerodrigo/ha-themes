@@ -286,7 +286,6 @@ TRANSLUCENT_SURFACES: dict[str, tuple[str, float]] = {
 also gets its role color with alpha."""
 
 TYPOGRAPHY_BRIDGE: dict[str, str] = {
-    "md-ref-typeface-plain": "var(--ha-font-family-body)",
     "mdc-typography-font-family": "var(--ha-font-family-body)",
 }
 """Material components fall back to a literal Roboto instead of the HA body font."""
