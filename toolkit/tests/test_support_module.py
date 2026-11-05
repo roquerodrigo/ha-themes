@@ -462,36 +462,44 @@ def test_input_chips_take_the_theme_corner_radius(page: Page, page_errors: list[
     assert page_errors == []
 
 
-def test_energy_totals_table_lets_its_card_show_through(page: Page, page_errors: list[str]) -> None:
-    table_backgrounds = """() => ['table', 'header'].map(
+def test_map_overview_panel_takes_the_theme_menu_background(
+    page: Page, page_errors: list[str]
+) -> None:
+    panel_backgrounds = """() => ['panel', 'pill', 'outside'].map(
       (id) => getComputedStyle(window.findElement(id)).backgroundColor
     )"""
-    set_root_color(page, "rgb(255, 0, 0)")
     page.evaluate(
         """() => {
-          document.documentElement.style.setProperty("--card-background-color", "rgb(0, 0, 255)");
-          const host = document.createElement("hui-energy-sources-table-card");
+          const root = document.documentElement.style;
+          root.setProperty("--card-background-color", "rgb(0, 0, 255)");
+          root.setProperty("--ha-themes-menu-background", "rgb(255, 0, 0)");
+          const host = document.createElement("hui-map-overview");
           const shadow = host.attachShadow({ mode: "open" });
           const sheet = new CSSStyleSheet();
-          sheet.replaceSync(`
-            .mdc-data-table, .mdc-data-table__header-cell {
-              background-color: var(--card-background-color);
-            }
-          `);
+          sheet.replaceSync(
+            ".panel, .pill, #outside { background-color: var(--card-background-color); }"
+          );
           shadow.adoptedStyleSheets = [sheet];
-          const table = document.createElement("div");
-          table.id = "table";
-          table.className = "mdc-data-table";
-          const header = document.createElement("div");
-          header.id = "header";
-          header.className = "mdc-data-table__header-cell";
-          table.append(header);
-          shadow.append(table);
+          const panel = document.createElement("div");
+          panel.id = "panel";
+          panel.className = "panel";
+          const pill = document.createElement("span");
+          pill.id = "pill";
+          pill.className = "pill";
+          panel.append(pill);
+          const outside = document.createElement("div");
+          outside.id = "outside";
+          shadow.append(panel, outside);
           document.body.append(host);
         }"""
     )
     page.wait_for_function(
-        f"() => ({table_backgrounds})().every((color) => color === 'rgba(0, 0, 0, 0)')"
+        f"() => ({panel_backgrounds})().join() === 'rgb(255, 0, 0),rgb(255, 0, 0),rgb(0, 0, 255)'"
+    )
+
+    remove_root_variable(page, "--ha-themes-menu-background")
+    page.wait_for_function(
+        f"() => ({panel_backgrounds})().every((color) => color === 'rgb(0, 0, 255)')"
     )
     assert page_errors == []
 

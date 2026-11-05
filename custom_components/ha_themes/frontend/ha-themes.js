@@ -53,12 +53,18 @@ toastStyles.replaceSync(`
   }
 `);
 
-// The energy totals table paints the page-toned card background inside its own card, so
-// letting the card show through keeps the card one tone.
-const energySourcesTableStyles = new CSSStyleSheet();
-energySourcesTableStyles.replaceSync(`
-  .mdc-data-table,
-  .mdc-data-table__header-cell { background-color: transparent; }
+// The map overview floats its panel over the map in the page-toned card background, which also
+// paints the selected tab and the activity avatars inside it, so the panel takes the menu surface
+// under that name. The host keeps the page value, since a custom property cannot fall back to its
+// own inherited value.
+const mapOverviewStyles = new CSSStyleSheet();
+mapOverviewStyles.replaceSync(`
+  :host { --ha-themes-page-card-background: var(--card-background-color); }
+  .panel {
+    --card-background-color: var(
+      --ha-themes-menu-background, var(--ha-themes-page-card-background)
+    );
+  }
 `);
 
 // The integration page's entry lists take their surface from the page-toned card background,
@@ -300,7 +306,7 @@ const hostStyles = new Map([
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", dropdownMenuStyles],
   ["ha-toast", toastStyles],
-  ["hui-energy-sources-table-card", energySourcesTableStyles],
+  ["hui-map-overview", mapOverviewStyles],
   ["ha-config-entry-row", configEntryListStyles],
 ]);
 
