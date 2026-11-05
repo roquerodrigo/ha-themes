@@ -97,6 +97,10 @@ def chrome_session(instance: DevInstance, width: int = 1400, height: int = 900):
             }""",
             tokens,
         )
+        # The onboarding page sends a finished instance to "/" on its own, which would otherwise
+        # replace the first page the session opens.
+        _goto_when_settled(page, f"{instance.url}/")
+        _wait_for_app(page)
         try:
             yield page
         except BaseException:
@@ -181,7 +185,7 @@ def open_with_theme(page: Page, url: str, theme: str, dark: bool, settle_ms: int
         "selection => localStorage.setItem('selectedTheme', JSON.stringify(selection))",
         selection,
     )
-    page.goto(url, wait_until="domcontentloaded")
+    _goto_when_settled(page, url)
     _wait_for_app(page)
     try:
         page.wait_for_function(APPLIED_SELECTION_SCRIPT, arg=selection, timeout=10000)
