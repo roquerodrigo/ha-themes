@@ -65,7 +65,8 @@ energySourcesTableStyles.replaceSync(`
 // so they are raised to the card tone they would have on the default theme.
 const configEntryListStyles = new CSSStyleSheet();
 configEntryListStyles.replaceSync(`
-  ha-md-list { --md-sys-color-surface: var(--ha-card-background, var(--card-background-color)); }
+  .config-entry-wrapper,
+  .devices { background-color: var(--ha-card-background, var(--card-background-color)); }
 `);
 
 // Settings, System, About and the search dialog draw their icon tiles with literal inline colors,
@@ -76,6 +77,7 @@ const ICON_TILE_ENTITY_COLORS = {
   "#0082FC": "blue",
   "#00838F": "teal",
   "#00897B": "teal",
+  "#009FE3": "light-blue",
   "#0D47A1": "indigo",
   "#153163": "indigo",
   "#2458B3": "indigo",
@@ -97,6 +99,7 @@ const ICON_TILE_ENTITY_COLORS = {
   "#653249": "pink",
   "#660066": "purple",
   "#7A5AA6": "purple",
+  "#7C4DFF": "purple",
   "#8B69E3": "purple",
   "#8E24AA": "purple",
   "#9C27B0": "purple",
