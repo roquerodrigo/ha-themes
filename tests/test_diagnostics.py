@@ -7,7 +7,7 @@ from custom_components.ha_themes.diagnostics import async_get_config_entry_diagn
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from pytest_homeassistant_custom_component.common import MockConfigEntry
+    from pytest_homeassistant.common import MockConfigEntry
 
 
 async def test_diagnostics_report_installed_and_loaded_themes(

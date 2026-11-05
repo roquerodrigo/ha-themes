@@ -52,7 +52,7 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `<Name>` with its own fonts and `<Name> System UI`, identical but set in the platform's
   UI font (`system-ui`, San Francisco, Segoe UI, Roboto), with no web fonts to download:
   while it is active, the support module makes no request to the font host.
-- **The whole UI uses the theme font.** Material components get `md-ref-typeface-plain` and
+- **The whole UI uses the theme font.** Material components get
   `mdc-typography-font-family` pointed at `ha-font-family-body`, and the support module
   binds the page body to it (see [the guide](theming-guide.md#fonts)). A wide web font can
   set `typography.size_adjust` to render at the x-height of the stock font instead of at

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.ha_themes.const import DOMAIN
 
@@ -12,8 +12,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from homeassistant.core import HomeAssistant
-
-pytest_plugins = "pytest_homeassistant_custom_component"
 
 THEMES_INCLUDE = "frontend:\n  themes: !include_dir_merge_named themes\n"
 
@@ -32,9 +30,7 @@ async def frontend(hass: HomeAssistant, config_directory: Path) -> None:
 
 
 @pytest.fixture
-async def setup_integration(
-    hass: HomeAssistant, frontend: None, enable_custom_integrations: None
-) -> MockConfigEntry:
+async def setup_integration(hass: HomeAssistant, frontend: None) -> MockConfigEntry:
     entry = MockConfigEntry(domain=DOMAIN, data={}, title="HA Themes")
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)

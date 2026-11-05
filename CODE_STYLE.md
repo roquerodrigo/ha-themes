@@ -291,8 +291,8 @@ The Home Assistant version is pinned in four places that move together:
 
 1. `homeassistant` in `pyproject.toml`.
 2. `home-assistant-frontend` in `pyproject.toml`.
-3. `pytest-homeassistant-custom-component` in `pyproject.toml`, whose
-   `requires_dist` must list the same `homeassistant`.
+3. `pytest-homeassistant` in `pyproject.toml`, released by Home Assistant core
+   with the same version number and pinning that `homeassistant`.
 4. `homeassistant` in `hacs.json`, the minimum core HACS installs on.
 
 `toolkit/tests/test_pinned_versions.py` fails while any of them or

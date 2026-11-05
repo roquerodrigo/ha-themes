@@ -9,12 +9,10 @@ from custom_components.ha_themes.const import DOMAIN
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from pytest_homeassistant_custom_component.common import MockConfigEntry
+    from pytest_homeassistant.common import MockConfigEntry
 
 
-async def test_user_step_creates_the_entry(
-    hass: HomeAssistant, frontend: None, enable_custom_integrations: None
-) -> None:
+async def test_user_step_creates_the_entry(hass: HomeAssistant, frontend: None) -> None:
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )

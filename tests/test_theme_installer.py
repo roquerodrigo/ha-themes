@@ -5,10 +5,11 @@ from unittest.mock import patch
 
 import pytest
 from atomicwrites import AtomicWriter
-from homeassistant.components.frontend import DATA_THEMES, EVENT_THEMES_UPDATED
+from homeassistant.components.frontend import DATA_THEMES
+from homeassistant.const import EVENT_THEMES_UPDATED
 from homeassistant.helpers import issue_registry
 from homeassistant.util.file import WriteError
-from pytest_homeassistant_custom_component.common import async_capture_events
+from pytest_homeassistant.common import async_capture_events
 
 from custom_components.ha_themes.const import (
     DOMAIN,

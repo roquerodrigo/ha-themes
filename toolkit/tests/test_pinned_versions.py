@@ -10,7 +10,7 @@ from ha_theme_kit.inventory.bundle_scan import installed_frontend_version
 from ha_theme_kit.inventory.catalog import TokenCatalog
 
 BUMP_HINT = (
-    "homeassistant, home-assistant-frontend and pytest-homeassistant-custom-component move "
+    "homeassistant, home-assistant-frontend and pytest-homeassistant move "
     "together with a catalog re-capture (README: Updating to a new Home Assistant release)"
 )
 
@@ -33,7 +33,7 @@ def test_installed_frontend_is_the_one_the_core_pins() -> None:
 
 
 def test_test_harness_targets_the_installed_core() -> None:
-    requirements = importlib.metadata.requires("pytest-homeassistant-custom-component") or []
+    requirements = importlib.metadata.requires("pytest-homeassistant") or []
     pin = find_requirement(requirements, "homeassistant")
     assert installed_core_version() in pin.specifier, BUMP_HINT
 
