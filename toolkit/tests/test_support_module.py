@@ -638,16 +638,20 @@ ADD_FIELDS = """() => {
   const picker = document.createElement("ha-picker-field");
   const pickerShadow = picker.attachShadow({ mode: "open" });
   pickerShadow.adoptedStyleSheets = [stockSheet(`
-    ha-combo-box-item {
-      display: block; height: 20px; background-color: var(--ha-color-form-background);
+    .field {
+      display: flex; height: 20px; background-color: var(--ha-color-form-background);
       border-radius: 4px; border-end-start-radius: 0; border-end-end-radius: 0;
     }
-    ha-combo-box-item:hover { background-color: var(--ha-color-form-background-hover); }
-    ha-combo-box-item::after { content: ""; display: block; height: 1px; }`)];
-  const item = document.createElement("ha-combo-box-item");
-  item.id = "picker";
-  item.tabIndex = 0;
-  pickerShadow.append(item);
+    .field:hover { background-color: var(--ha-color-form-background-hover); }
+    .field::after { content: ""; display: block; height: 1px; }`)];
+  const pickerField = document.createElement("div");
+  pickerField.id = "picker";
+  pickerField.className = "field";
+  const trigger = document.createElement("button");
+  trigger.id = "picker-trigger";
+  trigger.append(document.createElement("ha-combo-box-item"));
+  pickerField.append(trigger);
+  pickerShadow.append(pickerField);
   document.body.append(picker);
 }"""
 
@@ -761,7 +765,7 @@ def test_outlined_fields_show_focus_and_errors_in_the_outline(
     )
     assert field_styles(page, "input")["color"] == "rgb(0, 128, 0)"
 
-    page.evaluate("() => window.findElement('picker').focus()")
+    page.evaluate("() => window.findElement('picker-trigger').focus()")
     assert field_styles(page, "picker")["color"] == "rgb(0, 0, 255)"
     page.evaluate(
         "() => window.findElement('picker').getRootNode().host.setAttribute('invalid', '')"

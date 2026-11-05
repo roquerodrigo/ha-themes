@@ -217,30 +217,30 @@ textareaFieldStyles.replaceSync(`
   wa-textarea[disabled]::part(base) { border-color: ${FIELD_DISABLED_BORDER_COLOR}; }
 `);
 
-// Selects and pickers render their field as a list item, which dims itself when disabled and
-// tints itself on hover with a ripple.
+// Selects and pickers wrap their list item, clear button and arrow in one field, which dims
+// itself when disabled and tints itself on hover with a ripple.
 const STOCK_HOVER_RIPPLE = "--ha-themes-stock-ripple-hover-color";
 const pickerFieldStyles = new CSSStyleSheet();
 pickerFieldStyles.replaceSync(`
   ${STOCK_FORM_FILLS}
-  ${clearFormFills("ha-combo-box-item")}
+  ${clearFormFills(".field")}
   :host {
     ${STOCK_HOVER_RIPPLE}: var(
       --ha-ripple-hover-color, var(--ha-ripple-color, var(--secondary-text-color))
     );
   }
-  ha-combo-box-item {
+  .field {
     --ha-ripple-hover-color: ${stockFieldColor(STOCK_HOVER_RIPPLE)};
     border: ${FIELD_BORDER};
     border-radius: ${fieldBorderRadius("var(--ha-border-radius-sm)", "0")};
   }
-  ha-combo-box-item::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
-  ha-combo-box-item:hover:where(:not([disabled])) { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
-  ha-combo-box-item:focus,
-  :host(.opened) ha-combo-box-item {
+  .field::after { opacity: ${FIELD_UNDERLINE_OPACITY}; }
+  .field:hover:where(:not(.disabled)) { border-color: ${FIELD_HOVER_BORDER_COLOR}; }
+  .field:focus-within,
+  :host(.opened) .field {
     border-color: ${FIELD_FOCUS_BORDER_COLOR};
   }
-  :host([invalid]) ha-combo-box-item { border-color: ${FIELD_INVALID_BORDER_COLOR}; }
+  :host([invalid]) .field { border-color: ${FIELD_INVALID_BORDER_COLOR}; }
 `);
 
 const labelsFieldStyles = new CSSStyleSheet();
