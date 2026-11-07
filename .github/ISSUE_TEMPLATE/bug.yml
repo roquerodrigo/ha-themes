@@ -1,0 +1,57 @@
+name: Bug report
+description: Report a problem with the integration.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Before opening, search the [existing issues](https://github.com/roquerodrigo/ha-themes/issues?q=is%3Aissue) for the same problem.
+        Report one problem per issue.
+  - type: input
+    id: version
+    attributes:
+      label: Integration version
+      description: As shown in HACS.
+      placeholder: 1.2.3
+    validations:
+      required: true
+  - type: textarea
+    id: system-health
+    attributes:
+      label: System information
+      description: >-
+        Go to Settings → System → Repairs → ⋮ → System information, select Copy and paste it here.
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: What you expected to happen and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug logs
+      description: >-
+        On the integration page, select ⋮ → Enable debug logging, reproduce the problem,
+        then select ⋮ → Disable debug logging and paste the relevant part of the downloaded log.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: On the device or integration page, select ⋮ → Download diagnostics and drag the file here.

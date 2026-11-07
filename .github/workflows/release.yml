@@ -1,0 +1,43 @@
+name: Release
+
+# Gated on a successful CI run rather than on the push itself. The
+# `workflow_run.event == 'push'` half of the condition is what stops a pull
+# request with green CI from cutting a release.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  release:
+    name: Release
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Release
+        id: release
+        uses: roquerodrigo/release-autopilot@latest
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Attach the release asset
+        if: steps.release.outputs.released == 'true'
+        uses: roquerodrigo/home-assistant-autopilot@latest
+        with:
+          command: publish
+          tag: ${{ steps.release.outputs.tag }}
