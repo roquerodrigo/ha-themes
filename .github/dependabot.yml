@@ -1,0 +1,44 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    groups:
+      python-deps:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "homeassistant"
+          - "home-assistant-frontend"
+          - "pytest-homeassistant"
+    ignore:
+      # These pin one Home Assistant release and move together with a catalog
+      # re-capture (README: Updating to a new Home Assistant release).
+      - dependency-name: "homeassistant"
+      - dependency-name: "home-assistant-frontend"
+      - dependency-name: "pytest-homeassistant"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"

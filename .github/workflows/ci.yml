@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    uses: roquerodrigo/workflows/.github/workflows/python-lint.yml@main
+
+  tests:
+    needs: lint
+    uses: roquerodrigo/workflows/.github/workflows/python-test.yml@main
+
+  validate:
+    name: Home Assistant Marketplace
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate
+        uses: roquerodrigo/home-assistant-autopilot@latest
+
+  update-pr-branch:
+    if: github.event_name == 'pull_request'
+    needs: [lint, tests, validate]
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: roquerodrigo/workflows/.github/workflows/update-pr-branch.yml@main

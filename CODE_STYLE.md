@@ -1,0 +1,440 @@
+# Code Style Guide
+
+Style conventions for the `ha-themes` project. Before committing,
+run `uv run ruff format --check .`, `uv run ruff check .` and
+`uv run mypy` — all must exit cleanly.
+`uv run pytest` (with the 90 % coverage gate) follows.
+
+**Always read this file before adding or restructuring code.**
+
+## Scope
+
+The repository has two halves with different rules:
+
+- **The integration** — `custom_components/ha_themes/`, the only code HACS installs, and
+  its tests in `tests/`. Every rule in this file applies: ruff `ALL`, strict mypy, the
+  90 % coverage gate and one top-level class per file.
+- **The toolkit** — `toolkit/ha_theme_kit/`, development tooling that is never shipped,
+  run through `scripts/ha-themes`. It keeps a lighter ruleset (`toolkit/ruff.toml`), is
+  not type-checked by mypy, may group closely related classes in one module, and its
+  tests in `toolkit/tests/` run with the rest but do not count toward the coverage gate.
+  The language, naming, docstring, comment, import and logging rules still apply.
+  - `color/` — OKLCH conversion, CSS color parsing, palettes and color-vision checks.
+  - `inventory/` — token capture in Google Chrome against the dev instance, the token
+    catalog and the generated reference docs.
+  - `theme/` — theme definitions from `themes-src/`, roles, palette resolution,
+    contrast validation, the builder and the YAML writer.
+  - `support/ha-themes.js` — source of the support module the builder copies into the
+    integration.
+  - `cli.py` — the `catalog`, `onboard`, `docs`, `build`, `palette` and `preview`
+    commands behind `scripts/ha-themes`.
+
+Generated files — `custom_components/ha_themes/themes/*.yaml`,
+`custom_components/ha_themes/frontend/ha-themes.js`, `catalog/`, `docs/tokens-*.md` and
+`previews/` — are never edited by hand; change the sources and rebuild.
+
+The integration has no entities, coordinator, API client, credentials, options flow,
+reauth or fixable repairs. Adding any of them is a design change: follow the Home
+Assistant developer documentation and update this file in the same change.
+
+## Language
+
+- Code is written in **English**: file names, class names, function names,
+  variable names, dictionary keys, identifier strings.
+- The conversation language with the user can be Portuguese or anything else;
+  it never decides what is committed to disk.
+- **A country-specific repository speaks that country's language everywhere a
+  human reads prose.** When `hacs.json` declares `country`, everything below is
+  written in the language of that country (`["BR"]` → Brazilian Portuguese).
+  Without `country` — or when the listed countries do not share a language —
+  all of it stays English.
+  - Documentation: README, `CONTRIBUTING.md`, `SECURITY.md`, every other
+    Markdown doc, docstrings and code comments.
+  - Git history: commit subjects and bodies, PR titles and descriptions.
+  - Releases: release notes and `CHANGELOG.md`, including the section headings.
+  - Public communication: issues, issue and PR comments, review comments,
+    discussions, the issue templates and the PR template under `.github/`.
+  - Repository metadata: the GitHub description, and `description` in
+    `pyproject.toml`.
+- **Code stays English regardless of `country`**: the language of the prose
+  never leaks into identifiers, file names, branch names, keys or log
+  messages. Whatever a tool parses is code too: the Conventional Commits type
+  and scope (`feat(sensor): adiciona a bandeira tarifária`), the
+  `BREAKING CHANGE:` footer, workflow and job ids, labels. `translations/en.json`
+  is still required next to the country's locale.
+- **Native domain terms keep their original language, in code and in prose.**
+  They are the ubiquitous language shared with the users and with the upstream
+  service, and a translation only forces everyone to map it back: write
+  `bandeira_tarifaria`, `unidade_consumidora`, `cep`, `Linha`, not
+  `tariff_flag`, `consumer_unit`, `zip_code`, `Line`. Everything around the
+  term is English (`fetch_bandeira_tarifaria`, `UnidadeConsumidoraSensor`).
+  Identifiers drop diacritics (`estacao`); prose and translated strings keep
+  them (`estação`).
+- User-facing strings live in `custom_components/ha_themes/translations/{en,pt-BR}.json`
+  only — never hardcoded in Python.
+
+## Integration modules
+
+| Module | Responsibility |
+|---|---|
+| `__init__.py` | Entry lifecycle: `async_setup_entry` installs the themes, registers the support module and stores `HaThemesData`; `async_unload_entry` stops loading the module and clears the repair issues but keeps the theme files; `async_remove_entry` deletes the theme files when the integration is removed. |
+| `theme_installer.py` | `HaThemesThemeInstaller` mirrors the packaged `themes/*.yaml` into `<config>/themes/ha_themes/`, reloads the frontend themes only when a file changed or a theme is not served yet, and owns the repair issues. |
+| `frontend_module.py` | `HaThemesFrontendModule` serves `frontend/ha-themes.js` on a static path and adds it with `add_extra_js_url` under a content-hash URL. |
+| `config_flow.py` | `HaThemesFlowHandler`: a single `user` confirmation step with no data. |
+| `diagnostics.py` | `async_get_config_entry_diagnostics` returns `HaThemesDiagnosticsPayload`. |
+| `const.py` | `LOGGER`, `DOMAIN`, paths, file names and the repair issue ids. |
+| `data/` | `HaThemesData` (`runtime.py`), `HaThemesDiagnosticsPayload` (`diagnostics_payload.py`) and the `HaThemesConfigEntry` alias in `__init__.py`. |
+| `themes/`, `frontend/` | Generated by `scripts/ha-themes build`. |
+| `translations/`, `brand/` | Locales and brand assets. |
+
+## File organization
+
+- **One top-level class per file in the integration — including TypedDicts and
+  dataclasses.** Multiple semantically related classes get grouped into a package
+  directory with one class per submodule and an `__init__.py` re-exporting the public
+  symbols.
+  - Example: `data/` contains `runtime.py` (`HaThemesData`) and
+    `diagnostics_payload.py` (`HaThemesDiagnosticsPayload`), plus an `__init__.py`
+    that re-exports them. A new shared TypedDict or dataclass gets its own file
+    there — a flat multi-class `data.py` is not a valid layout.
+  - **Relaxations**: a TypedDict or `type` alias consumed by a single module
+    may live in that consuming module instead of its own file, and leaf
+    dataclasses that describe fragments of the same payload may share one
+    module. The package-with-one-class-per-submodule layout remains the
+    default the moment a shape is shared across modules.
+- **`type` aliases are the exception: they live in `data/__init__.py`**
+  alongside the re-exports (`HaThemesConfigEntry`), not in their own files.
+- **Helper functions** may live in the same file as the single class that uses
+  them; prefer private methods or `@staticmethod`s on that class
+  (`HaThemesThemeInstaller._read_packaged_theme_names`).
+- **`__init__.py` of the integration package** holds only the entry lifecycle
+  hooks Home Assistant calls (`async_setup_entry`, `async_unload_entry`,
+  `async_remove_entry`) and delegates the work to the classes above.
+
+## Entities
+
+The integration ships no entity platform. If one is ever added:
+
+- **One class per entity.** Never share a generic class parameterized by an
+  `EntityDescription` subclass with callable fields like `value_fn`; encode the
+  behaviour in the entity's own class via `@property` and class-level `_attr_*`
+  constants. Name it `HaThemes<Name><Platform>`.
+- **Entity icons live in `icons.json`**
+  (`entity.<platform>.<translation_key>.default`), not in `_attr_icon`.
+- Entity names go under `entity.<platform>.<key>.name` in the translations.
+
+## Naming
+
+- Public classes are prefixed with `HaThemes` and end with what they are:
+  `HaThemesThemeInstaller`, `HaThemesFrontendModule`, `HaThemesFlowHandler`,
+  `HaThemesData`, `HaThemesDiagnosticsPayload`.
+- Exception classes end with `Error`. The integration defines none: setup
+  failures raise Home Assistant's `ConfigEntryError` with a translation key.
+- Private attributes / functions are prefixed with `_`.
+
+## Typing
+
+**Strict typing. No generics, no `Any`.** Mypy (`uv run mypy`) enforces this on the
+integration.
+
+Banned: `typing.Any`, `object` as a value type, bare `dict` / `list` / `tuple` /
+`set`, `dict[str, Any]`, `Mapping[str, Any]`.
+
+Required:
+
+- `TypedDict` for known dict / JSON shapes (`HaThemesDiagnosticsPayload` in
+  `data/diagnostics_payload.py`).
+- `@dataclass` for structured records (`HaThemesData` in `data/runtime.py`).
+- Named `type` aliases for shared shapes — `HaThemesConfigEntry` in
+  `data/__init__.py`.
+- `frozenset[str]` / `tuple[str, ...]` for fixed string collections
+  (`HaThemesThemeInstaller.loaded_themes`, `installed_themes`).
+- `HassKey[T]` for any value kept in `hass.data`, so reads and writes are typed.
+- `cast("TypedDictName", value)` at HA framework boundaries that hand us a
+  permissive type (e.g. `entry.data` is `MappingProxyType[str, Any]`).
+
+The integration carries no `# type: ignore`, and `warn_unused_ignores` keeps it that
+way. Narrow an HA callback signature only where mypy accepts it
+(`async_step_user(user_input: Mapping[str, str] | None)`). If an ignore ever becomes
+unavoidable, give it the error code and a one-line comment explaining why.
+
+## Properties and `__init__`
+
+- **Always prefer `@property`** over assigning `_attr_*` values in `__init__`.
+  Properties are computed lazily from backing fields
+  (`HaThemesThemeInstaller.target_directory`, `HaThemesFrontendModule.url`).
+- When the body of `__init__` would only call `super().__init__(...)`, omit
+  `__init__` entirely and let Python inherit the parent.
+- Class-level constants like `VERSION = 1` on the config flow are fine — they
+  don't depend on instance state.
+
+## Imports
+
+- Always start every module with `from __future__ import annotations` so type
+  hints become lazy strings and the runtime cost of `if TYPE_CHECKING` imports
+  is zero.
+- Same-package relative imports (`from .module import …`) are the default.
+- Move type-only imports into a `TYPE_CHECKING` block (Ruff `TC001`/`TC003`):
+
+  ```python
+  from __future__ import annotations
+  from typing import TYPE_CHECKING
+
+  if TYPE_CHECKING:
+      from homeassistant.core import HomeAssistant
+
+      from .data import HaThemesConfigEntry
+  ```
+
+- `noqa` comments are reserved for unavoidable framework constraints (e.g.
+  `# noqa: ARG001` for HA-framework callback parameters that must exist but go
+  unused). Document the reason inline if non-obvious. Never silence to "make
+  ruff happy" — fix the underlying code.
+
+## Docstrings
+
+- Every public class, function, method (including `@property`) and `__init__`
+  has a docstring. Ruff enforces this via `D102`/`D107`.
+- A single sentence is usually enough. Describe the *contract* or the *why*,
+  not the obvious implementation.
+- Module-level docstring at the top of every `.py` file.
+- Avoid restating the type — the signature already does that.
+
+## Comments
+
+- Default to **no comments**. Add one only when the *why* is not obvious from
+  the code: a hidden constraint, a workaround, a subtle invariant, or a
+  deliberate type-system override.
+- Never describe *what* the code does — well-named identifiers handle that.
+- **No section dividers** like `# --- API payloads ---` to group related
+  declarations. If a file has so many sections that you feel the need for
+  visual separators, split it into multiple files instead.
+
+## Logging
+
+- Each module uses the package-level `LOGGER` from `const.py`
+  (`LOGGER: Logger = getLogger(__package__)`); never call `logging.getLogger(...)`
+  ad-hoc.
+- Use **lazy `%`-formatting**, never f-strings — they force string interpolation
+  even when the level is filtered:
+
+  ```python
+  LOGGER.warning("Could not remove %s: %s", path, error)   # ✓
+  LOGGER.warning(f"Could not remove {path}: {error}")      # ✗
+  ```
+
+- Levels:
+  - `debug` — routine summaries (which themes were installed where).
+  - `info` — one-shot changes the user may want to know about (a stale theme
+    file removed from the managed directory).
+  - `warning` — recoverable failures (a theme reload refused, a file the
+    uninstall could not delete).
+  - `error` / `exception` — unrecoverable in the current operation; pair
+    `exception` with caught exceptions inside `except` blocks for full tracebacks.
+- Never log secrets (`token`, `password`, `key`, full headers). The integration
+  handles none today; keep it that way if that changes.
+
+## Error messages
+
+- Format: `"Failed to <verb> <object>: <cause>"` where `<cause>` is the
+  exception or a short reason. Keep them short and grep-able.
+- Errors a user sees are translated: raise Home Assistant exceptions with
+  `translation_domain=DOMAIN`, a `translation_key` and placeholders, and put the
+  message under `exceptions.<key>.message` (`install_failed` in
+  `async_setup_entry`: "Failed to install the themes into {directory}: {error}").
+- Problems the user has to fix outside the integration are repair issues, not
+  exceptions (see below).
+
+## Runtime data and `hass.data`
+
+- Per-entry state lives in `entry.runtime_data: HaThemesData` (`data/runtime.py`):
+  the theme installer, the frontend module and the installed theme names.
+  `runtime_data` is discarded on unload; the legacy `hass.data[DOMAIN][entry_id]`
+  pattern is not, so it is never used.
+- **The one deliberate exception** is `STATIC_PATH_REGISTERED` in
+  `frontend_module.py`, a `HassKey[bool]` in `hass.data`. Static routes cannot be
+  removed from the running HTTP server, so whether the module's path is registered
+  is process-wide state that outlives any config entry and must survive a reload.
+  Do not "fix" it into `runtime_data`, and do not add other `hass.data` state.
+- Reading another integration's documented `hass.data` key is fine
+  (`HaThemesThemeInstaller.loaded_themes` reads the frontend's `DATA_THEMES`).
+
+## Config flow, repair issues and diagnostics
+
+- `config_flow.py` has a single `user` step that confirms the installation and
+  creates an entry with empty `data`. `single_config_entry: true` in
+  `manifest.json` makes Home Assistant abort a second flow with
+  `single_instance_allowed`. There is nothing to configure, so there is no options
+  flow, reauth or reconfigure step.
+- Repair issues are raised by `HaThemesThemeInstaller` through
+  `homeassistant.helpers.issue_registry`, with ids from `const.py`
+  (`ISSUE_THEMES_NOT_LOADED`, `ISSUE_THEMES_RELOAD_FAILED`) used as their
+  translation keys. They are not fixable, so there is no `repairs.py` or fix flow:
+  the description tells the user what to change. The installer re-checks them on
+  every `EVENT_THEMES_UPDATED` and clears them on unload and removal.
+- `diagnostics.py` returns `HaThemesDiagnosticsPayload`: installed and loaded
+  themes, the themes directory and the support module URL. None of it is
+  sensitive, so nothing is redacted. A sensitive field added later goes through
+  `async_redact_data` with a `TO_REDACT: frozenset[str]` constant.
+
+## Translations
+
+- Two locales: `en.json` and `pt-BR.json`. `tests/test_translations.py`
+  parametrizes over every locale and fails if their nested key sets diverge.
+- Flow strings live under `config.step.<step_id>` and `config.abort.<reason>`;
+  repair issues under `issues.<issue_id>`; exception messages under
+  `exceptions.<translation_key>.message`.
+
+## Home Assistant pins
+
+The Home Assistant version is pinned in four places that move together:
+
+1. `homeassistant` in `pyproject.toml`.
+2. `home-assistant-frontend` in `pyproject.toml`.
+3. `pytest-homeassistant` in `pyproject.toml`, released by Home Assistant core
+   with the same version number and pinning that `homeassistant`.
+4. `homeassistant` in `hacs.json`, the minimum core HACS installs on.
+
+`toolkit/tests/test_pinned_versions.py` fails while any of them or
+`catalog/tokens.json` disagree with the installed packages. `CLAUDE.md` describes
+the bump procedure.
+
+## HACS publishing requirements
+
+[Home Assistant Autopilot](https://github.com/marketplace/actions/home-assistant-autopilot)
+validates the repository shape on every push: `hassfest`, the catalog checks of
+the [Home Assistant Marketplace](https://contributors.home-assistant.io/marketplace/),
+`hacs.json` and the versions it declares. Every check must stay green:
+
+- **One integration per repository**, located in `custom_components/<domain>/`.
+- `manifest.json` must declare `domain`, `name`, `version`, `documentation`,
+  `issue_tracker`, `codeowners`. The `version` key is **mandatory for custom
+  integrations** (omit it in core integrations only) and must parse as
+  `AwesomeVersion` — CalVer or SemVer.
+- `manifest.json` also declares `integration_type`. JSON carries no comments,
+  so the choice is recorded here: `ha_themes` ships `service` because its single
+  config entry represents a frontend service rather than a device or a hub.
+- `hacs.json` at the repo root pins the minimum HA core via the
+  `homeassistant` key. This is one of the four HA pins (see
+  Home Assistant pins above).
+- `hacs.json` takes an optional `country` key — one ISO 3166-1 alpha-2 code or
+  a list of them (`"country": ["BR"]`). A HACS user who sets a country in the
+  HACS options stops seeing repositories tagged for other countries, while
+  untagged repositories stay visible to everyone. `ha_themes` omits the key
+  because themes are not tied to a country, so its prose stays English. A
+  repository sets it only when the device or service exists in specific
+  countries, and prefers the list form so adding a country is a one-line diff.
+- Brand assets live under `custom_components/ha_themes/brand/`: `icon.svg` is the
+  source exported from Glass Icons (see README → Brand assets), `icon.png` (256×256)
+  and `icon@2x.png` (512×512) are square renders of it, and `logo.png` /
+  `dark_logo.png` (256×128) with their `@2x` (512×256) variants put the icon beside the
+  "HA Themes" wordmark for light and dark backgrounds, all on a transparent background.
+  `tests/test_brand.py` checks the sizes and fails while `icon.svg` is still the placeholder the
+  repository started from.
+- A `README.md` at the repo root is required; HACS surfaces it as the
+  integration description. Its header follows the layout below.
+
+[Release Autopilot](https://github.com/marketplace/actions/release-autopilot) tags a release each time the
+release pull request merges into `main`; HACS surfaces the five most recent
+GitHub releases to users, so keep the changelog grep-able.
+
+## README header
+
+Every repository opens `README.md` with the same header, in this exact order:
+**title → badges → HACS link → `---` separator → the rest of the document.**
+
+```markdown
+# <Title>
+
+[![CI](https://github.com/roquerodrigo/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/<repo>/actions/workflows/ci.yml)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+
+[![Open your Home Assistant instance and open the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=<repo>&category=integration)
+
+---
+```
+
+- `owner=` is always `roquerodrigo`; `repository=` is the repository name.
+- `category=integration` for an integration; `category=plugin` for a Lovelace
+  card repository.
+- The HACS link is a paragraph of its own, separated from the badge block by a
+  blank line. The badge row and the "Open your Home Assistant instance" button
+  are different things and must not run together.
+- Preserve the badges a repository already carries and invent no new ones; all
+  of them belong **before** the HACS link.
+- The `---` immediately after the HACS link is the header separator. A README
+  that already uses `---` further down keeps those as section breaks — do not
+  add a second separator to the header.
+
+**A private repository gets no HACS link.** `my.home-assistant.io` resolves the
+target through the public GitHub API, so on a private repository the button
+lands on something HACS cannot install. It is the same reason the catalog checks
+skip those repositories. Ship the title, the badges and
+the separator, and add the link when — and only when — the repository is made
+public.
+
+## Quality scale
+
+- `quality_scale.yaml` is **optional** and `ha_themes` does not ship one. It
+  is required only when `manifest.json` declares a `quality_scale` tier — and
+  then every claim in it must be honest (`done` only when the rule is actually
+  implemented; use `todo`/`exempt` otherwise).
+- The goal is to apply the [Bronze/Silver/Gold rules](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
+  that are pertinent to the integration; Platinum is an aspiration, not a
+  review gate.
+
+## Pre-commit hooks
+
+`pre-commit` is a dev dependency (`pyproject.toml`) and `.pre-commit-config.yaml`
+runs ruff format, ruff check and mypy as **local hooks through `uv run`**, so
+every commit uses the exact tool versions pinned in `pyproject.toml`/`uv.lock` —
+the same ones CI resolves. Never switch these to mirrored hooks
+(`ruff-pre-commit`, `mirrors-mypy`): a mirrored hook carries its own version
+pin that silently drifts from the project's. Install once per clone:
+
+```bash
+pre-commit install
+```
+
+The hook runs the same lint gates as CI on every commit. Skip it only on
+emergency `git commit --no-verify` and immediately re-run `scripts/lint` (or
+the equivalent direct commands).
+
+## Conventional commits
+
+All commits follow [Conventional Commits](https://www.conventionalcommits.org/),
+which Release Autopilot parses to bump the version and write the release notes
+and `CHANGELOG.md`:
+
+| Type | Meaning | Bump |
+|---|---|---|
+| `feat` | New feature | minor |
+| `fix` | Bug fix | patch |
+| `perf` | Performance improvement | patch |
+| `deps` | Dependency bump | patch |
+| `docs` | Documentation only | none |
+| `refactor` | Refactor without behavior change | none |
+| `test` | Test-only change | none |
+| `ci` | CI / tooling change | none |
+| `chore` | Anything else (rarely) | none |
+
+- Subject line: imperative mood, lowercase, no trailing period.
+- Use scopes when useful: `fix(sensor): map non-enum interface values to None`.
+- A `BREAKING CHANGE:` footer (or `!` after type) bumps the major version.
+
+## Linting and verification
+
+- Ruff configuration lives in `pyproject.toml` (`[tool.ruff]`) with `select = ["ALL"]`.
+- Mypy configuration lives in `pyproject.toml` (`[tool.mypy]`). Run both with
+  `uv run ruff check .` and `uv run mypy`.
+- After every change run `uv run ruff format --check .`, `uv run ruff check .`,
+  `uv run mypy` and `uv run pytest`.
+  Both gates mirror CI. `scripts/lint` is a thin wrapper that only chains
+  these four commands — running it or running the commands directly is
+  equivalent; the wrapper exists so CI, docs and local habits share one
+  source of truth.
+- Tests live in `tests/`, mirroring the production layout. The 90 % coverage
+  gate (`pyproject.toml`, `[tool.pytest.ini_options]`) prevents untested code
+  from sneaking in. When a test
+  exercises a state that is impossible under the new types, update or remove
+  it — never weaken the type to satisfy the test.

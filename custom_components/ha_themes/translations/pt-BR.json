@@ -1,0 +1,28 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Instalar o HA Themes",
+                "description": "Instala os temas no seu diretório de temas e carrega o módulo de suporte que aplica as fontes e as cores dos ícones em todas as páginas. Depois, escolha um tema no seu perfil."
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "O HA Themes já está instalado."
+        }
+    },
+    "issues": {
+        "themes_not_loaded": {
+            "title": "O HA Themes não consegue carregar os temas",
+            "description": "Os temas foram instalados em `{directory}`, mas o Home Assistant não carrega temas desse diretório. Deixe `frontend: themes:` no `configuration.yaml` como abaixo e recarregue os temas (**Ferramentas de desenvolvedor → YAML → Temas**) ou reinicie o Home Assistant:\n\n```yaml\n{configuration}\n```"
+        },
+        "themes_reload_failed": {
+            "title": "O HA Themes não conseguiu recarregar os temas",
+            "description": "O Home Assistant recusou recarregar os temas, então os temas instalados podem estar ausentes ou desatualizados. Corrija o erro abaixo no `configuration.yaml` ou nos arquivos de tema que ele inclui e recarregue os temas (**Ferramentas de desenvolvedor → YAML → Temas**):\n\n```\n{error}\n```"
+        }
+    },
+    "exceptions": {
+        "install_failed": {
+            "message": "Não foi possível instalar os temas em {directory}: {error}"
+        }
+    }
+}

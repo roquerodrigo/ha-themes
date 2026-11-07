@@ -1,0 +1,821 @@
+import re
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
+import yaml
+from annotatedyaml import parse_yaml
+from homeassistant.helpers.json import json_bytes
+from homeassistant.util.json import json_loads
+
+from ha_theme_kit.cli import THEME_SOURCES
+from ha_theme_kit.color.oklch import hex_to_rgba
+from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
+from ha_theme_kit.theme.builder import (
+    FONT_SIZE_ADJUST_TOKEN,
+    FONT_STYLESHEET_TOKEN,
+    build_theme,
+)
+from ha_theme_kit.theme.definition import ThemeDefinition
+from ha_theme_kit.theme.palette_resolver import PaletteResolver
+from ha_theme_kit.theme.roles import (
+    CONTRAST_PAIRS,
+    CORNER_RADIUS_BRIDGES,
+    CORNER_RADIUS_SCALE,
+    CORNER_RADIUS_TOKEN,
+    DASHBOARD_HEADER_BACKGROUND_TOKEN,
+    FIELD_OUTLINE,
+    ICON_TILE_HARMONY,
+    ROLE_TOKENS,
+    TOAST_EDGE_TOKEN,
+)
+from ha_theme_kit.theme.token_readers import has_reader, unread_role_tokens
+from ha_theme_kit.theme.validation import validate_theme
+from ha_theme_kit.theme.variants import SYSTEM_UI_FONT_STACK, theme_family
+from ha_theme_kit.theme.writer import render_home_assistant_yaml, write_support_module
+
+MINIMAL_PALETTE = {
+    "primary": "#d97757",
+    "neutral": "#7a7a7a",
+    "red": "#dc3146",
+    "orange": "#f36d00",
+    "green": "#00883c",
+}
+
+
+def minimal_definition(**overrides) -> ThemeDefinition:
+    return ThemeDefinition(
+        slug="minimal",
+        name="Minimal",
+        description="",
+        palette=overrides.pop("palette", MINIMAL_PALETTE),
+        **overrides,
+    )
+
+
+def test_resolver_expands_references_with_alpha() -> None:
+    resolver = PaletteResolver({**MINIMAL_PALETTE, "neutral": {"seed": "#7a7a7a", "05": "#000000"}})
+    assert resolver.resolve("{neutral.05}", "test") == "#000000"
+    assert resolver.resolve("{neutral.05@0.12}", "test") == "rgba(0, 0, 0, 0.12)"
+    assert resolver.resolve("{neutral.05@.5}", "test") == "rgba(0, 0, 0, .5)"
+    assert resolver.resolve("var(--x)", "test") == "var(--x)"
+
+
+def test_resolver_requires_frontend_families() -> None:
+    with pytest.raises(ValueError, match="missing families"):
+        PaletteResolver({"primary": "#d97757"})
+
+
+def test_resolver_accepts_hyphenated_family_names() -> None:
+    resolver = PaletteResolver(
+        {**MINIMAL_PALETTE, "light-blue": {"seed": "#6a9bcc", "40": "#123456"}}
+    )
+    assert resolver.resolve("{light-blue.40}", "test") == "#123456"
+
+
+@pytest.mark.parametrize("family", ["Blue", "light_blue", "blue-", "5"])
+def test_resolver_rejects_invalid_family_names(family: str) -> None:
+    with pytest.raises(ValueError, match="must be lowercase letters joined by hyphens"):
+        PaletteResolver({**MINIMAL_PALETTE, family: "#6a9bcc"})
+
+
+@pytest.mark.parametrize(
+    ("value", "message"),
+    [
+        ("{primary.5}", r"malformed palette reference \{primary.5\}"),
+        ("{Primary.50}", r"malformed palette reference \{Primary.50\}"),
+        ("{neutral.05@12%}", r"malformed palette reference \{neutral.05@12%\}"),
+        ("{neutral.05@1.5}", r"alpha in reference \{neutral.05@1.5\} must be between 0 and 1"),
+        ("{light-blue.40}", r"unknown palette family in reference \{light-blue.40\}"),
+        ("{primary.15}", r"unknown palette step in reference \{primary.15\}"),
+        ("{primary.50", "unbalanced braces"),
+        ("primary.50}", "unbalanced braces"),
+    ],
+)
+def test_malformed_references_fail_the_build_with_their_location(value: str, message: str) -> None:
+    with pytest.raises(ValueError, match=rf"^minimal: roles.dark.divider '.*': {message}"):
+        build_theme(minimal_definition(roles={"dark": {"divider": value}}))
+
+
+@pytest.mark.parametrize(
+    ("overrides", "location"),
+    [
+        ({"tokens": {"base": {"some-token": "{primary.5}"}}}, "tokens.base.some-token"),
+        ({"tokens": {"light": {"some-token": "{primary.5}"}}}, "tokens.light.some-token"),
+        (
+            {"entity_colors": {"pinned": {"red": "{primary.5}"}}},
+            "entity_colors.pinned.red in light",
+        ),
+        (
+            {"charts": {"series": ["{primary.5}", *["#4269d0"] * 7]}},
+            "charts.series seed 1 in light",
+        ),
+    ],
+)
+def test_malformed_references_name_their_section(overrides: dict, location: str) -> None:
+    with pytest.raises(ValueError, match=rf"^minimal: {location} '\{{primary.5\}}': malformed"):
+        build_theme(minimal_definition(**overrides))
+
+
+def test_mode_dependent_roles_never_land_in_base() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"background": "#101010"}}))
+    assert "primary-background-color" not in theme.base
+    assert theme.modes["dark"]["primary-background-color"] == "#101010"
+    assert theme.modes["light"]["primary-background-color"].startswith("#")
+
+
+def test_extra_palette_families_are_references_only() -> None:
+    theme = build_theme(
+        minimal_definition(
+            palette={**MINIMAL_PALETTE, "blue": "#6a9bcc"},
+            roles={"light": {"info": "{blue.40}"}},
+        )
+    )
+    assert not any(key.startswith("ha-color-blue-") for key in theme.base)
+    assert theme.modes["light"]["info-color"] == "#4472a0"
+
+
+def test_rendered_yaml_is_a_home_assistant_theme() -> None:
+    themes = [build_theme(variant) for variant in theme_family(minimal_definition())]
+    document = yaml.safe_load(render_home_assistant_yaml(themes, "test"))
+    assert set(document) == {"Minimal", "Minimal System UI"}
+    theme = document["Minimal"]
+    assert set(theme["modes"]) == {"light", "dark"}
+    assert theme["ha-color-primary-50"] == "#d97757"
+
+
+def test_rendered_yaml_round_trips_through_home_assistant_with_non_ascii_text() -> None:
+    definition = replace(
+        minimal_definition(tokens={"base": {"card-title": "Nuit \U0001f319\u2028\u0085 é"}}),
+        name="Minimal \U0001f319 Café",
+    )
+    themes = [build_theme(variant) for variant in theme_family(definition)]
+    rendered = render_home_assistant_yaml(themes, "test")
+    document = parse_yaml(rendered)
+    assert document["Minimal \U0001f319 Café"]["card-title"] == "Nuit \U0001f319\u2028\u0085 é"
+    assert json_loads(json_bytes(document)) == document
+
+
+def test_validation_flags_tokens_missing_from_catalog() -> None:
+    theme = build_theme(minimal_definition(tokens={"base": {"not-a-real-token": "1px"}}))
+    known = {
+        key: TokenEntry(name=f"--{key}", layer="x", group="x") for key in theme.all_token_keys()
+    }
+    known.pop("not-a-real-token")
+    catalog = TokenCatalog("test", "test", "today", {entry.name: entry for entry in known.values()})
+    assert validate_theme(theme, catalog).unknown_tokens == ["not-a-real-token"]
+
+
+def test_every_role_token_has_a_reader() -> None:
+    assert unread_role_tokens(ROLE_TOKENS, TokenCatalog.load()) == []
+
+
+def test_validation_flags_role_tokens_nobody_reads() -> None:
+    theme = build_theme(minimal_definition())
+    catalog = TokenCatalog.load()
+    unread = replace(catalog.find("disabled-text-color"), consumers=0)
+    catalog = replace(catalog, tokens=catalog.tokens | {unread.name: unread})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.unread_role_tokens == ["disabled-text-color"]
+    assert not report.ok
+
+
+def test_dynamic_families_and_support_module_variables_count_as_readers() -> None:
+    catalog = TokenCatalog("test", "test", "today", {}, {"--state-": 1})
+    support_source = "color: var(--ha-themes-menu-background);"
+
+    assert has_reader("state-light-active-color", catalog, support_source)
+    assert has_reader("ha-themes-menu-background", catalog, support_source)
+    assert not has_reader("ha-themes-menu-background-color", catalog, support_source)
+    assert not has_reader("primary-color", catalog, support_source)
+
+
+def test_validation_flags_base_tokens_that_modes_override_or_theme_per_mode() -> None:
+    theme = build_theme(
+        minimal_definition(
+            tokens={
+                "base": {
+                    "primary-color": "#ff0000",
+                    "code-editor-background-color": "#777777",
+                    "ha-card-border-radius": "16px",
+                    "ha-card-box-shadow": "none",
+                },
+                "light": {"code-editor-background-color": "#555555"},
+            }
+        )
+    )
+    entries = [
+        TokenEntry(name=f"--{key}", layer="x", group="x", light="x", dark=dark)
+        for key, dark in {
+            "primary-color": "y",
+            "code-editor-background-color": "y",
+            "ha-card-border-radius": None,
+            "ha-card-box-shadow": "y",
+        }.items()
+    ]
+    catalog = TokenCatalog("test", "test", "today", {entry.name: entry for entry in entries})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.shadowed_base_tokens == ["code-editor-background-color", "primary-color"]
+    assert report.mode_dependent_base_tokens == []
+    assert not report.ok
+
+
+def test_validation_warns_about_base_tokens_with_dark_defaults() -> None:
+    theme = build_theme(minimal_definition(tokens={"base": {"ha-card-border-radius": "16px"}}))
+    entry = TokenEntry(name="--ha-card-border-radius", layer="x", group="x", light="x", dark="y")
+    catalog = TokenCatalog("test", "test", "today", {entry.name: entry})
+
+    report = validate_theme(theme, catalog)
+
+    assert report.shadowed_base_tokens == []
+    assert report.mode_dependent_base_tokens == ["ha-card-border-radius"]
+
+
+@pytest.mark.parametrize("source", sorted(THEME_SOURCES.glob("*.yaml")), ids=lambda p: p.stem)
+def test_shipped_themes_validate_against_catalog(source: Path) -> None:
+    catalog = TokenCatalog.load()
+    for variant in theme_family(ThemeDefinition.load(source)):
+        report = validate_theme(build_theme(variant), catalog)
+        assert report.unknown_tokens == []
+        assert report.unread_role_tokens == []
+        assert report.shadowed_base_tokens == []
+        assert report.mode_dependent_base_tokens == []
+        assert all(result.passes for result in report.contrast)
+        assert all(chart.passes for chart in report.charts)
+        assert report.status_fills is not None
+        assert report.status_fills.passes
+        assert report.form_separation is not None
+        assert report.form_separation.passes
+
+
+def test_chrome_follows_background_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"sidebar_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["sidebar-background-color"] == light["primary-background-color"]
+    assert light["app-theme-color"] == light["primary-background-color"]
+    assert light["app-header-background-color"] == light["primary-background-color"]
+    assert light[DASHBOARD_HEADER_BACKGROUND_TOKEN] == hex_to_rgba(
+        light["primary-background-color"], 0.72
+    )
+    assert theme.modes["dark"]["sidebar-background-color"] == "#000000"
+
+
+def test_shadows_are_flat_unless_enabled() -> None:
+    assert build_theme(minimal_definition()).base["ha-card-box-shadow"] == "0 0 0 0 transparent"
+    assert "ha-card-box-shadow" not in build_theme(minimal_definition(shadows=True)).base
+
+
+def test_every_theme_harmonizes_icon_tiles() -> None:
+    base = build_theme(minimal_definition()).base
+    assert {token: base[token] for token in ICON_TILE_HARMONY} == ICON_TILE_HARMONY
+
+
+def test_flat_overlays_keep_an_outline_unless_shadows_are_enabled() -> None:
+    flat = build_theme(minimal_definition()).base
+    for key in ("ha-tooltip-box-shadow", TOAST_EDGE_TOKEN):
+        assert flat[key] == "0 0 0 1px var(--outline-color)"
+        assert key not in build_theme(minimal_definition(shadows=True)).base
+
+
+def test_form_fields_are_outlined_unless_disabled() -> None:
+    base = build_theme(minimal_definition()).base
+    assert {token: base[token] for token in FIELD_OUTLINE} == FIELD_OUTLINE
+    assert base["ha-themes-field-outline"] == "1"
+    assert base["ha-themes-field-border-color"] == "var(--ha-color-border-neutral-quiet)"
+    unoutlined = build_theme(minimal_definition(field_outline=False)).base
+    assert not set(FIELD_OUTLINE) & set(unoutlined)
+
+
+def test_field_outline_flag_defaults_to_on_and_loads_from_the_source(tmp_path: Path) -> None:
+    source = tmp_path / "flags.yaml"
+    source.write_text(yaml.safe_dump({"name": "Flags", "palette": MINIMAL_PALETTE}))
+    assert ThemeDefinition.load(source).field_outline
+    source.write_text(
+        yaml.safe_dump({"name": "Flags", "palette": MINIMAL_PALETTE, "field_outline": False})
+    )
+    assert not ThemeDefinition.load(source).field_outline
+
+
+SHAPE_TOKENS = {"--ha-border-radius-circle", "--ha-border-radius-square"}
+
+
+def test_every_radius_of_the_scale_and_its_bridges_takes_the_corner_radius() -> None:
+    catalog = TokenCatalog.load()
+    scale = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.group == "border-radius" and entry.name not in SHAPE_TOKENS
+    }
+    web_awesome = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.layer == "webawesome" and "radius" in entry.name
+    }
+    base = build_theme(minimal_definition(corner_radius="6px")).base
+    radius_tokens = {*scale, *web_awesome, *CORNER_RADIUS_SCALE, *CORNER_RADIUS_BRIDGES}
+    assert {token: base.get(token) for token in radius_tokens} == dict.fromkeys(
+        radius_tokens, "6px"
+    )
+    assert base[CORNER_RADIUS_TOKEN] == "6px"
+    assert base["ha-themes-field-border-radius"] == "var(--ha-border-radius-md)"
+
+
+def test_circles_and_squares_keep_their_shape() -> None:
+    base = build_theme(minimal_definition()).base
+    assert not {name.removeprefix("--") for name in SHAPE_TOKENS} & set(base)
+
+
+def test_corner_radius_defaults_to_eight_pixels_and_false_keeps_the_frontend_radii(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "radius.yaml"
+    source.write_text(yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE}))
+    assert ThemeDefinition.load(source).corner_radius == "8px"
+    assert build_theme(minimal_definition()).base["ha-border-radius-pill"] == "8px"
+    source.write_text(
+        yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE, "corner_radius": False})
+    )
+    assert ThemeDefinition.load(source).corner_radius is None
+    stock = build_theme(minimal_definition(corner_radius=None)).base
+    assert not {*CORNER_RADIUS_SCALE, *CORNER_RADIUS_BRIDGES, CORNER_RADIUS_TOKEN} & set(stock)
+
+
+@pytest.mark.parametrize(("value", "loaded"), [("12px", "12px"), ("0.5rem", "0.5rem"), (0, "0")])
+def test_corner_radius_accepts_lengths(tmp_path: Path, value: object, loaded: str) -> None:
+    source = tmp_path / "radius.yaml"
+    source.write_text(
+        yaml.safe_dump({"name": "Radius", "palette": MINIMAL_PALETTE, "corner_radius": value})
+    )
+    assert ThemeDefinition.load(source).corner_radius == loaded
+
+
+@pytest.mark.parametrize("value", [8, "8", "-4px", "50%", "large", True, "8px 4px"])
+def test_corner_radius_rejects_anything_but_a_length(tmp_path: Path, value: object) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(
+        yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, "corner_radius": value})
+    )
+    with pytest.raises(ValueError, match=r"bad.yaml: corner_radius must be a length"):
+        ThemeDefinition.load(source)
+
+
+def test_system_ui_variant_drops_web_fonts() -> None:
+    definition = minimal_definition(
+        typography={
+            "body": "Poppins",
+            "code": "Fira Code",
+            "stylesheet": "https://fonts",
+            "size_adjust": "0.5",
+        }
+    )
+    variant = build_theme(theme_family(definition)[1])
+    assert variant.definition.name == "Minimal System UI"
+    assert variant.base["ha-font-family-body"] == SYSTEM_UI_FONT_STACK
+    assert variant.base["ha-font-family-code"] == "Fira Code"
+    assert variant.font_stylesheet is None
+    assert FONT_STYLESHEET_TOKEN not in variant.base
+    assert FONT_SIZE_ADJUST_TOKEN not in variant.base
+
+
+def test_font_size_adjust_is_declared_as_a_project_variable() -> None:
+    theme = build_theme(minimal_definition(typography={"size_adjust": "0.528"}))
+    assert theme.base[FONT_SIZE_ADJUST_TOKEN] == "0.528"
+    assert FONT_SIZE_ADJUST_TOKEN not in build_theme(minimal_definition()).base
+
+
+@pytest.mark.parametrize("value", ["0", "1.2", "none"])
+def test_font_size_adjust_must_be_an_x_height_ratio(value: str) -> None:
+    with pytest.raises(ValueError, match="size_adjust"):
+        build_theme(minimal_definition(typography={"size_adjust": value}))
+
+
+def test_web_font_stylesheet_is_declared_as_a_quoted_theme_variable() -> None:
+    url = "https://fonts.example/css2?family=Lora:ital,wght@0,400;1,400&display=swap"
+    theme = build_theme(minimal_definition(typography={"stylesheet": url}))
+    assert theme.base[FONT_STYLESHEET_TOKEN] == f'"{url}"'
+    assert FONT_STYLESHEET_TOKEN not in build_theme(minimal_definition()).base
+
+
+def test_backdrop_blur_pairs_filters_with_translucent_backgrounds() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"surface": "#ffffff"}}))
+    assert theme.base["ha-card-backdrop-filter"].startswith("blur(")
+    assert theme.modes["light"]["ha-card-background"] == "rgba(255, 255, 255, 0.8)"
+    assert theme.modes["light"]["app-theme-color"].startswith("#")
+
+
+def test_dialog_surface_reverses_the_scrim_dimming_it_blurs_through() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"surface": "#ffffff"}}))
+    scrim = theme.base["ha-dialog-scrim-backdrop-filter"]
+    surface = theme.base["ha-dialog-surface-backdrop-filter"]
+    scrim_brightness = float(re.search(r"brightness\((\d+)%\)", scrim).group(1)) / 100
+    surface_brightness = float(re.search(r"brightness\((\d+)%\)", surface).group(1)) / 100
+    assert scrim_brightness * surface_brightness == pytest.approx(1, abs=0.01)
+    assert "saturate" not in surface
+    assert theme.modes["light"]["ha-dialog-surface-background"] == "rgba(255, 255, 255, 0.9)"
+
+
+def test_only_the_blurred_dashboard_header_gets_a_translucent_header_background() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"header_background": "#fafaf5"}}))
+    light = theme.modes["light"]
+    assert light["app-header-background-color"] == "#fafaf5"
+    assert light[DASHBOARD_HEADER_BACKGROUND_TOKEN] == "rgba(250, 250, 245, 0.72)"
+    assert theme.base["app-header-backdrop-filter"].startswith("blur(")
+    unblurred = build_theme(minimal_definition(backdrop_blur=False))
+    assert DASHBOARD_HEADER_BACKGROUND_TOKEN not in unblurred.modes["light"]
+
+
+def test_backdrop_blur_can_be_disabled() -> None:
+    theme = build_theme(minimal_definition(backdrop_blur=False))
+    assert "ha-card-backdrop-filter" not in theme.base
+    assert theme.modes["dark"]["ha-card-background"].startswith("#")
+
+
+def test_support_module_is_generated_from_the_packaged_source(tmp_path: Path) -> None:
+    module = write_support_module(tmp_path / "ha-themes.js").read_text()
+    assert f"--{FONT_STYLESHEET_TOKEN}" in module
+    assert f"--{FONT_SIZE_ADJUST_TOKEN}" in module
+    assert "fonts.googleapis.com" not in module
+    assert "--ha-themes-brand-icon-color" in module
+    assert f"--{DASHBOARD_HEADER_BACKGROUND_TOKEN}" in module
+    assert "--ha-themes-menu-background" in module
+    assert f"--{TOAST_EDGE_TOKEN}" in module
+    for token in ICON_TILE_HARMONY:
+        assert f"--{token}" in module
+
+
+def test_every_theme_wakes_the_dormant_support_module(tmp_path: Path) -> None:
+    module = write_support_module(tmp_path / "ha-themes.js").read_text()
+    prefix = "ha-themes-"
+    assert f'PROJECT_VARIABLE_PREFIX = "--{prefix}"' in module
+    assert FONT_STYLESHEET_TOKEN.startswith(prefix)
+    assert FONT_SIZE_ADJUST_TOKEN.startswith(prefix)
+    for tokens in build_theme(minimal_definition()).modes.values():
+        assert any(key.startswith(prefix) for key in tokens)
+
+
+def test_menus_follow_the_surface_role_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"menu_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["ha-themes-menu-background"] == light["mdc-theme-surface"]
+    assert theme.modes["dark"]["ha-themes-menu-background"] == "#000000"
+
+
+def test_code_editor_follows_the_surface_role_unless_set() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"code_editor_background": "#000000"}}))
+    light = theme.modes["light"]
+    assert light["code-editor-background-color"] == light["mdc-theme-surface"]
+    assert theme.modes["dark"]["code-editor-background-color"] == "#000000"
+
+
+def test_syntax_roles_replace_every_frontend_codemirror_color() -> None:
+    catalog = TokenCatalog.load()
+    frontend_syntax_tokens = {
+        entry.name.removeprefix("--")
+        for entry in catalog.tokens.values()
+        if entry.name.startswith("--codemirror-")
+        and entry.consumers
+        and (entry.dark or entry.fallbacks)
+    }
+    theme = build_theme(minimal_definition())
+    for tokens in theme.modes.values():
+        assert frontend_syntax_tokens <= tokens.keys()
+
+
+def test_default_syntax_colors_pass_on_the_default_code_editor_in_each_mode() -> None:
+    report = validate_theme(build_theme(minimal_definition()), TokenCatalog.load())
+
+    syntax_results = [
+        result for result in report.contrast if result.background_role == "code_editor_background"
+    ]
+    assert {result.mode for result in syntax_results} == {"light", "dark"}
+    assert all(result.passes for result in syntax_results)
+    assert {
+        result.minimum for result in syntax_results if result.foreground_role == "syntax_comment"
+    } == {3.0}
+
+
+def test_validation_flags_syntax_colors_below_their_floor() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={"dark": {"syntax_comment": "{neutral.40}", "syntax_string": "{green.40}"}}
+        )
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        result.foreground_role
+        for result in report.contrast
+        if result.mode == "dark"
+        and result.background_role == "code_editor_background"
+        and not result.passes
+    }
+    assert failing == {"syntax_comment", "syntax_string"}
+    assert not report.ok
+
+
+def test_brand_icons_follow_the_primary_role() -> None:
+    theme = build_theme(minimal_definition())
+    for tokens in theme.modes.values():
+        assert tokens["ha-themes-brand-icon-color"] == tokens["primary-color"]
+
+
+def test_entity_icons_follow_the_primary_role_unless_a_theme_sets_them() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"state_icon": "#6a9bcc"}}))
+
+    assert theme.modes["light"]["state-icon-color"] == theme.modes["light"]["primary-color"]
+    assert theme.modes["dark"]["state-icon-color"] == "#6a9bcc"
+
+
+def test_validation_checks_entity_icons_on_the_page_and_the_card() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"state_icon": "#d1cfc5"}}))
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.background_role)
+        for result in report.contrast
+        if result.foreground_role == "state_icon" and not result.passes
+    }
+    assert failing == {("light", "background"), ("light", "surface")}
+    assert not report.ok
+
+
+def test_loud_primary_fills_follow_the_primary_roles() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={"dark": {"text_on_primary": "#141413", "primary_hover": "#ffffff"}}
+        )
+    )
+    for tokens in theme.modes.values():
+        assert tokens["ha-color-fill-primary-loud-resting"] == tokens["primary-color"]
+        assert tokens["ha-color-fill-primary-loud-active"] == tokens["primary-color"]
+        assert tokens["ha-color-on-primary-loud"] == tokens["text-primary-color"]
+    assert theme.modes["dark"]["ha-color-on-primary-loud"] == "#141413"
+    assert theme.modes["dark"]["ha-color-fill-primary-loud-hover"] == "#ffffff"
+
+
+def test_validation_checks_on_primary_text_on_every_primary_fill() -> None:
+    theme = build_theme(
+        minimal_definition(roles={"light": {"primary": "#c6613f", "accent": "#d97757"}})
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.background_role)
+        for result in report.contrast
+        if result.foreground_role == "text_on_primary" and not result.passes
+    }
+    assert {("light", "primary"), ("light", "accent")} <= failing
+    assert not report.ok
+
+
+def test_default_text_on_primary_light_contrasts_with_primary_light_in_each_mode() -> None:
+    theme = build_theme(minimal_definition())
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    pair_results = {
+        result.mode: result
+        for result in report.contrast
+        if (result.foreground_role, result.background_role)
+        == ("text_on_primary_light", "primary_light")
+    }
+    assert set(pair_results) == {"light", "dark"}
+    assert all(result.passes for result in pair_results.values())
+    for tokens in theme.modes.values():
+        assert "text-light-primary-color" in tokens
+
+
+def test_validation_flags_dark_text_on_a_dark_primary_light() -> None:
+    theme = build_theme(minimal_definition(roles={"dark": {"text_on_primary_light": "#212121"}}))
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    assert any(
+        result.mode == "dark"
+        and result.foreground_role == "text_on_primary_light"
+        and not result.passes
+        for result in report.contrast
+    )
+    assert not report.ok
+
+
+@pytest.mark.parametrize(
+    ("roles", "message"),
+    [
+        (
+            {"dark": {"surface": "{neutral.20@0.9}"}},
+            r"minimal: dark role 'surface' .* backdrop_blur",
+        ),
+        (
+            {"light": {"header_background": "transparent"}},
+            r"minimal: light role 'header_background'",
+        ),
+    ],
+)
+def test_translucent_roles_must_be_opaque_while_blurring(roles: dict, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        build_theme(minimal_definition(roles=roles))
+    assert build_theme(minimal_definition(roles=roles, backdrop_blur=False))
+
+
+def test_chart_seeds_must_resolve_to_opaque_colors() -> None:
+    series = ["{neutral.50@0.5}", *["#4269d0"] * 7]
+    with pytest.raises(ValueError, match=r"minimal: charts.series seed 1 \('\{neutral.50@0.5\}'\)"):
+        build_theme(minimal_definition(charts={"series": series}))
+
+
+@pytest.mark.parametrize(
+    ("section", "message"),
+    [
+        (
+            {"entity_colors": {"pinned": {"red": {"light": "#ff0000"}}}},
+            r"bad.yaml: entity_colors.pinned.red must set exactly \['light', 'dark'\]",
+        ),
+        (
+            {"charts": {"lightness": {"dark": [0.6]}}},
+            r"bad.yaml: charts.lightness.dark must be \[minimum, maximum\], got \[0.6\]",
+        ),
+        (
+            {"entity_colors": {"lightness": {"dim": [0.2, 0.4]}}},
+            r"bad.yaml: entity_colors.lightness has unknown mode 'dim'",
+        ),
+    ],
+)
+def test_definition_load_names_the_file_and_path_of_malformed_sections(
+    tmp_path: Path, section: dict, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, **section}))
+    with pytest.raises(ValueError, match=message):
+        ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize(
+    ("lightness", "message"),
+    [
+        ({"light": [0.8, 0.2]}, r"entity_colors.lightness.light must satisfy 0 <= minimum"),
+        ({"dark": [0.5, 1.2]}, r"entity_colors.lightness.dark must satisfy .* got \[0.5, 1.2\]"),
+    ],
+)
+def test_lightness_bands_must_be_ordered_and_in_range(
+    tmp_path: Path, lightness: dict, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    document = {
+        "name": "Bad",
+        "palette": MINIMAL_PALETTE,
+        "entity_colors": {"lightness": lightness},
+    }
+    source.write_text(yaml.safe_dump(document))
+    with pytest.raises(ValueError, match=message):
+        ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize("key", ["shadows", "backdrop_blur", "field_outline"])
+def test_flags_reject_quoted_booleans(tmp_path: Path, key: str) -> None:
+    source = tmp_path / "bad.yaml"
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": MINIMAL_PALETTE, key: "false"}))
+    with pytest.raises(ValueError, match=rf"bad.yaml: {key} must be true or false, got 'false'"):
+        ThemeDefinition.load(source)
+
+
+@pytest.mark.parametrize(
+    ("primary", "message"),
+    [
+        ({"seed": "#d97757", "40": "not-a-color"}, r"palette.primary.40 must be an opaque hex"),
+        (
+            {"seed": "#d97757", "100": "#ffffff"},
+            r"palette family 'primary' has unknown steps \['100'\]",
+        ),
+        ({"seed": "rgba(0, 0, 0, 0.5)"}, r"palette.primary.seed must be an opaque hex"),
+        (None, r"palette.primary must be an opaque hex color, got None"),
+    ],
+)
+def test_palette_steps_must_be_known_opaque_colors(
+    tmp_path: Path, primary: object, message: str
+) -> None:
+    source = tmp_path / "bad.yaml"
+    palette = {**MINIMAL_PALETTE, "primary": primary}
+    source.write_text(yaml.safe_dump({"name": "Bad", "palette": palette}))
+    with pytest.raises(ValueError, match=rf"bad.yaml: {message}"):
+        ThemeDefinition.load(source)
+
+
+def light_text_results(roles: dict[str, str]) -> dict[str, float | None]:
+    theme = build_theme(minimal_definition(roles={"light": roles}, backdrop_blur=False))
+    report = validate_theme(theme, TokenCatalog.load())
+    assert not report.ok
+    return {
+        result.background_role: result.ratio
+        for result in report.contrast
+        if result.mode == "light" and result.foreground_role == "text"
+    }
+
+
+def test_every_contrast_pair_is_measured_for_each_mode() -> None:
+    report = validate_theme(build_theme(minimal_definition()), TokenCatalog.load())
+
+    role_pairs = {
+        (result.mode, result.foreground_role, result.background_role) for result in report.contrast
+    }
+    assert {
+        (mode, foreground, background)
+        for mode in ("light", "dark")
+        for foreground, background, _ in CONTRAST_PAIRS
+    } <= role_pairs
+
+
+def test_short_hex_white_text_on_white_fails() -> None:
+    results = light_text_results({"text": "#fff", "background": "#fff", "surface": "#fff"})
+
+    assert results["background"] == 1.0
+    assert results["surface"] == 1.0
+
+
+def test_translucent_text_is_composited_over_its_background() -> None:
+    results = light_text_results({"text": "rgba(255, 255, 255, 0.9)", "background": "#ffffff"})
+
+    assert results["background"] == 1.0
+
+
+def test_palette_references_with_alpha_are_composited() -> None:
+    results = light_text_results({"text": "{neutral.95@0.9}", "surface": "#ffffff"})
+
+    assert results["surface"] is not None
+    assert results["surface"] < 1.2
+
+
+def test_translucent_surface_is_composited_over_the_page() -> None:
+    theme = build_theme(
+        minimal_definition(
+            roles={
+                "light": {
+                    "text": "#000000",
+                    "background": "#ffffff",
+                    "surface": "rgba(0, 0, 0, 0.5)",
+                }
+            },
+            backdrop_blur=False,
+        )
+    )
+
+    report = validate_theme(theme, TokenCatalog.load())
+
+    surface_ratios = {
+        result.foreground_role: result.ratio
+        for result in report.contrast
+        if result.mode == "light" and result.background_role == "surface"
+    }
+    assert surface_ratios["text"] == 5.32
+
+
+def test_variable_references_resolve_through_the_palette_tokens() -> None:
+    results = light_text_results(
+        {"text": "var(--ha-color-neutral-95)", "surface": "var(--ha-color-neutral-95)"}
+    )
+
+    assert results["surface"] == 1.0
+
+
+@pytest.mark.parametrize("text", ["white", "var(--not-declared)", "hsl(0 0% 100%)"])
+def test_pairs_that_cannot_be_evaluated_fail(text: str) -> None:
+    results = light_text_results({"text": text})
+
+    assert set(results.values()) == {None}
+
+
+def test_a_translucent_page_background_cannot_be_evaluated() -> None:
+    results = light_text_results({"background": "rgba(255, 255, 255, 0.5)"})
+
+    assert results["background"] is None
+    assert results["surface"] is not None
+
+
+def test_status_colors_and_secondary_text_are_held_to_text_contrast() -> None:
+    text_pairs = {
+        (foreground, background): minimum for foreground, background, minimum in CONTRAST_PAIRS
+    }
+
+    for status in ("error", "warning", "success", "info", "text_secondary"):
+        for backdrop in ("background", "surface"):
+            assert text_pairs[status, backdrop] == 4.5
+
+
+def test_a_pale_warning_fails_as_text_on_the_page() -> None:
+    theme = build_theme(minimal_definition(roles={"light": {"warning": "{orange.60}"}}))
+    report = validate_theme(theme, TokenCatalog.load())
+
+    failing = {
+        (result.mode, result.foreground_role, result.background_role)
+        for result in report.contrast
+        if not result.passes
+    }
+    assert ("light", "warning", "background") in failing
+    assert ("light", "warning", "surface") in failing

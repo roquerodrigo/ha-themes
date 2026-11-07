@@ -1,0 +1,20 @@
+homeassistant:
+  name: Theme Lab
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+lovelace:
+  dashboards:
+    theme-lab:
+      mode: yaml
+      filename: dashboards/theme-lab.yaml
+      title: Theme Lab
+      icon: mdi:palette
+      show_in_sidebar: true
+
+config:
+history:
+logbook:
+energy:
+demo:
