@@ -87,12 +87,14 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
   theme. Dashboards and settings cards read the variable and do follow it.
 - **Material components fall back to a literal Roboto.** They read
   `mdc-typography-font-family`, which the frontend never sets.
+- **The map sets its own font.** MapLibre's stylesheet sets Helvetica Neue on the map, so
+  the entity markers and the attribution inherit it instead of the theme font.
 - **Themes cannot load web fonts**, since they only set CSS variables.
 
 The builder sets that Material token to `var(--ha-font-family-body)` in every theme, and
 generates one support module, which the integration loads on every page, that binds
-`body` to `var(--ha-font-family-body)` while a project theme is the global theme and loads
-web fonts on demand. A theme that declares
+`body` to `var(--ha-font-family-body)` while a project theme is the global theme, points the
+map at the same font and loads web fonts on demand. A theme that declares
 `typography.stylesheet` carries its URL in the project variable `ha-themes-font-stylesheet`;
 the module adds the stylesheet while that variable is set on the page (by the global theme) or
 on a view or card (by a view or card theme), and removes it as soon as no visible theme sets it,

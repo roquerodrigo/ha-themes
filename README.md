@@ -67,7 +67,7 @@ The integration:
   shipped themes either — Home Assistant keeps only one theme per name, and which file wins
   depends on the order it reads them;
 - loads a support module on every page, which applies the theme font to the whole UI
-  (Home Assistant hard-codes Roboto on the page body), loads the web fonts of the active
+  (Home Assistant hard-codes Roboto on the page body, and the map sets its own font), loads the web fonts of the active
   theme, outlines toasts when shadows are flat and keeps their text readable, outlines the
   form fields and clears their fill, gives the input chips the theme's corner radius, recolors the generic integration icons and moves the fixed icon tiles of
   Settings, System and About to the theme's entity colors. The themes keep `card-background-color` in the page tone, where
@@ -93,7 +93,7 @@ Remove the integration in this order, so it can delete the files it installed:
 2. Remove **HA Themes** in HACS and restart Home Assistant.
 
 If HA Themes was removed in HACS first, Home Assistant can no longer run its cleanup: the themes
-stay selectable but load without the support module (no web fonts, Roboto on the page body,
+stay selectable but load without the support module (no web fonts, Roboto on the page body, the map's own font on its labels,
 dropdown menus and the map overview panel in the page color, toasts without an edge,
 page-toned integration entry lists, integration icons in their default
 colors). To clean up manually, delete the leftover entry under **Settings → Devices &
