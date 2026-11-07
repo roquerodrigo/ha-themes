@@ -67,6 +67,13 @@ mapOverviewStyles.replaceSync(`
   }
 `);
 
+// MapLibre's stylesheet sets its own font on the map, which the entity markers and the
+// attribution inherit instead of the theme font.
+const mapFontStyles = new CSSStyleSheet();
+mapFontStyles.replaceSync(`
+  .maplibregl-map { font-family: var(--ha-font-family-body); }
+`);
+
 // The integration page's entry lists take their surface from the page-toned card background,
 // so they are raised to the card tone they would have on the default theme.
 const configEntryListStyles = new CSSStyleSheet();
@@ -307,6 +314,7 @@ const hostStyles = new Map([
   ["ha-dropdown", dropdownMenuStyles],
   ["ha-toast", toastStyles],
   ["hui-map-overview", mapOverviewStyles],
+  ["ha-map", mapFontStyles],
   ["ha-config-entry-row", configEntryListStyles],
 ]);
 

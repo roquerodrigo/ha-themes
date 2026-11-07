@@ -504,6 +504,40 @@ def test_map_overview_panel_takes_the_theme_menu_background(
     assert page_errors == []
 
 
+def test_map_labels_take_the_theme_font(page: Page, page_errors: list[str]) -> None:
+    label_fonts = """() => ['map-marker', 'other-marker'].map(
+      (id) => getComputedStyle(window.findElement(id)).fontFamily
+    )"""
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty("--ha-font-family-body", "serif");
+          const mapSheet = new CSSStyleSheet();
+          mapSheet.replaceSync(".maplibregl-map { font-family: monospace; }");
+          for (const [hostName, markerId] of [
+            ["ha-map", "map-marker"],
+            ["ha-other-map", "other-marker"],
+          ]) {
+            const host = document.createElement(hostName);
+            const shadow = host.attachShadow({ mode: "open" });
+            shadow.adoptedStyleSheets = [mapSheet];
+            const map = document.createElement("div");
+            map.className = "maplibregl-map";
+            const marker = document.createElement("div");
+            marker.id = markerId;
+            map.append(marker);
+            shadow.append(map);
+            document.body.append(host);
+          }
+        }"""
+    )
+    page.wait_for_timeout(SETTLE_MILLISECONDS)
+    assert page.evaluate(label_fonts) == ["monospace", "monospace"]
+
+    set_root_color(page, "rgb(255, 0, 0)")
+    page.wait_for_function(f"() => ({label_fonts})().join() === 'serif,monospace'")
+    assert page_errors == []
+
+
 def test_integration_entry_lists_take_the_card_tone(page: Page, page_errors: list[str]) -> None:
     list_backgrounds = """() => ['entry-list', 'page-list'].map(
       (id) => getComputedStyle(window.findElement(id)).backgroundColor
