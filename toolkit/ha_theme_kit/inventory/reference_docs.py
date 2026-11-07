@@ -143,8 +143,8 @@ def render_component_reference(catalog: TokenCatalog) -> str:
         "  own host element. That declaration beats the theme's value inside that component, so",
         "  a theme only reaches the components that leave the hook unset.",
         "",
-        "Groups are sorted by reach; `md-*`, `mdc-*` and `wa-*` hooks belong to third-party",
-        "components and are less stable across releases than `ha-*` hooks.",
+        "Groups are sorted by reach; `mdc-*` and `wa-*` hooks belong to third-party components",
+        "and are less stable across releases than `ha-*` hooks.",
     ]
     if catalog.dynamic_families:
         lines += [
@@ -162,7 +162,7 @@ def render_component_reference(catalog: TokenCatalog) -> str:
             for prefix, count in catalog.dynamic_families.items()
             if prefix in DYNAMIC_FAMILY_NOTES
         ]
-    ordered = sorted(groups.items(), key=lambda item: -sum(e.consumers for e in item[1]))
+    ordered = sorted(groups.items(), key=lambda item: (-sum(e.consumers for e in item[1]), item[0]))
     for group, entries in ordered:
         lines += [
             "",

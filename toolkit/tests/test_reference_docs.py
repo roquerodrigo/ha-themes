@@ -2,6 +2,7 @@ from ha_theme_kit.inventory.catalog import TokenCatalog, TokenEntry
 from ha_theme_kit.inventory.reference_docs import (
     DOCS_DIRECTORY,
     find_broken_references,
+    render_component_reference,
     render_global_reference,
 )
 from ha_theme_kit.theme.roles import UPSTREAM_FIXES
@@ -48,3 +49,16 @@ def test_theming_guide_names_the_captured_versions() -> None:
 
     assert f"frontend `{catalog.frontend_version}` / Core `{catalog.core_version}`" in guide
     assert f"## Known upstream issues (frontend {catalog.frontend_version})" in guide
+
+
+def test_component_groups_with_the_same_reach_keep_one_order() -> None:
+    entries = [
+        TokenEntry(name="--track-color", layer="component", group="track", consumers=2),
+        TokenEntry(name="--control-color", layer="component", group="control", consumers=2),
+        TokenEntry(name="--spacing", layer="component", group="spacing", consumers=3),
+    ]
+
+    for ordering in (entries, entries[::-1]):
+        reference = render_component_reference(catalog_of(*ordering))
+        headings = [line for line in reference.splitlines() if line.startswith("## ")]
+        assert headings == ["## spacing", "## control", "## track"]

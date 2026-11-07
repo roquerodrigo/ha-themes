@@ -39,7 +39,6 @@ _TYPOGRAPHY_PREFIXES = (
     "--ha-font-",
     "--ha-line-height-",
     "--ha-moz-osx-font-smoothing",
-    "--md-list-item-",
 )
 _APPLICATION_PREFIXES = {
     "sidebar": "sidebar",
@@ -67,7 +66,7 @@ def classify_global_token(name: str) -> Classification:
         return Classification("typography", _typography_group(name))
     if name.startswith("--wa-"):
         return Classification("webawesome", name.removeprefix("--wa-").split("-")[0])
-    if name.startswith(("--mdc-", "--md-")):
+    if name.startswith("--mdc-"):
         return Classification("material-bridge", name.removeprefix("--").split("-")[1])
     if name.startswith("--state-"):
         return Classification("state-color", name.removeprefix("--state-").split("-")[0])
@@ -85,8 +84,6 @@ def classify_global_token(name: str) -> Classification:
 def _typography_group(name: str) -> str:
     if name.startswith("--ha-line-height-"):
         return "line-height"
-    if name.startswith("--md-list-item-"):
-        return "family"
     if "smoothing" in name:
         return "smoothing"
     return name.removeprefix("--ha-font-").split("-")[0]
