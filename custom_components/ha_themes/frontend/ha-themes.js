@@ -34,6 +34,20 @@ dropdownMenuStyles.replaceSync(`
   }
 `);
 
+// Menus and picker popovers open in the top layer without dimming the page, so a theme that
+// sets --ha-themes-popup-scrim-filter dims it through their backdrop, as dialogs do. Tooltips
+// share the same popup element and are left alone, since they never get this sheet.
+const popupScrimStyles = new CSSStyleSheet();
+popupScrimStyles.replaceSync(`
+  wa-popup::part(popup)::backdrop {
+    backdrop-filter: var(--ha-themes-popup-scrim-filter, none);
+    transition: backdrop-filter var(--ha-animation-duration-fast, 150ms) ease-out;
+  }
+  @starting-style {
+    wa-popup::part(popup)::backdrop { backdrop-filter: brightness(100%); }
+  }
+`);
+
 // The toast reuses the loud neutral and normal primary on-colors, which a theme tunes for other
 // backdrops, so its message and actions take colors set for the toast itself. The slotted action
 // buttons inherit from .actions; the toast keeps the page's brand text under another name, since
@@ -311,7 +325,8 @@ const hostStyles = new Map([
   ["ha-config-info", iconTileStyles],
   ["ha-picker-combo-box", iconTileStyles],
   ["hui-root", dashboardHeaderStyles],
-  ["ha-dropdown", dropdownMenuStyles],
+  ["ha-dropdown", [dropdownMenuStyles, popupScrimStyles]],
+  ["wa-popover", popupScrimStyles],
   ["ha-toast", toastStyles],
   ["hui-map-overview", mapOverviewStyles],
   ["ha-map", mapFontStyles],
@@ -319,10 +334,12 @@ const hostStyles = new Map([
 ]);
 
 const styleHost = (root) => {
-  const styles = hostStyles.get(root.host?.localName);
   const sheets = root.adoptedStyleSheets;
-  if (styles && !sheets.includes(styles)) {
-    root.adoptedStyleSheets = [...sheets, styles];
+  const missing = [hostStyles.get(root.host?.localName) ?? []]
+    .flat()
+    .filter((styles) => !sheets.includes(styles));
+  if (missing.length) {
+    root.adoptedStyleSheets = [...sheets, ...missing];
   }
 };
 
