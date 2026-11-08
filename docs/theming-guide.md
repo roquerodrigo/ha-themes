@@ -172,13 +172,13 @@ set it (the default theme included) gets the original images back.
 
 ## Settings icon tiles
 
-Settings, System, About and the search dialog draw each entry's icon on a round tile whose
+Settings, System, About and the search dialog draw each entry's icon on a colored tile whose
 color is a literal in the frontend code (`#0D47A1`, `#F1C447`, `#B1345C`…), written inline,
 so no theme variable reaches it. On a warm theme these saturated, mostly cool tiles are the
 only shapes off the palette, and the white glyph on the yellow one is about 1.6:1.
 
 The support module adopts a stylesheet into the components that draw them (the settings
-navigation list, About, and the picker list of the search dialog) that matches each known
+navigation list, About, and the list of the search dialog) that matches each known
 literal by value and replaces it with the entity color of the same hue (`#0D47A1` takes
 `--indigo-color`, `#F1C447` `--amber-color`), so the tiles stay as distinct from one another as
 in stock Home Assistant while following the theme's entity palette. Every project theme sets
@@ -188,6 +188,14 @@ those variables the rules reproduce the literal, so other themes see the stock t
 literal the table does not know keeps its stock color; `toolkit/tests/test_icon_tiles.py`
 fails when the installed frontend uses one. The Home Assistant and Open Home Foundation logos
 on About are brand marks and are left alone.
+
+The tiles are drawn round with `ha-border-radius-circle`, which a theme keeps round for
+avatars and round buttons, so the same components (and the restart dialog) also give the
+tiles `ha-themes-corner-radius`: they turn into the theme's rounded squares, like the entity
+tile icons. The search dialog sets the circle inline next to the tile color, so its rule
+matches a start-slot element whose inline style holds both, and an inline circle without a
+color stays round. Without `ha-themes-corner-radius` (`corner_radius: false`) the tiles keep
+their circle.
 
 ## Form fields
 
@@ -230,7 +238,8 @@ so the scale alone does not reach them.
 A theme's `corner_radius` (default `8px`) replaces every step of the scale, the pill, and each
 of those hooks with one value, so a card, a dialog, a button, a badge and a field share the same
 corner whatever their size. The builder also sets `ha-themes-corner-radius`, which the support
-module gives the input chips (`ha-input-chip`), since they lock a 16px pill on their own host.
+module gives the input chips (`ha-input-chip`), since they lock a 16px pill on their own host,
+and the colored icon tiles of Settings (see [Settings icon tiles](#settings-icon-tiles)).
 `ha-border-radius-circle` (50%) and `ha-border-radius-square` (0) are shapes rather than
 sizes and stay, so avatars, round icon buttons, radio buttons and switch thumbs remain
 circles. The frontend's derived radii stay

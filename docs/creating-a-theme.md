@@ -38,7 +38,9 @@ Every theme built here follows these defaults, so a new theme gets them for free
   `6xl` and `pill`) and every component hook that bridges it — cards, dialogs and bottom
   sheets, buttons, badges, chips, tile icons, tooltips, menus, toasts, fields — take the
   same `corner_radius` (`8px`), so the corner no longer grows with the size of the element.
-  Circles (`ha-border-radius-circle`: avatars, round icon buttons, radio buttons, switch
+  The colored icon tiles of Settings, System, About, the restart dialog and the search
+  dialog take it too, through the support module, so they match the entity tile icons.
+  Other circles (`ha-border-radius-circle`: avatars, round icon buttons, radio buttons, switch
   thumbs) stay round (see [the guide](theming-guide.md#corner-radius)). A theme sets another
   length, or keeps the frontend's radii with `corner_radius: false`.
 - **A harmonized entity palette.** The frontend's named colors — which every entity state
