@@ -28,7 +28,8 @@ the themes and the support module they need.
 
 Every theme has light and dark modes and follows the
 [house conventions](docs/creating-a-theme.md#house-conventions): sidebar and header in the
-page background, no shadows, backdrop blur on the header, cards and dialogs, outlined form
+page background, no shadows, backdrop blur on the header, cards and dialogs, a slightly dimmed
+page behind open menus and pickers, outlined form
 fields without a fill, one small corner radius for every element, a harmonized entity palette, chart series validated for color-vision deficiencies, and generic integration
 icons in the primary color.
 
@@ -62,7 +63,7 @@ The integration:
 - loads a support module on every page, which applies the theme font to the whole UI
   (Home Assistant hard-codes Roboto on the page body, and the map sets its own font), loads the web fonts of the active
   theme, outlines toasts when shadows are flat and keeps their text readable, outlines the
-  form fields and clears their fill, gives the input chips the theme's corner radius, recolors the generic integration icons and moves the fixed icon tiles of
+  form fields and clears their fill, dims the page slightly behind open menus and pickers, gives the input chips the theme's corner radius, recolors the generic integration icons and moves the fixed icon tiles of
   Settings, System and About to the theme's entity colors. The themes keep `card-background-color` in the page tone, where
   the frontend mostly paints it; the module lifts the few raised elements that read it
   anyway — dropdown menus and the map overview panel to the surface color, the integration
@@ -88,7 +89,8 @@ Remove the integration in this order, so it can delete the files it installed:
 
 If HA Themes was removed in HACS first, Home Assistant can no longer run its cleanup: the themes
 stay selectable but load without the support module (no web fonts, Roboto on the page body, the map's own font on its labels,
-dropdown menus and the map overview panel in the page color, toasts without an edge,
+dropdown menus and the map overview panel in the page color, no dimming behind open menus,
+toasts without an edge,
 page-toned integration entry lists, integration icons in their default
 colors). To clean up manually, delete the leftover entry under **Settings → Devices &
 services**, delete the `themes/ha_themes/` directory and call the `frontend.reload_themes`

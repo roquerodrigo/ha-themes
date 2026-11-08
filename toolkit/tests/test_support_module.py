@@ -410,6 +410,43 @@ def test_dropdown_menus_take_the_theme_menu_background(page: Page, page_errors: 
     assert page_errors == []
 
 
+def test_menus_and_picker_popovers_dim_the_page_but_tooltips_do_not(
+    page: Page, page_errors: list[str]
+) -> None:
+    backdrop_filters = """() => ["menu", "picker", "tooltip"].map(
+      (id) => getComputedStyle(window.findElement(id), "::backdrop").backdropFilter
+    )"""
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty(
+            "--ha-themes-popup-scrim-filter", "brightness(85%)"
+          );
+          const addPopup = (hostName, id) => {
+            const host = document.createElement(hostName);
+            const popup = document.createElement("wa-popup");
+            const surface = document.createElement("div");
+            surface.id = id;
+            surface.setAttribute("part", "popup");
+            surface.popover = "manual";
+            popup.attachShadow({ mode: "open" }).append(surface);
+            host.attachShadow({ mode: "open" }).append(popup);
+            document.body.append(host);
+            surface.showPopover();
+          };
+          addPopup("ha-dropdown", "menu");
+          addPopup("wa-popover", "picker");
+          addPopup("wa-tooltip", "tooltip");
+        }"""
+    )
+    page.wait_for_function(
+        f"() => ({backdrop_filters})().join() === 'brightness(0.85),brightness(0.85),none'"
+    )
+
+    remove_root_variable(page, "--ha-themes-popup-scrim-filter")
+    page.wait_for_function(f"() => ({backdrop_filters})().join() === 'none,none,none'")
+    assert page_errors == []
+
+
 def test_toasts_take_the_theme_edge(page: Page, page_errors: list[str]) -> None:
     toast_shadow = "() => getComputedStyle(window.findElement('toast')).boxShadow"
     page.evaluate(
