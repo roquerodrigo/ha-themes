@@ -660,6 +660,63 @@ def test_icon_tiles_take_the_entity_color_of_their_hue(page: Page, page_errors: 
     assert page_errors == []
 
 
+def test_icon_tiles_take_the_theme_corner_radius_and_other_circles_stay_round(
+    page: Page, page_errors: list[str]
+) -> None:
+    radii = """() => ['navigation-tile', 'restart-tile', 'search-tile', 'avatar'].map(
+      (id) => getComputedStyle(window.findElement(id)).borderTopLeftRadius
+    )"""
+    page.evaluate(
+        """() => {
+          const root = document.documentElement.style;
+          root.setProperty("--ha-border-radius-circle", "50%");
+          root.setProperty("--ha-themes-corner-radius", "8px");
+          root.setProperty("--indigo-color", "#4d5ea2");
+          const circle = new CSSStyleSheet();
+          circle.replaceSync(".icon-background { border-radius: var(--ha-border-radius-circle); }");
+          const addTile = (hostName, id, setUp) => {
+            const host = document.createElement(hostName);
+            const shadow = host.attachShadow({ mode: "open" });
+            shadow.adoptedStyleSheets = [circle];
+            const tile = document.createElement("div");
+            tile.id = id;
+            setUp(tile);
+            shadow.append(tile);
+            document.body.append(host);
+          };
+          addTile("ha-config-navigation-list", "navigation-tile", (tile) => {
+            tile.className = "icon-background";
+          });
+          addTile("dialog-restart", "restart-tile", (tile) => {
+            tile.className = "icon-background reload";
+          });
+          addTile("ha-list-selectable-virtualized", "search-tile", (tile) => {
+            tile.slot = "start";
+            tile.setAttribute(
+              "style",
+              "padding: 4px; border-radius: var(--ha-border-radius-circle); "
+                + "background-color: #2D338F;;"
+            );
+          });
+          addTile("ha-list-selectable-virtualized", "avatar", (tile) => {
+            tile.slot = "start";
+            tile.setAttribute("style", "border-radius: var(--ha-border-radius-circle);");
+          });
+        }"""
+    )
+    page.wait_for_function(f"() => ({radii})().join() === '8px,8px,8px,50%'")
+    search_tile = "getComputedStyle(window.findElement('search-tile')).backgroundColor"
+    page.evaluate(
+        "() => document.documentElement.style.setProperty("
+        "'--ha-themes-icon-tile-palette-share', '100%')"
+    )
+    page.wait_for_function(f"() => {search_tile}.startsWith('oklch')")
+
+    remove_root_variable(page, "--ha-themes-corner-radius")
+    page.wait_for_function(f"() => ({radii})().join() === '50%,50%,50%,50%'")
+    assert page_errors == []
+
+
 STOCK_FILL = "200 200 200 255"
 STOCK_HOVER_FILL = "150 150 150 255"
 CLEAR_FILL = "0 0 0 0"

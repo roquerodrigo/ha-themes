@@ -162,6 +162,17 @@ iconTileStyles.replaceSync(`
   }
 `);
 
+// The icon tiles are drawn round with the frontend's circle radius, which a theme keeps round for
+// avatars and round buttons, so only the tiles take the theme's corner radius. The search dialog
+// sets the radius inline next to the tile color; without a theme radius the circle stays.
+const iconTileShapeStyles = new CSSStyleSheet();
+iconTileShapeStyles.replaceSync(`
+  .icon-background,
+  [slot="start"][style*="border-radius: var(--ha-border-radius-circle)"][style*="background-color"] {
+    border-radius: var(--ha-themes-corner-radius, var(--ha-border-radius-circle)) !important;
+  }
+`);
+
 // Filled form fields mark their edge, focus and errors with a bottom line drawn by an ::after
 // rule. A theme that sets --ha-themes-field-outline to 1 outlines the whole field instead, the
 // outline takes over the focus and error colors and the fill clears; at the default 0 every rule
@@ -321,9 +332,12 @@ const hostStyles = new Map([
   ["ha-labels-picker", labelsFieldStyles],
   ["ha-base-time-input", timeFieldStyles],
   ["ha-input-chip", inputChipStyles],
-  ["ha-config-navigation-list", iconTileStyles],
-  ["ha-config-info", iconTileStyles],
+  ["ha-config-navigation-list", [iconTileStyles, iconTileShapeStyles]],
+  ["ha-config-info", [iconTileStyles, iconTileShapeStyles]],
   ["ha-picker-combo-box", iconTileStyles],
+  ["ha-list-selectable-virtualized", [iconTileStyles, iconTileShapeStyles]],
+  ["dialog-restart", iconTileShapeStyles],
+  ["dialog-matter-lock-manage", iconTileShapeStyles],
   ["hui-root", dashboardHeaderStyles],
   ["ha-dropdown", [dropdownMenuStyles, popupScrimStyles]],
   ["wa-popover", popupScrimStyles],

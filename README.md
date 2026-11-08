@@ -64,7 +64,7 @@ The integration:
   (Home Assistant hard-codes Roboto on the page body, and the map sets its own font), loads the web fonts of the active
   theme, outlines toasts when shadows are flat and keeps their text readable, outlines the
   form fields and clears their fill, dims the page slightly behind open menus and pickers, gives the input chips the theme's corner radius, recolors the generic integration icons and moves the fixed icon tiles of
-  Settings, System and About to the theme's entity colors. The themes keep `card-background-color` in the page tone, where
+  Settings, System, About and the search dialog to the theme's entity colors and corner radius. The themes keep `card-background-color` in the page tone, where
   the frontend mostly paints it; the module lifts the few raised elements that read it
   anyway — dropdown menus and the map overview panel to the surface color, the integration
   entry lists to the card tone. It stays dormant, observing nothing, until a project theme
