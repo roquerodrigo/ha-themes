@@ -575,6 +575,77 @@ def test_map_labels_take_the_theme_font(page: Page, page_errors: list[str]) -> N
     assert page_errors == []
 
 
+def test_code_editor_details_and_search_fields_take_the_theme_font(
+    page: Page, page_errors: list[str]
+) -> None:
+    fonts = """() => ['detail', 'search-field'].map(
+      (id) => getComputedStyle(window.findElement(id)).fontFamily
+    )"""
+    page.evaluate(
+        """() => {
+          document.documentElement.style.setProperty("--ha-font-family-body", "Georgia");
+          document.documentElement.style.setProperty("--ha-themes-brand-icon-color", "red");
+          const host = document.createElement("ha-code-editor");
+          const shadow = host.attachShadow({ mode: "open" });
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(
+            ".cm-scoped .cm-completionDetail, .cm-scoped .cm-textfield { font-family: Roboto; }"
+          );
+          shadow.adoptedStyleSheets = [sheet];
+          const editor = document.createElement("div");
+          editor.className = "cm-scoped";
+          const detail = document.createElement("span");
+          detail.id = "detail";
+          detail.className = "cm-completionDetail";
+          const field = document.createElement("input");
+          field.id = "search-field";
+          field.className = "cm-textfield";
+          editor.append(detail, field);
+          shadow.append(editor);
+          document.body.append(host);
+        }"""
+    )
+    page.wait_for_function(f"() => ({fonts})().join() === 'Georgia,Georgia'")
+    assert page_errors == []
+
+
+CHART_THEME = """(withProjectTheme) => {
+  const root = document.documentElement.style;
+  root.setProperty("--ha-font-family-body", "Georgia");
+  if (!withProjectTheme) root.removeProperty("--ha-themes-brand-icon-color");
+  const chart = document.createElement("ha-chart-base");
+  document.body.append(chart);
+  const theme = chart._createTheme(getComputedStyle(chart));
+  chart.remove();
+  return theme.textStyle.fontFamily;
+}"""
+
+
+def define_chart_element(page: Page) -> None:
+    page.evaluate(
+        """() => customElements.define("ha-chart-base", class extends HTMLElement {
+          _createTheme() {
+            return { textStyle: { color: "#000", fontFamily: "Roboto, Noto, sans-serif" } };
+          }
+        })"""
+    )
+
+
+def test_charts_under_a_project_theme_take_its_body_font(
+    page: Page, page_errors: list[str]
+) -> None:
+    page.evaluate(
+        "() => document.documentElement.style.setProperty('--ha-themes-brand-icon-color', 'red')"
+    )
+    define_chart_element(page)
+    page.wait_for_function(
+        "() => customElements.get('ha-chart-base').prototype._createTheme.haThemesPatched"
+    )
+    assert page.evaluate(CHART_THEME, True) == "Georgia"
+    assert page.evaluate(CHART_THEME, False) == "Roboto, Noto, sans-serif"
+    assert page_errors == []
+
+
 def test_integration_entry_lists_take_the_card_tone(page: Page, page_errors: list[str]) -> None:
     list_backgrounds = """() => ['entry-list', 'page-list'].map(
       (id) => getComputedStyle(window.findElement(id)).backgroundColor
