@@ -305,18 +305,6 @@ bottom sheet still paint it over other content; [Creating a theme](creating-a-th
 support module raises the dropdown menus and lists among them. `app-theme-color` (the
 browser's theme color) should stay an opaque hex value.
 
-## Popup scrim
-
-Dropdown menus (`ha-dropdown`, also behind `ha-select`) and picker popovers (`wa-popover`, used
-by `ha-generic-picker`) open in the top layer through a `wa-popup`, with no backdrop of their
-own: the page stays as bright as before. The support module gives that popup's `::backdrop`
-the filter in `ha-themes-popup-scrim-filter` (`brightness(85%)` on every theme built here),
-faded in over `ha-animation-duration-fast`. Tooltips use the same `wa-popup` but are hosted by
-`wa-tooltip`, which the module leaves alone, so hovering never dims the page.
-
-A popover's backdrop never takes pointer events, so a click outside an open menu still reaches
-the page under it, as without the scrim.
-
 ## Known upstream issues (frontend 20261028.4)
 
 | Issue | Effect | Workaround applied by the builder |

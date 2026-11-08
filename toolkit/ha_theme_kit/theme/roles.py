@@ -270,14 +270,6 @@ BACKDROP_BLUR_FILTERS: dict[str, str] = {
     "ha-dialog-scrim-backdrop-filter": f"blur(6px) brightness({SCRIM_BRIGHTNESS_PERCENT}%)",
 }
 
-POPUP_SCRIM_BRIGHTNESS_PERCENT = 85
-
-POPUP_SCRIM: dict[str, str] = {
-    "ha-themes-popup-scrim-filter": f"brightness({POPUP_SCRIM_BRIGHTNESS_PERCENT}%)",
-}
-"""Menus and picker popovers open without dimming the page. The support module dims it behind
-them, lighter than behind a dialog: a popup is transient and the page only needs to recede."""
-
 DASHBOARD_HEADER_BACKGROUND_TOKEN = "ha-themes-dashboard-header-background"
 """Only the dashboard header blurs, but about a hundred other places paint
 `app-header-background-color` without a blur, so that token stays opaque and the support
