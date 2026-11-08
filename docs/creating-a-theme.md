@@ -24,7 +24,8 @@ Every theme built here follows these defaults, so a new theme gets them for free
 - **A light scrim behind popups.** Dropdown menus, selects and picker popovers open without
   dimming the page; the support module dims it to `brightness(85%)` behind them, lighter than
   the 68 % behind a dialog, so an open popup reads as the focus without hiding the page (see
-  [the guide](theming-guide.md#popup-scrim)). Tooltips are left alone. A theme sets
+  [the guide](theming-guide.md#popup-scrim)). A click outside an open menu then only closes
+  it, instead of also activating what is under it. Tooltips are left alone. A theme sets
   `ha-themes-popup-scrim-filter` in `tokens.base` to change it, or to `none` to opt out.
 - **Outlined form fields.** Text inputs, text areas, selects, pickers, the labels field and
   time inputs drop their fill and trade the Material bottom line for a 1px outline in

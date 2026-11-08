@@ -314,8 +314,13 @@ the filter in `ha-themes-popup-scrim-filter` (`brightness(85%)` on every theme b
 faded in over `ha-animation-duration-fast`. Tooltips use the same `wa-popup` but are hosted by
 `wa-tooltip`, which the module leaves alone, so hovering never dims the page.
 
-A popover's backdrop never takes pointer events, so a click outside an open menu still reaches
-the page under it, as without the scrim.
+A popover's backdrop never takes pointer events, and a menu closes on the press of a click
+outside it, so in stock Home Assistant that click also activates the link, button or row under
+it. Behind the scrim the page reads as inert, as behind a dialog, so while a dimmed menu is open
+the support module lets a press that starts outside every open menu close it as before and
+swallows the click it ends in. Clicks inside a menu, keyboard activation and clicks with no
+dimmed menu open (or with `ha-themes-popup-scrim-filter: none`) are untouched. Picker popovers
+open as modal dialogs, which already make the page under them inert.
 
 ## Known upstream issues (frontend 20261028.4)
 
