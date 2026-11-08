@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1](https://github.com/roquerodrigo/ha-themes/compare/v1.1.0...v1.1.1) (2026-11-08)
+
+### Improvements
+
+- Dropdown menus, selects and picker popovers no longer dim the page behind them; the page keeps its normal brightness while they are open. ([#29](https://github.com/roquerodrigo/ha-themes/pull/29))
+
 ## [1.1.0](https://github.com/roquerodrigo/ha-themes/compare/v1.0.0...v1.1.0) (2026-11-08)
 
 Open menus dim the page slightly, icon tiles take the theme's rounded corners, and chart and code editor text now uses the theme font.
