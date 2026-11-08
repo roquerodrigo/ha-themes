@@ -358,72 +358,13 @@ const hostStyles = new Map([
 
 const styleHost = (root) => {
   const sheets = root.adoptedStyleSheets;
-  const styles = [hostStyles.get(root.host?.localName) ?? []].flat();
-  const missing = styles.filter((sheet) => !sheets.includes(sheet));
+  const missing = [hostStyles.get(root.host?.localName) ?? []]
+    .flat()
+    .filter((styles) => !sheets.includes(styles));
   if (missing.length) {
     root.adoptedStyleSheets = [...sheets, ...missing];
   }
-  if (root.host?.localName === MENU_ELEMENT) {
-    menuReferences.add(new WeakRef(root.host));
-  }
 };
-
-// A dimmed page reads as inert, as behind a dialog, but a menu's backdrop never takes pointer
-// events: the click that closed a menu also activated the link or row under it. While a dimmed
-// menu is open, a press that starts outside every open menu still closes it (menus close on the
-// press), and the click it ends in is swallowed. Picker popovers open as modal dialogs, so the page
-// under them is already inert.
-const MENU_ELEMENT = "ha-dropdown";
-const menuReferences = new Set();
-let swallowNextClick = false;
-
-const openDimmedMenus = () => {
-  const menus = [];
-  for (const reference of menuReferences) {
-    const menu = reference.deref();
-    if (!menu?.isConnected) {
-      menuReferences.delete(reference);
-      continue;
-    }
-    const surface = menu.shadowRoot
-      ?.querySelector("wa-popup")
-      ?.shadowRoot?.querySelector('[part~="popup"]');
-    if (
-      surface?.matches(":popover-open") &&
-      getComputedStyle(surface, "::backdrop").backdropFilter !== "none"
-    ) {
-      menus.push(menu);
-    }
-  }
-  return menus;
-};
-
-window.addEventListener(
-  "pointerdown",
-  (event) => {
-    const menus = menuReferences.size ? openDimmedMenus() : [];
-    const path = event.composedPath();
-    swallowNextClick = menus.length > 0 && !menus.some((menu) => path.includes(menu));
-  },
-  { capture: true },
-);
-window.addEventListener(
-  "pointerup",
-  () => swallowNextClick && setTimeout(() => (swallowNextClick = false)),
-  { capture: true },
-);
-window.addEventListener("pointercancel", () => (swallowNextClick = false), { capture: true });
-window.addEventListener(
-  "click",
-  (event) => {
-    if (swallowNextClick) {
-      swallowNextClick = false;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  },
-  { capture: true },
-);
 
 // Themes (global on <html>, or per view or card) are applied as inline custom properties.
 const declaresProjectTheme = (element) =>
