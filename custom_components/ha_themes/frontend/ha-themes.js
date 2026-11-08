@@ -369,13 +369,16 @@ const styleHost = (root) => {
 };
 
 // A dimmed page reads as inert, as behind a dialog, but a menu's backdrop never takes pointer
-// events: the click that closed a menu also activated the link or row under it. While a dimmed
-// menu is open, a press that starts outside every open menu still closes it (menus close on the
-// press), and the click it ends in is swallowed. Picker popovers open as modal dialogs, so the page
-// under them is already inert.
+// events: the press that closed a menu also activated the link, row or card under it. While a
+// dimmed menu is open, a press that starts outside every open menu still closes it (menus close on
+// the press) and the rest of that gesture is swallowed: the touch and mouse events that dashboard
+// cards act on and the click it ends in. Picker popovers open as modal dialogs, so the page under
+// them is already inert.
 const MENU_ELEMENT = "ha-dropdown";
+const SWALLOWED_GESTURE_MILLISECONDS = 1000;
 const menuReferences = new Set();
-let swallowNextClick = false;
+let swallowGesture = false;
+let swallowGestureTimeout;
 
 const openDimmedMenus = () => {
   const menus = [];
@@ -398,32 +401,47 @@ const openDimmedMenus = () => {
   return menus;
 };
 
-window.addEventListener(
-  "pointerdown",
-  (event) => {
-    const menus = menuReferences.size ? openDimmedMenus() : [];
-    const path = event.composedPath();
-    swallowNextClick = menus.length > 0 && !menus.some((menu) => path.includes(menu));
-  },
-  { capture: true },
-);
-window.addEventListener(
-  "pointerup",
-  () => swallowNextClick && setTimeout(() => (swallowNextClick = false)),
-  { capture: true },
-);
-window.addEventListener("pointercancel", () => (swallowNextClick = false), { capture: true });
-window.addEventListener(
-  "click",
-  (event) => {
-    if (swallowNextClick) {
-      swallowNextClick = false;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  },
-  { capture: true },
-);
+const endSwallowedGesture = () => {
+  clearTimeout(swallowGestureTimeout);
+  swallowGesture = false;
+};
+
+const startGesture = (event) => {
+  endSwallowedGesture();
+  const menus = menuReferences.size ? openDimmedMenus() : [];
+  const path = event.composedPath();
+  if (menus.length > 0 && !menus.some((menu) => path.includes(menu))) {
+    swallowGesture = true;
+    swallowGestureTimeout = setTimeout(endSwallowedGesture, SWALLOWED_GESTURE_MILLISECONDS);
+  }
+};
+
+const swallow = (event) => {
+  if (swallowGesture) {
+    event.stopImmediatePropagation();
+  }
+};
+
+const swallowAndCancel = (event) => {
+  if (swallowGesture) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+};
+
+const swallowLastEvent = (event) => {
+  swallowAndCancel(event);
+  endSwallowedGesture();
+};
+
+window.addEventListener("pointerdown", startGesture, { capture: true });
+window.addEventListener("touchstart", swallow, { capture: true, passive: true });
+window.addEventListener("mousedown", swallow, { capture: true });
+window.addEventListener("touchend", swallowAndCancel, { capture: true, passive: false });
+window.addEventListener("touchcancel", swallow, { capture: true });
+window.addEventListener("mouseup", swallow, { capture: true });
+window.addEventListener("click", swallowLastEvent, { capture: true });
+window.addEventListener("keydown", endSwallowedGesture, { capture: true });
 
 // Themes (global on <html>, or per view or card) are applied as inline custom properties.
 const declaresProjectTheme = (element) =>

@@ -123,8 +123,7 @@ def page_errors() -> list[str]:
     return []
 
 
-@pytest.fixture
-def page(browser: Browser, page_errors: list[str]) -> Iterator[Page]:
+def open_page(browser: Browser, page_errors: list[str], **context_options: bool) -> Iterator[Page]:
     files = static_files()
 
     def serve(route: Route) -> None:
@@ -138,7 +137,7 @@ def page(browser: Browser, page_errors: list[str]) -> Iterator[Page]:
                     return
         route.abort()
 
-    context = browser.new_context()
+    context = browser.new_context(**context_options)
     context.route("**/*", serve)
     opened = context.new_page()
     opened.set_default_timeout(WAIT_SECONDS * 1000)
@@ -147,6 +146,16 @@ def page(browser: Browser, page_errors: list[str]) -> Iterator[Page]:
     opened.evaluate(HELPERS)
     yield opened
     context.close()
+
+
+@pytest.fixture
+def page(browser: Browser, page_errors: list[str]) -> Iterator[Page]:
+    yield from open_page(browser, page_errors)
+
+
+@pytest.fixture
+def touch_page(browser: Browser, page_errors: list[str]) -> Iterator[Page]:
+    yield from open_page(browser, page_errors, has_touch=True)
 
 
 def wait_for_color(page: Page, element_id: str, rgb: tuple[int, int, int]) -> None:
@@ -505,6 +514,28 @@ def test_a_click_outside_a_dimmed_menu_only_closes_it(page: Page, page_errors: l
     )
     page.mouse.click(460, 320)
     assert page.evaluate("() => window.clicks") == ["item", "page", "page", "page"]
+    assert page_errors == []
+
+
+def test_a_tap_outside_a_dimmed_menu_only_closes_it(
+    touch_page: Page, page_errors: list[str]
+) -> None:
+    touch_page.evaluate(MENU_PAGE)
+    touch_page.evaluate(
+        """() => document.getElementById("page-button").addEventListener(
+          "touchend", () => window.clicks.push("page touch")
+        )"""
+    )
+    touch_page.wait_for_function(
+        "() => document.querySelector('ha-dropdown').shadowRoot.adoptedStyleSheets.length > 0"
+    )
+    touch_page.evaluate("() => window.showMenu()")
+
+    touch_page.touchscreen.tap(460, 320)
+    touch_page.touchscreen.tap(40, 30)
+    touch_page.evaluate("() => window.hideMenu()")
+    touch_page.touchscreen.tap(460, 320)
+    assert touch_page.evaluate("() => window.clicks") == ["item", "page touch", "page"]
     assert page_errors == []
 
 
