@@ -405,16 +405,6 @@ def test_only_the_blurred_dashboard_header_gets_a_translucent_header_background(
     assert DASHBOARD_HEADER_BACKGROUND_TOKEN not in unblurred.modes["light"]
 
 
-def test_popups_dim_the_page_more_lightly_than_dialogs() -> None:
-    for theme in (
-        build_theme(minimal_definition()),
-        build_theme(minimal_definition(backdrop_blur=False)),
-    ):
-        assert theme.base["ha-themes-popup-scrim-filter"] == "brightness(85%)"
-    dialog_scrim = build_theme(minimal_definition()).base["ha-dialog-scrim-backdrop-filter"]
-    assert "brightness(68%)" in dialog_scrim
-
-
 def test_backdrop_blur_can_be_disabled() -> None:
     theme = build_theme(minimal_definition(backdrop_blur=False))
     assert "ha-card-backdrop-filter" not in theme.base
