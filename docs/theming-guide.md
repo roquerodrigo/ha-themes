@@ -318,8 +318,10 @@ A popover's backdrop never takes pointer events, and a menu closes on the press 
 outside it, so in stock Home Assistant that click also activates the link, button or row under
 it. Behind the scrim the page reads as inert, as behind a dialog, so while a dimmed menu is open
 the support module lets a press that starts outside every open menu close it as before and
-swallows the click it ends in. Clicks inside a menu, keyboard activation and clicks with no
-dimmed menu open (or with `ha-themes-popup-scrim-filter: none`) are untouched. Picker popovers
+swallows the rest of that gesture: the touch and mouse events that dashboard cards act on (a tap
+on a phone fires their action on `touchend`, not on the click) and the click it ends in. Presses
+inside a menu, keyboard activation and presses with no dimmed menu open (or with
+`ha-themes-popup-scrim-filter: none`) are untouched. Picker popovers
 open as modal dialogs, which already make the page under them inert.
 
 ## Known upstream issues (frontend 20261028.4)
