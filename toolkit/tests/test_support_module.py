@@ -447,6 +447,67 @@ def test_menus_and_picker_popovers_dim_the_page_but_tooltips_do_not(
     assert page_errors == []
 
 
+MENU_PAGE = """() => {
+  document.documentElement.style.setProperty("--ha-themes-popup-scrim-filter", "brightness(85%)");
+  window.clicks = [];
+  const button = document.createElement("button");
+  button.id = "page-button";
+  button.textContent = "page";
+  button.style = "position: fixed; left: 400px; top: 300px; width: 120px; height: 40px";
+  button.addEventListener("click", () => window.clicks.push("page"));
+  const menu = document.createElement("ha-dropdown");
+  const item = document.createElement("button");
+  item.id = "menu-item";
+  item.textContent = "item";
+  item.addEventListener("click", () => window.clicks.push("item"));
+  menu.append(item);
+  const popup = document.createElement("wa-popup");
+  const surface = document.createElement("div");
+  surface.setAttribute("part", "popup");
+  surface.popover = "manual";
+  surface.style = "position: fixed; inset: 20px auto auto 20px; margin: 0; width: 120px";
+  surface.append(document.createElement("slot"));
+  popup.attachShadow({ mode: "open" }).append(surface);
+  popup.append(document.createElement("slot"));
+  menu.attachShadow({ mode: "open" }).append(popup);
+  document.body.append(button, menu);
+  window.showMenu = () => surface.showPopover();
+  window.hideMenu = () => surface.hidePopover();
+}"""
+
+
+def test_a_click_outside_a_dimmed_menu_only_closes_it(page: Page, page_errors: list[str]) -> None:
+    page.evaluate(MENU_PAGE)
+    page.wait_for_function(
+        "() => window.findElement('menu-item') && document.querySelector('ha-dropdown')"
+        ".shadowRoot.adoptedStyleSheets.length > 0"
+    )
+    page.evaluate("() => window.showMenu()")
+
+    page.mouse.click(460, 320)
+    page.mouse.click(40, 30)
+    page.evaluate("() => window.hideMenu()")
+    page.mouse.click(460, 320)
+    page.keyboard.press("Tab")
+    page.evaluate("() => window.showMenu()")
+    page.evaluate("() => document.getElementById('page-button').focus()")
+    page.keyboard.press("Enter")
+    assert page.evaluate("() => window.clicks") == ["item", "page", "page"]
+
+    page.evaluate(
+        "() => document.documentElement.style.setProperty('--ha-themes-popup-scrim-filter', 'none')"
+    )
+    page.wait_for_function(
+        """() => getComputedStyle(
+          document.querySelector('ha-dropdown').shadowRoot.querySelector('wa-popup')
+            .shadowRoot.querySelector('[part~="popup"]'), '::backdrop'
+        ).backdropFilter === 'none'"""
+    )
+    page.mouse.click(460, 320)
+    assert page.evaluate("() => window.clicks") == ["item", "page", "page", "page"]
+    assert page_errors == []
+
+
 def test_toasts_take_the_theme_edge(page: Page, page_errors: list[str]) -> None:
     toast_shadow = "() => getComputedStyle(window.findElement('toast')).boxShadow"
     page.evaluate(
