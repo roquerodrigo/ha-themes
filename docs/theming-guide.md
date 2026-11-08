@@ -89,12 +89,25 @@ Setting `ha-font-family-body` is not enough to change the font everywhere:
   `mdc-typography-font-family`, which the frontend never sets.
 - **The map sets its own font.** MapLibre's stylesheet sets Helvetica Neue on the map, so
   the entity markers and the attribution inherit it instead of the theme font.
+- **Charts draw their text with a literal Roboto.** `ha-chart-base` registers an ECharts
+  theme whose `textStyle.fontFamily` is `Roboto, Noto, sans-serif`, and ECharts draws axis
+  labels and legends on a canvas, which no CSS reaches; the tooltip copies the same font.
+- **The code editor sets Roboto on two selectors.** CodeMirror's theme gives the completion
+  details (the friendly name next to an entity id) and the search panel fields a literal
+  Roboto.
 - **Themes cannot load web fonts**, since they only set CSS variables.
 
 The builder sets that Material token to `var(--ha-font-family-body)` in every theme, and
 generates one support module, which the integration loads on every page, that binds
 `body` to `var(--ha-font-family-body)` while a project theme is the global theme, points the
-map at the same font and loads web fonts on demand. A theme that declares
+map, the completion details and the search fields of the code editor at the same font, and loads
+web fonts on demand. For the charts it wraps `ha-chart-base`'s `_createTheme`, which builds the
+ECharts theme from the chart element's computed style when the chart is set up: when that style
+carries a project theme (`ha-themes-brand-icon-color` resolves there, from the global, view or
+card theme), the stack is replaced by the `ha-font-family-body` it resolves, and any other chart
+keeps the stock stack. `toolkit/tests/test_upstream_fonts.py` fails when the installed frontend
+changes either literal or renames the method, so the wrap is reviewed instead of silently
+missing. A theme that declares
 `typography.stylesheet` carries its URL in the project variable `ha-themes-font-stylesheet`;
 the module adds the stylesheet while that variable is set on the page (by the global theme) or
 on a view or card (by a view or card theme), and removes it as soon as no visible theme sets it,
@@ -103,7 +116,9 @@ shipped Anthropic theme, the default theme or any other theme, the module reques
 finds only the theme font. Fonts declared on the document are visible inside every shadow
 root.
 
-The module is dormant while no project theme is in use: it only notices when a theme sets a
+The chart wrap is installed once `ha-chart-base` is defined and changes nothing for a chart
+outside a project theme. Apart from it, the module is dormant while no project theme is in use:
+it only notices when a theme sets a
 `ha-themes-*` variable (every project theme sets `ha-themes-brand-icon-color`), without
 patching `attachShadow` or observing any shadow root. The first such variable, from the
 global theme or from a view or card theme, activates it; it then scans the shadow roots that

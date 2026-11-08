@@ -88,6 +88,14 @@ mapFontStyles.replaceSync(`
   .maplibregl-map { font-family: var(--ha-font-family-body); }
 `);
 
+// CodeMirror sets a literal Roboto on the completion details and the search panel fields, in rules
+// scoped to its own generated class, so only an !important rule reaches them.
+const codeEditorFontStyles = new CSSStyleSheet();
+codeEditorFontStyles.replaceSync(`
+  .cm-completionDetail,
+  .cm-textfield { font-family: var(--ha-font-family-body) !important; }
+`);
+
 // The integration page's entry lists take their surface from the page-toned card background,
 // so they are raised to the card tone they would have on the default theme.
 const configEntryListStyles = new CSSStyleSheet();
@@ -344,6 +352,7 @@ const hostStyles = new Map([
   ["ha-toast", toastStyles],
   ["hui-map-overview", mapOverviewStyles],
   ["ha-map", mapFontStyles],
+  ["ha-code-editor", codeEditorFontStyles],
   ["ha-config-entry-row", configEntryListStyles],
 ]);
 
@@ -772,5 +781,30 @@ CSSStyleDeclaration.prototype.setProperty = function setProperty(name, value, ..
   }
   return result;
 };
+
+// Charts draw their text on a canvas, in the theme they register with ECharts when they are set up,
+// which carries a literal Roboto stack instead of the body font. The theme is built from the
+// chart's own computed style, so a chart under a project theme (global, view or card) takes the
+// body font that theme resolves there; any other chart keeps the stock stack.
+const CHART_ELEMENT = "ha-chart-base";
+const patchChartTheme = (chartClass) => {
+  const createTheme = chartClass?.prototype._createTheme;
+  if (typeof createTheme !== "function" || createTheme.haThemesPatched) {
+    return;
+  }
+  const createThemedTheme = function createThemedTheme(style, ...rest) {
+    const theme = createTheme.call(this, style, ...rest);
+    const font = style?.getPropertyValue("--ha-font-family-body").trim();
+    if (font && theme?.textStyle && style.getPropertyValue(BRAND_ICON_COLOR_VARIABLE).trim()) {
+      theme.textStyle = { ...theme.textStyle, fontFamily: font };
+    }
+    return theme;
+  };
+  createThemedTheme.haThemesPatched = true;
+  chartClass.prototype._createTheme = createThemedTheme;
+};
+customElements
+  .whenDefined(CHART_ELEMENT)
+  .then(() => patchChartTheme(customElements.get(CHART_ELEMENT)));
 
 syncActivity();
